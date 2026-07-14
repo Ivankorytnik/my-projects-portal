@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Личный портал проектов Ивана Корытника" />
+  <title>Мой портал — проекты</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="loginScreen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">ИК</div>
+      <p class="eyebrow">Личный рабочий портал</p>
+      <h1>Мои проекты</h1>
+      <p class="login-text">Введите пароль для доступа к проектам.</p>
+
+      <form id="loginForm" class="login-form">
+        <label for="password">Пароль</label>
+        <div class="password-field">
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            placeholder="Введите пароль"
+            required
+          />
+          <button id="togglePassword" class="icon-button" type="button" aria-label="Показать пароль">
+            Показать
+          </button>
+        </div>
+        <p id="loginError" class="error-message" aria-live="polite"></p>
+        <button class="primary-button full-width" type="submit">Войти</button>
+      </form>
+
+      <p class="security-note">
+        Версия для GitHub Pages. Пароль скрывает интерфейс, но не заменяет серверную авторизацию.
+      </p>
+    </div>
+  </div>
+
+  <div id="portal" class="portal hidden">
+    <aside class="sidebar">
+      <div>
+        <div class="brand">
+          <div class="brand-mark">ИК</div>
+          <div>
+            <strong>Мой портал</strong>
+            <span>Проекты и ресурсы</span>
+          </div>
+        </div>
+
+        <nav class="side-nav" aria-label="Навигация">
+          <button class="nav-item active" data-view="all">Все проекты</button>
+          <button class="nav-item" data-view="personal">Личные проекты</button>
+          <button class="nav-item" data-view="work">Рабочие проекты</button>
+        </nav>
+
+        <div class="status-nav">
+          <span class="status-nav__title">Статус</span>
+          <button class="status-filter active" data-filter="all">Все</button>
+          <button class="status-filter" data-filter="active">В работе</button>
+          <button class="status-filter" data-filter="planned">Запланировано</button>
+          <button class="status-filter" data-filter="done">Завершено</button>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="exportButton" class="text-button" type="button">Экспорт проектов</button>
+        <label class="text-button file-label">
+          Импорт проектов
+          <input id="importInput" type="file" accept=".json,application/json" />
+        </label>
+        <button id="logoutButton" class="logout-button" type="button">Выйти</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Рабочее пространство</p>
+          <h1>Портфель проектов</h1>
+        </div>
+
+        <button id="addProjectButton" class="primary-button" type="button">
+          + Добавить проект
+        </button>
+      </header>
+
+      <section class="stats-grid" aria-label="Статистика проектов">
+        <article class="stat-card">
+          <span>Всего</span>
+          <strong id="totalCount">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Личные</span>
+          <strong id="personalCount">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Рабочие</span>
+          <strong id="workCount">0</strong>
+        </article>
+        <article class="stat-card">
+          <span>В работе</span>
+          <strong id="activeCount">0</strong>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <label class="search">
+          <span>Поиск</span>
+          <input id="searchInput" type="search" placeholder="Название, категория, описание..." />
+        </label>
+
+        <label class="select-control">
+          <span>Категория</span>
+          <select id="categoryFilter">
+            <option value="all">Все категории</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <div>
+            <h2 id="sectionTitle">Все проекты</h2>
+            <p id="resultCount">Найдено: 0</p>
+          </div>
+        </div>
+
+        <div id="projectsGrid" class="projects-grid"></div>
+
+        <div id="emptyState" class="empty-state hidden">
+          <h3>Проекты не найдены</h3>
+          <p>Измените фильтр или добавьте новый проект.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="projectDialog" class="project-dialog">
+    <form id="projectForm" method="dialog">
+      <div class="dialog-header">
+        <div>
+          <p class="eyebrow">Карточка проекта</p>
+          <h2 id="dialogTitle">Новый проект</h2>
+        </div>
+        <button id="closeDialogButton" class="dialog-close" type="button" aria-label="Закрыть">×</button>
+      </div>
+
+      <input id="projectId" type="hidden" />
+
+      <div class="form-grid">
+        <label class="field field-wide">
+          <span>Название проекта</span>
+          <input id="projectTitle" type="text" required maxlength="80" />
+        </label>
+
+        <label class="field">
+          <span>Тип проекта</span>
+          <select id="projectType" required>
+            <option value="work">Рабочий</option>
+            <option value="personal">Личный</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Категория</span>
+          <input id="projectCategory" type="text" required maxlength="40" placeholder="Например, Аналитика" />
+        </label>
+
+        <label class="field">
+          <span>Статус</span>
+          <select id="projectStatus" required>
+            <option value="active">В работе</option>
+            <option value="planned">Запланировано</option>
+            <option value="done">Завершено</option>
+          </select>
+        </label>
+
+        <label class="field field-wide">
+          <span>Описание</span>
+          <textarea id="projectDescription" rows="4" maxlength="240"></textarea>
+        </label>
+
+        <label class="field field-wide">
+          <span>Ссылка</span>
+          <input id="projectUrl" type="url" placeholder="https://..." />
+        </label>
+
+        <label class="field">
+          <span>Ответственный</span>
+          <input id="projectOwner" type="text" maxlength="60" value="Иван Корытник" />
+        </label>
+
+        <label class="field">
+          <span>Дата обновления</span>
+          <input id="projectUpdated" type="date" />
+        </label>
+      </div>
+
+      <div class="dialog-actions">
+        <button id="cancelDialogButton" class="secondary-button" type="button">Отмена</button>
+        <button class="primary-button" type="submit">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
