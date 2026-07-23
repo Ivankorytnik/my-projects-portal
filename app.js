@@ -1,4 +1,4 @@
-const PASSWORD_HASH = "a2f9ab357c24b2b7f6977788bda426b5da4bd4830cc6db028e7b352f0af9fce4";
+const PASSWORD_HASH = "12345";
 const STORAGE_KEY = "ivan-projects-portal-v1";
 const SESSION_KEY = "ivan-projects-portal-auth";
 
