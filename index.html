@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=1.3.1" />
+  <link rel="stylesheet" href="theme-fix.css?v=1.3.1" />
 </head>
 <body>
   <div id="portal" class="portal">
@@ -38,7 +39,7 @@
       </div>
 
       <div class="sidebar-footer">
-        <div class="app-version">Версия <strong>v1.3.0</strong></div>
+        <div class="app-version">Версия <strong>v1.3.1</strong></div>
         <button id="exportButton" class="text-button" type="button">Экспорт проектов</button>
         <label class="text-button file-label">
           Импорт проектов
@@ -56,7 +57,7 @@
         </div>
 
         <div class="topbar-actions">
-          <div class="version-badge" aria-label="Версия портала">v1.3.0</div>
+          <div class="version-badge" aria-label="Версия портала">v1.3.1</div>
           <button id="addProjectButton" class="primary-button" type="button">
             + Добавить проект
           </button>
@@ -64,22 +65,10 @@
       </header>
 
       <section class="stats-grid" aria-label="Статистика проектов">
-        <article class="stat-card">
-          <span>Всего</span>
-          <strong id="totalCount">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Личные</span>
-          <strong id="personalCount">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>Рабочие</span>
-          <strong id="workCount">0</strong>
-        </article>
-        <article class="stat-card">
-          <span>В работе</span>
-          <strong id="activeCount">0</strong>
-        </article>
+        <article class="stat-card"><span>Всего</span><strong id="totalCount">0</strong></article>
+        <article class="stat-card"><span>Личные</span><strong id="personalCount">0</strong></article>
+        <article class="stat-card"><span>Рабочие</span><strong id="workCount">0</strong></article>
+        <article class="stat-card"><span>В работе</span><strong id="activeCount">0</strong></article>
       </section>
 
       <section class="toolbar">
@@ -87,114 +76,51 @@
           <span>Поиск</span>
           <input id="searchInput" type="search" placeholder="Название, категория, описание..." />
         </label>
-
         <label class="select-control">
           <span>Категория</span>
-          <select id="categoryFilter">
-            <option value="all">Все категории</option>
-          </select>
+          <select id="categoryFilter"><option value="all">Все категории</option></select>
         </label>
       </section>
 
       <section>
         <div class="section-heading">
-          <div>
-            <h2 id="sectionTitle">Все проекты</h2>
-            <p id="resultCount">Найдено: 0</p>
-          </div>
+          <div><h2 id="sectionTitle">Все проекты</h2><p id="resultCount">Найдено: 0</p></div>
         </div>
-
         <div id="projectsGrid" class="projects-grid"></div>
-
-        <div id="emptyState" class="empty-state hidden">
-          <h3>Проекты не найдены</h3>
-          <p>Измените фильтр или добавьте новый проект.</p>
-        </div>
+        <div id="emptyState" class="empty-state hidden"><h3>Проекты не найдены</h3><p>Измените фильтр или добавьте новый проект.</p></div>
       </section>
     </main>
   </div>
 
   <div id="projectDialog" class="project-dialog hidden" role="dialog" aria-modal="true" aria-hidden="true">
-    <form id="projectForm" method="dialog">
+    <form id="projectForm">
       <div class="dialog-header">
-        <div>
-          <p class="eyebrow">Карточка проекта</p>
-          <h2 id="dialogTitle">Новый проект</h2>
-        </div>
+        <div><p class="eyebrow">Карточка проекта</p><h2 id="dialogTitle">Новый проект</h2></div>
         <button id="closeDialogButton" class="dialog-close" type="button" aria-label="Закрыть">×</button>
       </div>
 
       <input id="projectId" type="hidden" />
 
       <div class="form-grid">
-        <label class="field field-wide">
-          <span>Название проекта</span>
-          <input id="projectTitle" type="text" required maxlength="80" />
-        </label>
-
-        <label class="field">
-          <span>Тип проекта</span>
-          <select id="projectType" required>
-            <option value="work">Рабочий</option>
-            <option value="personal">Личный</option>
-          </select>
-        </label>
-
-        <label class="field">
-          <span>Категория</span>
-          <input id="projectCategory" type="text" required maxlength="40" placeholder="Например, Аналитика" />
-        </label>
-
-        <label class="field">
-          <span>Статус</span>
-          <select id="projectStatus" required>
-            <option value="active">В работе</option>
-            <option value="planned">Запланировано</option>
-            <option value="done">Завершено</option>
-          </select>
-        </label>
+        <label class="field field-wide"><span>Название проекта</span><input id="projectTitle" type="text" required maxlength="80" /></label>
+        <label class="field"><span>Тип проекта</span><select id="projectType" required><option value="work">Рабочий</option><option value="personal">Личный</option></select></label>
+        <label class="field"><span>Категория</span><input id="projectCategory" type="text" required maxlength="40" placeholder="Например, Аналитика" /></label>
+        <label class="field"><span>Статус</span><select id="projectStatus" required><option value="active">В работе</option><option value="planned">Запланировано</option><option value="done">Завершено</option></select></label>
 
         <div class="field field-wide project-colors-field">
           <span>Цвета проекта</span>
           <div class="project-color-controls">
-            <label class="color-control">
-              <span>Основной</span>
-              <input id="projectColor" type="color" value="#0046ad" />
-            </label>
-
-            <label class="color-control">
-              <span>Акцент</span>
-              <input id="projectAccent" type="color" value="#f7c600" />
-            </label>
-
-            <button id="autoProjectColors" class="secondary-button color-auto-button" type="button">
-              Подобрать автоматически
-            </button>
+            <label class="color-control"><span>Основной</span><input id="projectColor" type="color" value="#0046ad" /></label>
+            <label class="color-control"><span>Акцент</span><input id="projectAccent" type="color" value="#f7c600" /></label>
+            <button id="autoProjectColors" class="secondary-button color-auto-button" type="button">Подобрать автоматически</button>
           </div>
-          <p class="field-hint">
-            Эти цвета используются в карточке проекта и в окне редактирования.
-          </p>
+          <p class="field-hint">Цвет сразу отображается в окне и сохраняется в карточке проекта.</p>
         </div>
 
-        <label class="field field-wide">
-          <span>Описание</span>
-          <textarea id="projectDescription" rows="4" maxlength="240"></textarea>
-        </label>
-
-        <label class="field field-wide">
-          <span>Ссылка</span>
-          <input id="projectUrl" type="url" placeholder="https://..." />
-        </label>
-
-        <label class="field">
-          <span>Ответственный</span>
-          <input id="projectOwner" type="text" maxlength="60" value="Иван Корытник" />
-        </label>
-
-        <label class="field">
-          <span>Дата обновления</span>
-          <input id="projectUpdated" type="date" />
-        </label>
+        <label class="field field-wide"><span>Описание</span><textarea id="projectDescription" rows="4" maxlength="240"></textarea></label>
+        <label class="field field-wide"><span>Ссылка</span><input id="projectUrl" type="url" placeholder="https://..." /></label>
+        <label class="field"><span>Ответственный</span><input id="projectOwner" type="text" maxlength="60" value="Иван Корытник" /></label>
+        <label class="field"><span>Дата обновления</span><input id="projectUpdated" type="date" /></label>
       </div>
 
       <div class="dialog-actions">
@@ -204,6 +130,7 @@
     </form>
   </div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=1.3.1"></script>
+  <script src="theme-fix.js?v=1.3.1"></script>
 </body>
 </html>
