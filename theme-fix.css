@@ -1,0 +1,59 @@
+/* v1.3.1 - stronger, persistent project identity */
+
+.project-card {
+  background:
+    linear-gradient(
+      135deg,
+      rgba(var(--project-color-rgb), 0.12) 0%,
+      rgba(var(--project-accent-rgb), 0.07) 42%,
+      #ffffff 78%
+    );
+  box-shadow: inset 0 0 0 1px rgba(var(--project-color-rgb), 0.04);
+}
+
+.project-card h3 {
+  color: var(--project-color);
+}
+
+.project-card .project-identity {
+  margin-top: 16px;
+}
+
+.project-card .project-color-dot {
+  width: 34px;
+  height: 5px;
+  background: var(--project-color);
+}
+
+.project-card .project-accent-dot {
+  width: 16px;
+  height: 5px;
+  background: var(--project-accent);
+}
+
+.project-card .category {
+  color: var(--project-color);
+}
+
+.project-dialog form {
+  border-top: 5px solid var(--project-color);
+}
+
+.project-dialog .dialog-header {
+  background:
+    linear-gradient(
+      110deg,
+      rgba(var(--project-color-rgb), 0.15),
+      rgba(var(--project-accent-rgb), 0.10)
+    );
+}
+
+.project-dialog .dialog-actions .primary-button {
+  color: var(--project-on-color);
+  border-color: var(--project-color);
+  background: var(--project-color);
+}
+
+.color-control input[type="color"] {
+  min-height: 48px;
+}
