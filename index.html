@@ -38,7 +38,7 @@
       </div>
 
       <div class="sidebar-footer">
-        <div class="app-version">Версия <strong>v1.2.1</strong></div>
+        <div class="app-version">Версия <strong>v1.3.0</strong></div>
         <button id="exportButton" class="text-button" type="button">Экспорт проектов</button>
         <label class="text-button file-label">
           Импорт проектов
@@ -56,7 +56,7 @@
         </div>
 
         <div class="topbar-actions">
-          <div class="version-badge" aria-label="Версия портала">v1.2.1</div>
+          <div class="version-badge" aria-label="Версия портала">v1.3.0</div>
           <button id="addProjectButton" class="primary-button" type="button">
             + Добавить проект
           </button>
@@ -153,6 +153,28 @@
             <option value="done">Завершено</option>
           </select>
         </label>
+
+        <div class="field field-wide project-colors-field">
+          <span>Цвета проекта</span>
+          <div class="project-color-controls">
+            <label class="color-control">
+              <span>Основной</span>
+              <input id="projectColor" type="color" value="#0046ad" />
+            </label>
+
+            <label class="color-control">
+              <span>Акцент</span>
+              <input id="projectAccent" type="color" value="#f7c600" />
+            </label>
+
+            <button id="autoProjectColors" class="secondary-button color-auto-button" type="button">
+              Подобрать автоматически
+            </button>
+          </div>
+          <p class="field-hint">
+            Эти цвета используются в карточке проекта и в окне редактирования.
+          </p>
+        </div>
 
         <label class="field field-wide">
           <span>Описание</span>
