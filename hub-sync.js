@@ -26,7 +26,6 @@
     }, 250);
   }
 
-  // Disable automatic date sorting. The array order is now the user-defined order.
   getFilteredProjects = function() {
     const query = state.search.trim().toLowerCase();
     return state.projects
@@ -46,17 +45,37 @@
     cloudSave();
   };
 
+  function moveByOffset(projectId, offset) {
+    const index = state.projects.findIndex(p => p.id === projectId);
+    const next = index + offset;
+    if (index < 0 || next < 0 || next >= state.projects.length) return;
+    const [item] = state.projects.splice(index, 1);
+    state.projects.splice(next, 0, item);
+    saveProjects();
+    renderProjects();
+  }
+
   function addDragAttributes() {
     document.querySelectorAll(".project-card").forEach(card => {
       const edit = card.querySelector("button[data-action='edit']");
       if (!edit) return;
       card.dataset.projectId = edit.dataset.id;
       card.draggable = true;
+
       if (!card.querySelector(".drag-hint")) {
         const hint = document.createElement("div");
         hint.className = "drag-hint";
         hint.textContent = "↕ Перетащить";
         card.prepend(hint);
+      }
+
+      if (!card.querySelector(".mobile-order-controls")) {
+        const controls = document.createElement("div");
+        controls.className = "mobile-order-controls";
+        controls.innerHTML = `
+          <button type="button" data-move="up" aria-label="Переместить проект выше">↑</button>
+          <button type="button" data-move="down" aria-label="Переместить проект ниже">↓</button>`;
+        card.prepend(controls);
       }
     });
   }
@@ -78,6 +97,16 @@
     saveProjects();
     renderProjects();
   }
+
+  elements.projectsGrid.addEventListener("click", e => {
+    const button = e.target.closest("button[data-move]");
+    if (!button) return;
+    const card = button.closest(".project-card[data-project-id]");
+    if (!card) return;
+    e.preventDefault();
+    e.stopPropagation();
+    moveByOffset(card.dataset.projectId, button.dataset.move === "up" ? -1 : 1);
+  });
 
   elements.projectsGrid.addEventListener("dragstart", e => {
     const card = e.target.closest(".project-card[data-project-id]");
