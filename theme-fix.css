@@ -1,4 +1,4 @@
-/* v1.4.1 - project cards */
+/* v1.4.4 - project cards */
 
 .project-card {
   position: relative;
@@ -29,6 +29,24 @@
   border-top-color: var(--project-color);
   box-shadow: 0 14px 34px rgba(17,17,17,.085), inset 0 0 0 1px rgba(var(--project-color-rgb), .04);
   transform: translateY(-3px);
+}
+
+.project-card[draggable="true"] { cursor: grab; }
+.project-card[draggable="true"]:active { cursor: grabbing; }
+.project-card.dragging { opacity: .46; transform: scale(.985); }
+.project-card.drag-over { outline: 2px dashed var(--project-color); outline-offset: 5px; }
+.drag-hint {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 5px 8px;
+  border: 1px dashed rgba(var(--project-color-rgb), .3);
+  border-radius: 999px;
+  color: var(--project-color);
+  background: rgba(var(--project-color-rgb), .05);
+  font-size: 10px;
+  font-weight: 700;
+  user-select: none;
 }
 
 .project-card h3 {
@@ -117,17 +135,9 @@
   border-top: 1px solid rgba(var(--project-color-rgb), .10);
 }
 
-.card-actions-main {
-  padding-top: 18px;
-}
-
-.card-actions-admin {
-  padding-top: 8px;
-}
-
-.open-link {
-  min-height: 40px;
-}
+.card-actions-main { padding-top: 18px; }
+.card-actions-admin { padding-top: 8px; }
+.open-link { min-height: 40px; }
 
 .github-link {
   min-height: 40px;
@@ -158,27 +168,11 @@
   pointer-events: none;
 }
 
-.card-actions-admin .card-button:first-child {
-  flex: 1;
-}
-
-.project-dialog form {
-  border-top: 5px solid var(--project-color);
-}
-
-.project-dialog .dialog-header {
-  background: linear-gradient(110deg, rgba(var(--project-color-rgb), 0.15), rgba(var(--project-accent-rgb), 0.10));
-}
-
-.project-dialog .dialog-actions .primary-button {
-  color: var(--project-on-color);
-  border-color: var(--project-color);
-  background: var(--project-color);
-}
-
-.color-control input[type="color"] {
-  min-height: 48px;
-}
+.card-actions-admin .card-button:first-child { flex: 1; }
+.project-dialog form { border-top: 5px solid var(--project-color); }
+.project-dialog .dialog-header { background: linear-gradient(110deg, rgba(var(--project-color-rgb), 0.15), rgba(var(--project-accent-rgb), 0.10)); }
+.project-dialog .dialog-actions .primary-button { color: var(--project-on-color); border-color: var(--project-color); background: var(--project-color); }
+.color-control input[type="color"] { min-height: 48px; }
 
 @media (max-width: 1100px) {
   .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -189,4 +183,5 @@
   .project-card { min-height: 0; }
   .card-actions-main { flex-wrap: wrap; }
   .github-link { flex: 1; }
+  .drag-hint { display: none; }
 }
