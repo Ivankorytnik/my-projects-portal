@@ -2,18 +2,33 @@
   const PERSONAL_PASSWORD_HASH = "84431d566e76f0fd884a4c1da5f7878f2227f19f1e516394df73cb856e6a2025";
 
   let gateRoot = null;
-  let gateForm = null;
   let gateInput = null;
   let gateError = null;
-  let gateTitle = null;
+  let gateProject = null;
   let pendingUrl = "";
 
   async function sha256(value) {
-    const data = new TextEncoder().encode(value);
-    const digest = await crypto.subtle.digest("SHA-256", data);
+    const bytes = new TextEncoder().encode(value);
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
     return Array.from(new Uint8Array(digest))
       .map(byte => byte.toString(16).padStart(2, "0"))
       .join("");
+  }
+
+  function setError(message = "") {
+    if (!gateError || !gateInput) return;
+    gateError.textContent = message;
+    gateInput.classList.toggle("error", Boolean(message));
+  }
+
+  function closeGate() {
+    if (!gateRoot) return;
+    gateRoot.classList.add("hidden");
+    gateRoot.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("personal-gate-open");
+    pendingUrl = "";
+    if (gateInput) gateInput.value = "";
+    setError("");
   }
 
   function createGate() {
@@ -43,94 +58,60 @@
       </div>`;
 
     document.body.appendChild(gateRoot);
-    gateForm = gateRoot.querySelector(".personal-gate-form");
     gateInput = gateRoot.querySelector(".personal-gate-input");
     gateError = gateRoot.querySelector(".personal-gate-error");
-    gateTitle = gateRoot.querySelector("#personalGateProject");
+    gateProject = gateRoot.querySelector("#personalGateProject");
 
     gateRoot.querySelector(".personal-gate-cancel").addEventListener("click", closeGate);
     gateRoot.addEventListener("click", event => {
       if (event.target === gateRoot) closeGate();
     });
 
-    gateForm.addEventListener("submit", async event => {
+    gateRoot.querySelector(".personal-gate-form").addEventListener("submit", async event => {
       event.preventDefault();
       const password = gateInput.value.trim();
       if (!password) {
-        showError("Введите пароль.");
+        setError("Введите пароль.");
         return;
       }
 
-      const hash = await sha256(password);
-      if (hash !== PERSONAL_PASSWORD_HASH) {
-        gateInput.value = "";
-        showError("Неверный пароль.");
-        gateInput.focus();
-        return;
-      }
+      try {
+        const hash = await sha256(password);
+        if (hash !== PERSONAL_PASSWORD_HASH) {
+          gateInput.value = "";
+          setError("Неверный пароль.");
+          gateInput.focus();
+          return;
+        }
 
-      const target = pendingUrl;
-      closeGate();
-      if (target) window.open(target, "_blank", "noopener,noreferrer");
+        const target = pendingUrl;
+        closeGate();
+        if (target) window.open(target, "_blank", "noopener,noreferrer");
+      } catch (error) {
+        console.error("Personal gate error", error);
+        setError("Не удалось проверить пароль. Обновите страницу.");
+      }
     });
 
     document.addEventListener("keydown", event => {
-      if (event.key === "Escape" && gateRoot && !gateRoot.classList.contains("hidden")) {
-        closeGate();
-      }
+      if (event.key === "Escape" && !gateRoot.classList.contains("hidden")) closeGate();
     });
-  }
-
-  function showError(message) {
-    if (!gateError || !gateInput) return;
-    gateError.textContent = message;
-    gateInput.classList.toggle("error", Boolean(message));
   }
 
   function openGate(url, projectName) {
     createGate();
     pendingUrl = url;
-    gateTitle.textContent = projectName || "Личный проект";
+    gateProject.textContent = projectName || "Личный проект";
     gateInput.value = "";
-    showError("");
+    setError("");
     gateRoot.classList.remove("hidden");
     gateRoot.setAttribute("aria-hidden", "false");
     document.body.classList.add("personal-gate-open");
     requestAnimationFrame(() => gateInput.focus());
   }
 
-  function closeGate() {
-    if (!gateRoot) return;
-    gateRoot.classList.add("hidden");
-    gateRoot.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("personal-gate-open");
-    pendingUrl = "";
-    showError("");
-  }
-
   function isPersonalCard(card) {
-    return Boolean(card && card.querySelector(".project-type-personal"));
-  }
-
-  function decorateCard(card) {
-    if (!card || card.nodeType !== 1 || !card.classList?.contains("project-card")) return;
-    const personal = isPersonalCard(card);
-    card.classList.toggle("personal-protected", personal);
-    if (!personal) return;
-
-    const openLink = card.querySelector(".open-link:not(.disabled)");
-    if (openLink) {
-      if (!openLink.dataset.originalLabel) openLink.dataset.originalLabel = openLink.textContent.trim();
-      if (openLink.textContent.trim() !== "LOCK · Открыть") openLink.textContent = "LOCK · Открыть";
-      openLink.setAttribute("aria-label", "Открыть личный проект по паролю");
-    }
-
-    const githubLink = card.querySelector(".github-link:not(.disabled)");
-    if (githubLink) githubLink.setAttribute("aria-label", "Открыть GitHub личного проекта по паролю");
-  }
-
-  function decoratePersonalCards(root = document) {
-    root.querySelectorAll?.(".project-card").forEach(decorateCard);
+    return Boolean(card?.querySelector(".project-type-personal"));
   }
 
   function handleProtectedClick(event) {
@@ -141,7 +122,7 @@
     if (!isPersonalCard(card)) return;
 
     event.preventDefault();
-    event.stopImmediatePropagation();
+    event.stopPropagation();
 
     const projectName = card.querySelector("h3")?.textContent?.trim() || "Личный проект";
     openGate(link.href, projectName);
@@ -149,22 +130,7 @@
 
   function start() {
     createGate();
-    decoratePersonalCards();
     document.addEventListener("click", handleProtectedClick, true);
-
-    const grid = document.getElementById("projectsGrid");
-    if (grid) {
-      const observer = new MutationObserver(mutations => {
-        for (const mutation of mutations) {
-          mutation.addedNodes.forEach(node => {
-            if (node.nodeType !== 1) return;
-            if (node.classList?.contains("project-card")) decorateCard(node);
-            else decoratePersonalCards(node);
-          });
-        }
-      });
-      observer.observe(grid, { childList: true });
-    }
   }
 
   if (document.readyState === "loading") {
