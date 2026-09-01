@@ -82,6 +82,7 @@
   }
 
   function showError(message) {
+    if (!gateError || !gateInput) return;
     gateError.textContent = message;
     gateInput.classList.toggle("error", Boolean(message));
   }
@@ -111,24 +112,25 @@
     return Boolean(card && card.querySelector(".project-type-personal"));
   }
 
-  function decoratePersonalCards() {
-    document.querySelectorAll(".project-card").forEach(card => {
-      const personal = isPersonalCard(card);
-      card.classList.toggle("personal-protected", personal);
-      if (!personal) return;
+  function decorateCard(card) {
+    if (!card || card.nodeType !== 1 || !card.classList?.contains("project-card")) return;
+    const personal = isPersonalCard(card);
+    card.classList.toggle("personal-protected", personal);
+    if (!personal) return;
 
-      const openLink = card.querySelector(".open-link:not(.disabled)");
-      if (openLink) {
-        openLink.dataset.originalLabel ||= openLink.textContent.trim();
-        openLink.textContent = "LOCK · Открыть";
-        openLink.setAttribute("aria-label", "Открыть личный проект по паролю");
-      }
+    const openLink = card.querySelector(".open-link:not(.disabled)");
+    if (openLink) {
+      if (!openLink.dataset.originalLabel) openLink.dataset.originalLabel = openLink.textContent.trim();
+      if (openLink.textContent.trim() !== "LOCK · Открыть") openLink.textContent = "LOCK · Открыть";
+      openLink.setAttribute("aria-label", "Открыть личный проект по паролю");
+    }
 
-      const githubLink = card.querySelector(".github-link:not(.disabled)");
-      if (githubLink) {
-        githubLink.setAttribute("aria-label", "Открыть GitHub личного проекта по паролю");
-      }
-    });
+    const githubLink = card.querySelector(".github-link:not(.disabled)");
+    if (githubLink) githubLink.setAttribute("aria-label", "Открыть GitHub личного проекта по паролю");
+  }
+
+  function decoratePersonalCards(root = document) {
+    root.querySelectorAll?.(".project-card").forEach(decorateCard);
   }
 
   function handleProtectedClick(event) {
@@ -148,13 +150,20 @@
   function start() {
     createGate();
     decoratePersonalCards();
-
     document.addEventListener("click", handleProtectedClick, true);
 
     const grid = document.getElementById("projectsGrid");
     if (grid) {
-      const observer = new MutationObserver(decoratePersonalCards);
-      observer.observe(grid, { childList: true, subtree: true });
+      const observer = new MutationObserver(mutations => {
+        for (const mutation of mutations) {
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType !== 1) return;
+            if (node.classList?.contains("project-card")) decorateCard(node);
+            else decoratePersonalCards(node);
+          });
+        }
+      });
+      observer.observe(grid, { childList: true });
     }
   }
 
