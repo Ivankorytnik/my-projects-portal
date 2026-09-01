@@ -1,0 +1,24 @@
+body.personal-gate-open { overflow: hidden; }
+.personal-gate { position: fixed; inset: 0; z-index: 5000; display: grid; place-items: center; padding: 20px; background: rgba(2,7,11,.78); backdrop-filter: blur(12px); }
+.personal-gate.hidden { display: none; }
+.personal-gate-card { position: relative; width: min(420px,100%); overflow: hidden; padding: 26px; border: 1px solid rgba(151,190,211,.18); border-radius: 22px; color: #f5fbff; background: linear-gradient(180deg,rgba(17,34,46,.98),rgba(8,19,27,.99)); box-shadow: 0 28px 90px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.04); }
+.personal-gate-glow { position: absolute; width: 190px; height: 190px; right: -80px; top: -100px; border-radius: 50%; background: radial-gradient(circle,rgba(49,213,255,.14),transparent 68%); pointer-events: none; }
+.personal-gate-kicker { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; color: #7ee8ff; font-size: 9px; font-weight: 900; letter-spacing: .16em; }
+.personal-gate-kicker span { width: 7px; height: 7px; border-radius: 50%; background: #31d5ff; box-shadow: 0 0 14px rgba(49,213,255,.6); }
+.personal-gate-card h2 { position: relative; z-index: 1; margin: 13px 0 4px; color: #fff; font-family: Arial,Helvetica,sans-serif; font-size: 28px; line-height: 1; letter-spacing: -.04em; }
+.personal-gate-project { position: relative; z-index: 1; margin: 0; color: #b9ccd7; font-size: 12px; line-height: 1.45; }
+.personal-gate-note { margin: 18px 0 14px; color: #8da4b3; font-size: 11px; }
+.personal-gate-form label > span { display: block; margin-bottom: 7px; color: #607583; font-size: 8px; font-weight: 900; letter-spacing: .13em; }
+.personal-gate-input { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid rgba(151,190,211,.18); border-radius: 13px; outline: none; color: #f5fbff; background: #07141c; font-size: 18px; letter-spacing: .18em; }
+.personal-gate-input:focus { border-color: rgba(49,213,255,.48); box-shadow: 0 0 0 3px rgba(49,213,255,.07); }
+.personal-gate-input.error { border-color: rgba(255,100,115,.48); }
+.personal-gate-error { min-height: 19px; padding-top: 7px; color: #ff8894; font-size: 10px; }
+.personal-gate-actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: 9px; margin-top: 7px; }
+.personal-gate-actions button { min-height: 46px; border-radius: 13px; font-size: 10px; font-weight: 900; letter-spacing: .04em; cursor: pointer; }
+.personal-gate-cancel { border: 1px solid rgba(151,190,211,.16); color: #a8bac5; background: rgba(255,255,255,.025); }
+.personal-gate-cancel:hover { border-color: rgba(151,190,211,.3); background: rgba(255,255,255,.05); }
+.personal-gate-submit { display:flex; align-items:center; justify-content:space-between; padding:0 15px; border:0; color:#021116; background: linear-gradient(135deg,#84ebff,#31d5ff 58%,#55c7ff); box-shadow: 0 10px 28px rgba(49,213,255,.14); }
+.personal-gate-submit:hover { filter: brightness(1.05); transform: translateY(-1px); }
+.personal-protected::after { content: "PRIVATE"; position:absolute; right:12px; bottom:10px; color:rgba(126,232,255,.30); font-size:7px; font-weight:900; letter-spacing:.15em; }
+.personal-protected .open-link { position: relative; }
+.personal-protected .open-link::before { content: ""; width:6px; height:6px; margin-right:6px; border-radius:50%; background:#31d5ff; box-shadow:0 0 10px rgba(49,213,255,.55); }
