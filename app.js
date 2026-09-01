@@ -1,90 +1,181 @@
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.4.0";
 const STORAGE_KEY = "ivan-projects-portal-v1";
+
 const initialProjects = [
   {
     id: "personal-site",
     type: "personal",
-    color: "#0046ad",
-    accent: "#f7c600",
     title: "Личный сайт Ивана Корытника",
     category: "Сайт",
-    status: "active",
-    description: "Сайт-визитка с опытом, компетенциями, проектами, достижениями и контактами.",
+    status: "live",
+    description: "Личный сайт с опытом, компетенциями, проектами, достижениями и контактами.",
+    nextStep: "Поддерживать актуальность портфолио и ссылок на проекты.",
     url: "https://ivankorytnik.github.io/",
+    githubUrl: "https://github.com/Ivankorytnik/ivankorytnik.github.io",
     owner: "Иван Корытник",
-    updated: "2026-07-14"
+    updated: "2026-09-01",
+    color: "#0046ad",
+    accent: "#f7c600"
+  },
+  {
+    id: "jelanie",
+    type: "business",
+    title: "Желание сквозь Вселенную",
+    category: "SpaceTech / B2C",
+    status: "mvp",
+    description: "Проект формирования желания с помощью гарнитуры, кодирования цифрового сигнала и подготовки к сеансу передачи в космос.",
+    nextStep: "Запуск отдельного домена проекта и пилотного сценария передачи.",
+    url: "https://ivankorytnik.github.io/Jelanie/",
+    githubUrl: "https://github.com/Ivankorytnik/Jelanie",
+    owner: "Иван Корытник",
+    updated: "2026-09-01",
+    color: "#242b52",
+    accent: "#68e7ff"
+  },
+  {
+    id: "calculator",
+    type: "business",
+    title: "Калькулятор финмодели",
+    category: "Финмодель",
+    status: "mvp",
+    description: "Интерактивный калькулятор 12-месячной финансовой модели проекта «Желание сквозь Вселенную».",
+    nextStep: "Синхронизировать модель с актуальными тарифами и пилотными затратами.",
+    url: "https://ivankorytnik.github.io/calculator/",
+    githubUrl: "https://github.com/Ivankorytnik/calculator",
+    owner: "Иван Корытник",
+    updated: "2026-09-01",
+    color: "#0b1020",
+    accent: "#78a8ff"
+  },
+  {
+    id: "fishing-day",
+    type: "personal",
+    title: "Рыболовный день",
+    category: "Fishing / Data",
+    status: "live",
+    description: "Годовой журнал рыбалки с погодой, давлением, уловами, снастями и прогнозом по виду рыбы.",
+    nextStep: "Доработать модель прогноза клева на основе фактических уловов.",
+    url: "https://ivankorytnik.github.io/fishing-day/",
+    githubUrl: "https://github.com/Ivankorytnik/fishing-day",
+    owner: "Иван Корытник",
+    updated: "2026-09-01",
+    color: "#146b5f",
+    accent: "#f4dc4f"
+  },
+  {
+    id: "sound",
+    type: "personal",
+    title: "Speech Lab",
+    category: "AI / Speech",
+    status: "mvp",
+    description: "Локальное распознавание речи, встреч и медиафайлов прямо в браузере.",
+    nextStep: "Улучшить диаризацию и экспорт итогов встречи без изменения текущего дизайна.",
+    url: "https://ivankorytnik.github.io/Sound/",
+    githubUrl: "https://github.com/Ivankorytnik/Sound",
+    owner: "Иван Корытник",
+    updated: "2026-09-01",
+    color: "#0b0d10",
+    accent: "#8fd4ff"
+  },
+  {
+    id: "kp-auto",
+    type: "work",
+    title: "Генератор коммерческого предложения",
+    category: "B2B / Sales Tool",
+    status: "live",
+    description: "Рабочий генератор коммерческого предложения с подбором артикула и формированием PDF.",
+    nextStep: "Поддерживать справочники, шаблоны и актуальные коммерческие параметры.",
+    url: "https://ivankorytnik.github.io/KP_AUTO/",
+    githubUrl: "https://github.com/Ivankorytnik/KP_AUTO",
+    owner: "Иван Корытник",
+    updated: "2026-09-01",
+    color: "#111111",
+    accent: "#4dd9d0"
+  },
+  {
+    id: "projects-portal",
+    type: "personal",
+    title: "KORYTNIK HUB",
+    category: "Project Management",
+    status: "live",
+    description: "Главный портал для управления всеми личными, рабочими и бизнес-проектами.",
+    nextStep: "Подключать новые проекты, домены, документы и следующие шаги по мере развития.",
+    url: "https://korytnikhub.pro/",
+    githubUrl: "https://github.com/Ivankorytnik/my-projects-portal",
+    owner: "Иван Корытник",
+    updated: "2026-09-01",
+    color: "#111111",
+    accent: "#f7c600"
   },
   {
     id: "atom-lead-hub",
     type: "work",
-    color: "#00a9a5",
-    accent: "#5bd6d2",
     title: "ATOM B2B Lead Hub",
     category: "Продажи B2B",
-    status: "active",
-    description: "Единый ресурс для сбора, очистки и обработки корпоративных лидов для продажи автомобилей АТОМ.",
+    status: "paused",
+    description: "Единый ресурс для сбора, очистки и обработки корпоративных лидов.",
+    nextStep: "Возобновить при необходимости отдельного B2B-контура.",
     url: "",
+    githubUrl: "",
     owner: "Иван Корытник",
     updated: "2026-07-13"
   },
   {
     id: "cross-analytics",
     type: "work",
-    color: "#2457d6",
-    accent: "#72a0ff",
-    title: "Сквозная аналитика АТОМ",
+    title: "Сквозная аналитика",
     category: "Аналитика",
-    status: "active",
-    description: "Проект объединения каналов, CRM, UTM, PostgreSQL и DataLens для контроля пути лида и конверсий.",
+    status: "paused",
+    description: "Объединение каналов, CRM, UTM, PostgreSQL и BI для контроля пути лида и конверсий.",
+    nextStep: "Определить актуальный контур данных и владельца дальнейшей разработки.",
     url: "",
+    githubUrl: "",
     owner: "Иван Корытник",
     updated: "2026-07-08"
   },
   {
     id: "b2b-company-registry",
     type: "work",
-    color: "#3b556d",
-    accent: "#9db2c5",
     title: "Реестр B2B-компаний",
     category: "База данных",
-    status: "active",
-    description: "База корпоративных покупателей: ИНН, сайт, телефон, e-mail, город, регион и размер автопарка.",
+    status: "paused",
+    description: "База корпоративных покупателей и потенциальных клиентов.",
+    nextStep: "Обновить источники и структуру при возобновлении проекта.",
     url: "",
+    githubUrl: "",
     owner: "Иван Корытник",
     updated: "2026-07-12"
   },
   {
     id: "atom-business-telegram",
     type: "work",
-    color: "#168acd",
-    accent: "#58b7e8",
-    title: "Telegram-канал АТОМ для бизнеса",
+    title: "Telegram-канал для бизнеса",
     category: "Маркетинг",
-    status: "planned",
-    description: "Развитие B2B-канала, приглашение сегментов из CRM, UTM-разметка и оценка влияния на продажи.",
+    status: "paused",
+    description: "B2B-канал с сегментацией аудитории, UTM-разметкой и оценкой влияния на продажи.",
+    nextStep: "Вернуться к развитию при появлении актуальной контентной задачи.",
     url: "https://t.me/atom_business",
+    githubUrl: "",
     owner: "Иван Корытник",
     updated: "2026-07-10"
-  },
-  {
-    id: "projects-portal",
-    type: "personal",
-    color: "#111111",
-    accent: "#f7c600",
-    title: "Мой портал проектов",
-    category: "Портал",
-    status: "done",
-    description: "Единая защищённая страница со всеми рабочими и личными проектами.",
-    url: "",
-    owner: "Иван Корытник",
-    updated: "2026-07-14"
   }
 ];
 
 const statusLabels = {
+  idea: "Идея",
   active: "В работе",
-  planned: "Запланировано",
-  done: "Завершено"
+  mvp: "MVP",
+  live: "Работает",
+  paused: "Пауза",
+  archived: "Архив",
+  planned: "Идея",
+  done: "Архив"
+};
+
+const typeLabels = {
+  business: "Бизнес",
+  work: "Рабочий",
+  personal: "Личный"
 };
 
 const state = {
@@ -100,8 +191,8 @@ const elements = {
   projectsGrid: document.getElementById("projectsGrid"),
   emptyState: document.getElementById("emptyState"),
   totalCount: document.getElementById("totalCount"),
+  businessCount: document.getElementById("businessCount"),
   personalCount: document.getElementById("personalCount"),
-  workCount: document.getElementById("workCount"),
   activeCount: document.getElementById("activeCount"),
   resultCount: document.getElementById("resultCount"),
   sectionTitle: document.getElementById("sectionTitle"),
@@ -119,7 +210,9 @@ const elements = {
   projectCategory: document.getElementById("projectCategory"),
   projectStatus: document.getElementById("projectStatus"),
   projectDescription: document.getElementById("projectDescription"),
+  projectNextStep: document.getElementById("projectNextStep"),
   projectUrl: document.getElementById("projectUrl"),
+  projectGithubUrl: document.getElementById("projectGithubUrl"),
   projectOwner: document.getElementById("projectOwner"),
   projectUpdated: document.getElementById("projectUpdated"),
   projectColor: document.getElementById("projectColor"),
@@ -130,30 +223,6 @@ const elements = {
   exportButton: document.getElementById("exportButton"),
   importInput: document.getElementById("importInput")
 };
-
-function loadProjects() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-
-  if (!saved) {
-    state.projects = structuredClone(initialProjects).map(normalizeProjectColors);
-    saveProjects();
-    return;
-  }
-
-  try {
-    const parsed = JSON.parse(saved);
-    state.projects = Array.isArray(parsed)
-      ? parsed.map(project => normalizeProjectColors({ type: project.type || "work", ...project }))
-      : structuredClone(initialProjects).map(normalizeProjectColors);
-  } catch (error) {
-    console.error("Ошибка чтения проектов:", error);
-    state.projects = structuredClone(initialProjects).map(normalizeProjectColors);
-  }
-}
-
-function saveProjects() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
-}
 
 const PROJECT_PALETTES = [
   ["#0046ad", "#f7c600"],
@@ -167,8 +236,7 @@ const PROJECT_PALETTES = [
 ];
 
 function getProjectPaletteSeed(value) {
-  return Array.from(String(value || "Проект"))
-    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return Array.from(String(value || "Проект")).reduce((sum, char) => sum + char.charCodeAt(0), 0);
 }
 
 function getAutoProjectPalette(title, category = "") {
@@ -180,20 +248,82 @@ function isValidHexColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test(String(value || ""));
 }
 
-function normalizeProjectColors(project) {
-  const [autoColor, autoAccent] = getAutoProjectPalette(project.title, project.category);
+function normalizeStatus(status) {
+  if (status === "planned") return "idea";
+  if (status === "done") return "archived";
+  return statusLabels[status] ? status : "active";
+}
 
+function normalizeProject(project) {
+  const [autoColor, autoAccent] = getAutoProjectPalette(project.title, project.category);
   return {
-    ...project,
+    id: project.id || `project-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    type: ["business", "work", "personal"].includes(project.type) ? project.type : "work",
+    title: project.title || "Без названия",
+    category: project.category || "Другое",
+    status: normalizeStatus(project.status),
+    description: project.description || "",
+    nextStep: project.nextStep || "",
+    url: project.url || "",
+    githubUrl: project.githubUrl || "",
+    owner: project.owner || "Иван Корытник",
+    updated: project.updated || "",
     color: isValidHexColor(project.color) ? project.color : autoColor,
     accent: isValidHexColor(project.accent) ? project.accent : autoAccent
   };
 }
 
+function mergeWithCatalog(savedProjects) {
+  const catalog = initialProjects.map(normalizeProject);
+  const saved = Array.isArray(savedProjects) ? savedProjects.map(normalizeProject) : [];
+  const result = [...saved];
+  const byId = new Map(result.map((project, index) => [project.id, index]));
+
+  catalog.forEach(catalogProject => {
+    if (byId.has(catalogProject.id)) {
+      const index = byId.get(catalogProject.id);
+      const old = result[index];
+      result[index] = normalizeProject({
+        ...catalogProject,
+        ...old,
+        githubUrl: old.githubUrl || catalogProject.githubUrl,
+        url: old.url || catalogProject.url,
+        nextStep: old.nextStep || catalogProject.nextStep,
+        status: old.status === "archived" && catalogProject.status === "live" ? catalogProject.status : old.status
+      });
+    } else {
+      result.push(catalogProject);
+    }
+  });
+
+  return result;
+}
+
+function loadProjects() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    state.projects = initialProjects.map(normalizeProject);
+    saveProjects();
+    return;
+  }
+  try {
+    const parsed = JSON.parse(saved);
+    state.projects = mergeWithCatalog(parsed);
+    saveProjects();
+  } catch (error) {
+    console.error("Ошибка чтения проектов:", error);
+    state.projects = initialProjects.map(normalizeProject);
+    saveProjects();
+  }
+}
+
+function saveProjects() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
+}
+
 function hexToRgb(hex) {
   const normalized = String(hex).replace("#", "");
   if (!/^[0-9a-fA-F]{6}$/.test(normalized)) return { r: 0, g: 70, b: 173 };
-
   return {
     r: parseInt(normalized.slice(0, 2), 16),
     g: parseInt(normalized.slice(2, 4), 16),
@@ -208,10 +338,9 @@ function getContrastColor(hex) {
 }
 
 function projectStyle(project) {
-  const normalized = normalizeProjectColors(project);
+  const normalized = normalizeProject(project);
   const { r, g, b } = hexToRgb(normalized.color);
   const { r: ar, g: ag, b: ab } = hexToRgb(normalized.accent);
-
   return [
     `--project-color:${normalized.color}`,
     `--project-accent:${normalized.accent}`,
@@ -227,7 +356,6 @@ function applyDialogProjectTheme(color, accent) {
   const safeAccent = isValidHexColor(accent) ? accent : "#f7c600";
   const { r, g, b } = hexToRgb(safeColor);
   const { r: ar, g: ag, b: ab } = hexToRgb(safeAccent);
-
   elements.projectDialog.style.setProperty("--project-color", safeColor);
   elements.projectDialog.style.setProperty("--project-accent", safeAccent);
   elements.projectDialog.style.setProperty("--project-color-rgb", `${r},${g},${b}`);
@@ -242,36 +370,30 @@ function updateDialogThemeFromControls() {
 
 function getFilteredProjects() {
   const query = state.search.trim().toLowerCase();
-
   return state.projects
     .filter(project => state.viewFilter === "all" || project.type === state.viewFilter)
     .filter(project => state.statusFilter === "all" || project.status === state.statusFilter)
     .filter(project => state.categoryFilter === "all" || project.category === state.categoryFilter)
     .filter(project => {
       if (!query) return true;
-      return [project.title, project.category, project.description, project.owner]
+      return [project.title, project.category, project.description, project.nextStep, project.owner]
         .some(value => String(value || "").toLowerCase().includes(query));
     })
-    .sort((a, b) => String(b.updated || "").localeCompare(String(a.updated || "")));
+    .sort((a, b) => String(b.updated || "").localeCompare(String(a.updated || "")) || a.title.localeCompare(b.title, "ru"));
 }
 
 function renderStats() {
+  const activeStatuses = new Set(["active", "mvp", "live"]);
   elements.totalCount.textContent = state.projects.length;
+  elements.businessCount.textContent = state.projects.filter(project => project.type === "business").length;
   elements.personalCount.textContent = state.projects.filter(project => project.type === "personal").length;
-  elements.workCount.textContent = state.projects.filter(project => project.type === "work").length;
-  elements.activeCount.textContent = state.projects.filter(project => project.status === "active").length;
+  elements.activeCount.textContent = state.projects.filter(project => activeStatuses.has(project.status)).length;
 }
 
 function renderCategoryFilter() {
   const current = elements.categoryFilter.value || state.categoryFilter;
-  const categories = [...new Set(state.projects.map(project => project.category).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b, "ru"));
-
-  elements.categoryFilter.innerHTML = `
-    <option value="all">Все категории</option>
-    ${categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("")}
-  `;
-
+  const categories = [...new Set(state.projects.map(project => project.category).filter(Boolean))].sort((a, b) => a.localeCompare(b, "ru"));
+  elements.categoryFilter.innerHTML = `<option value="all">Все категории</option>${categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join("")}`;
   elements.categoryFilter.value = categories.includes(current) ? current : "all";
   state.categoryFilter = elements.categoryFilter.value;
 }
@@ -293,14 +415,14 @@ function escapeHtml(value) {
 
 function renderProjects() {
   const projects = getFilteredProjects();
-
   elements.projectsGrid.innerHTML = projects.map(project => {
     const hasUrl = Boolean(project.url);
+    const hasGithub = Boolean(project.githubUrl);
     return `
       <article class="project-card" style="${projectStyle(project)}">
         <div class="card-top">
           <div class="card-labels">
-            <span class="project-type project-type-${escapeHtml(project.type || "work")}">${project.type === "personal" ? "Личный" : "Рабочий"}</span>
+            <span class="project-type project-type-${escapeHtml(project.type)}">${typeLabels[project.type] || "Проект"}</span>
             <span class="category">${escapeHtml(project.category)}</span>
           </div>
           <span class="status status-${escapeHtml(project.status)}">${statusLabels[project.status] || "Без статуса"}</span>
@@ -308,25 +430,28 @@ function renderProjects() {
         <div class="project-identity"><span class="project-color-dot"></span><span class="project-accent-dot"></span></div>
         <h3>${escapeHtml(project.title)}</h3>
         <p>${escapeHtml(project.description || "Описание пока не добавлено.")}</p>
+        ${project.nextStep ? `<div class="next-step"><span>Следующий шаг</span><strong>${escapeHtml(project.nextStep)}</strong></div>` : ""}
         <div class="card-meta">
           <span>Ответственный: ${escapeHtml(project.owner || "Не указан")}</span>
           <span>Обновлено: ${formatDate(project.updated)}</span>
         </div>
-        <div class="card-actions">
-          <a class="open-link ${hasUrl ? "" : "disabled"}" href="${hasUrl ? escapeHtml(project.url) : "#"}" target="_blank" rel="noopener noreferrer">${hasUrl ? "Открыть" : "Нет ссылки"}</a>
+        <div class="card-actions card-actions-main">
+          <a class="open-link ${hasUrl ? "" : "disabled"}" href="${hasUrl ? escapeHtml(project.url) : "#"}" target="_blank" rel="noopener noreferrer">${hasUrl ? "Открыть сайт" : "Нет сайта"}</a>
+          <a class="github-link ${hasGithub ? "" : "disabled"}" href="${hasGithub ? escapeHtml(project.githubUrl) : "#"}" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+        <div class="card-actions card-actions-admin">
           <button class="card-button" type="button" data-action="edit" data-id="${escapeHtml(project.id)}">Изменить</button>
           <button class="card-button delete" type="button" data-action="delete" data-id="${escapeHtml(project.id)}" aria-label="Удалить проект">×</button>
         </div>
       </article>`;
   }).join("");
-
   elements.resultCount.textContent = `Найдено: ${projects.length}`;
   elements.emptyState.classList.toggle("hidden", projects.length > 0);
 }
 
 function renderSectionTitle() {
-  const viewTitles = { all: "Все проекты", personal: "Личные проекты", work: "Рабочие проекты" };
-  const statusSuffix = { all: "", active: " - в работе", planned: " - запланировано", done: " - завершено" };
+  const viewTitles = { all: "Все проекты", business: "Бизнес-проекты", personal: "Личные проекты", work: "Рабочие проекты" };
+  const statusSuffix = { all: "", idea: " · идея", active: " · в работе", mvp: " · MVP", live: " · работает", paused: " · пауза", archived: " · архив" };
   elements.sectionTitle.textContent = (viewTitles[state.viewFilter] || "Проекты") + (statusSuffix[state.statusFilter] || "");
 }
 
@@ -365,7 +490,7 @@ function openProjectDialog(project = null) {
   elements.projectId.value = "";
   elements.projectOwner.value = "Иван Корытник";
   elements.projectUpdated.value = new Date().toISOString().slice(0, 10);
-  elements.projectType.value = "work";
+  elements.projectType.value = "business";
   elements.projectStatus.value = "active";
   const [defaultColor, defaultAccent] = getAutoProjectPalette("", "");
   elements.projectColor.value = defaultColor;
@@ -378,12 +503,14 @@ function openProjectDialog(project = null) {
     elements.projectTitle.value = project.title || "";
     elements.projectType.value = project.type || "work";
     elements.projectCategory.value = project.category || "";
-    elements.projectStatus.value = project.status || "active";
+    elements.projectStatus.value = normalizeStatus(project.status);
     elements.projectDescription.value = project.description || "";
+    elements.projectNextStep.value = project.nextStep || "";
     elements.projectUrl.value = project.url || "";
+    elements.projectGithubUrl.value = project.githubUrl || "";
     elements.projectOwner.value = project.owner || "";
     elements.projectUpdated.value = project.updated || "";
-    const themedProject = normalizeProjectColors(project);
+    const themedProject = normalizeProject(project);
     elements.projectColor.value = themedProject.color;
     elements.projectAccent.value = themedProject.accent;
     applyDialogProjectTheme(themedProject.color, themedProject.accent);
@@ -421,20 +548,21 @@ document.addEventListener("keydown", event => { if (event.key === "Escape" && !e
 elements.projectForm.addEventListener("submit", event => {
   event.preventDefault();
   const id = elements.projectId.value || `project-${Date.now()}`;
-  const project = {
+  const project = normalizeProject({
     id,
     type: elements.projectType.value,
     title: elements.projectTitle.value.trim(),
     category: elements.projectCategory.value.trim(),
     status: elements.projectStatus.value,
     description: elements.projectDescription.value.trim(),
+    nextStep: elements.projectNextStep.value.trim(),
     url: elements.projectUrl.value.trim(),
+    githubUrl: elements.projectGithubUrl.value.trim(),
     owner: elements.projectOwner.value.trim(),
     updated: elements.projectUpdated.value,
     color: elements.projectColor.value,
     accent: elements.projectAccent.value
-  };
-
+  });
   const existingIndex = state.projects.findIndex(item => item.id === id);
   if (existingIndex >= 0) state.projects[existingIndex] = project;
   else state.projects.push(project);
@@ -463,7 +591,7 @@ elements.exportButton.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "projects-backup.json";
+  link.download = "korytnik-hub-projects-backup.json";
   link.click();
   URL.revokeObjectURL(url);
 });
@@ -475,10 +603,10 @@ elements.importInput.addEventListener("change", async event => {
     const text = await file.text();
     const parsed = JSON.parse(text);
     if (!Array.isArray(parsed)) throw new Error("Файл должен содержать массив проектов.");
-    state.projects = parsed.map(normalizeProjectColors);
+    state.projects = mergeWithCatalog(parsed);
     saveProjects();
     render();
-    alert("Проекты импортированы.");
+    alert("Проекты импортированы и объединены с каталогом HUB.");
   } catch (error) {
     alert(`Не удалось импортировать файл: ${error.message}`);
   } finally {
