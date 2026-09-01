@@ -7,7 +7,7 @@
     status: "mvp",
     description: "Защищённый MVP для подготовки и печати комплекта документов из одной карточки клиента без облачного хранения персональных данных.",
     nextStep: "Рабочую версию использовать только локально; публичную страницу оставить без ПДн и шаблонов.",
-    url: "https://korytnikhub.pro/td-secure/",
+    url: "https://korytnikhub.pro/td-secure/v02/",
     githubUrl: "",
     owner: "Иван Корытник",
     updated: "2026-09-01",
@@ -17,8 +17,10 @@
 
   function registerProject() {
     if (typeof state === "undefined" || !Array.isArray(state.projects) || typeof saveProjects !== "function") return false;
-    if (state.projects.some(project => project.id === PROJECT.id)) return true;
-    state.projects.push(typeof normalizeProject === "function" ? normalizeProject(PROJECT) : PROJECT);
+    const index = state.projects.findIndex(project => project.id === PROJECT.id);
+    const normalized = typeof normalizeProject === "function" ? normalizeProject(PROJECT) : PROJECT;
+    if (index >= 0) state.projects[index] = { ...state.projects[index], ...normalized };
+    else state.projects.push(normalized);
     saveProjects();
     if (typeof render === "function") render();
     return true;
