@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=1.4.4" />
   <link rel="stylesheet" href="theme-fix.css?v=1.4.4" />
+  <link rel="stylesheet" href="documents.css?v=1.5.0" />
 </head>
 <body>
   <div id="portal" class="portal">
@@ -30,6 +31,8 @@
           <button class="nav-item" data-view="personal">Личные</button>
         </nav>
 
+        <button id="documentsNavButton" class="documents-nav" type="button">Документы</button>
+
         <div class="status-nav">
           <span class="status-nav__title">Статус</span>
           <button class="status-filter active" data-filter="all">Все</button>
@@ -43,7 +46,7 @@
       </div>
 
       <div class="sidebar-footer">
-        <div class="app-version">Версия <strong>v1.4.4</strong></div>
+        <div class="app-version">Версия <strong>v1.5.0</strong></div>
         <button id="exportButton" class="text-button" type="button">Экспорт проектов</button>
         <label class="text-button file-label">
           Импорт проектов
@@ -61,7 +64,7 @@
         </div>
 
         <div class="topbar-actions">
-          <div class="version-badge" aria-label="Версия портала">v1.4.4</div>
+          <div class="version-badge" aria-label="Версия портала">v1.5.0</div>
           <button id="addProjectButton" class="primary-button" type="button">+ Добавить проект</button>
         </div>
       </header>
@@ -90,6 +93,63 @@
         </div>
         <div id="projectsGrid" class="projects-grid"></div>
         <div id="emptyState" class="empty-state hidden"><h3>Проекты не найдены</h3><p>Измените фильтр или добавьте новый проект.</p></div>
+      </section>
+
+      <section id="documentsWorkspace" class="documents-workspace hidden">
+        <div class="documents-page-header">
+          <div>
+            <p class="eyebrow">KORYTNIK HUB / STORAGE</p>
+            <h1>Документы</h1>
+            <p>Приватное облачное хранилище: фото, Excel, Word, PDF, презентации и другие файлы.</p>
+          </div>
+          <div class="documents-security-pill">Приватное хранилище</div>
+        </div>
+
+        <div id="documentsUnlock" class="documents-unlock">
+          <h2>Доступ к документам</h2>
+          <p>Введите ключ файлового хранилища. Он сохраняется только до закрытия текущей вкладки браузера.</p>
+          <div class="documents-unlock-row">
+            <input id="documentsAccessKey" type="password" autocomplete="off" placeholder="Ключ доступа" />
+            <button id="documentsUnlockButton" class="primary-button" type="button">Открыть</button>
+          </div>
+          <div id="documentsStatus" class="documents-status"></div>
+        </div>
+
+        <div id="documentsManager" class="documents-manager hidden">
+          <aside class="documents-tree-panel">
+            <div class="documents-tree-title">
+              <strong>Папки</strong>
+              <button id="documentsLockButton" class="documents-lock-button" type="button">Закрыть доступ</button>
+            </div>
+            <div id="folderTree" class="folder-tree"></div>
+          </aside>
+
+          <div class="documents-content-panel">
+            <div class="documents-toolbar">
+              <div class="documents-path">
+                <strong>Текущая папка</strong>
+                <span id="documentsPathLabel">/</span>
+              </div>
+              <div class="documents-toolbar-actions">
+                <button id="documentsNewFolderButton" type="button">+ Папка</button>
+                <button id="documentsRefreshButton" type="button">Обновить</button>
+                <label id="documentsUploadButton" class="documents-upload-label primary">
+                  + Загрузить файлы
+                  <input id="documentsUploadInput" type="file" multiple />
+                </label>
+              </div>
+            </div>
+
+            <div id="documentsBreadcrumb" class="documents-breadcrumb"></div>
+            <div class="documents-list-head"><span>Название</span><span>Размер / дата</span><span>Действия</span></div>
+            <div id="documentsFileList" class="documents-file-list"></div>
+            <div id="documentsEmpty" class="documents-empty hidden">В этой папке пока нет файлов.</div>
+            <div class="documents-footer">
+              <span id="documentsCount">0 папок · 0 файлов</span>
+              <span>Максимальный размер одного файла: 50 МБ</span>
+            </div>
+          </div>
+        </div>
       </section>
     </main>
   </div>
@@ -133,10 +193,12 @@
     </form>
   </div>
 
-  <script src="app.js?v=1.4.4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js?v=1.5.0"></script>
   <script src="ai-card.js?v=1.4.5"></script>
   <script src="hub-paths.js?v=1.4.5"></script>
   <script src="hub-sync.js?v=1.4.4"></script>
   <script src="theme-fix.js?v=1.4.4"></script>
+  <script src="documents.js?v=1.5.0"></script>
 </body>
 </html>
