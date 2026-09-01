@@ -4,10 +4,18 @@
   let saveTimer = null;
   let draggingId = null;
 
+  document.documentElement.classList.add("hub-syncing");
+
   async function cloudGet() {
-    const r = await fetch(SYNC_URL, { cache: "no-store" });
-    if (!r.ok) throw new Error(`Cloud ${r.status}`);
-    return await r.json();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 6000);
+    try {
+      const r = await fetch(SYNC_URL, { cache: "no-store", signal: controller.signal });
+      if (!r.ok) throw new Error(`Cloud ${r.status}`);
+      return await r.json();
+    } finally {
+      clearTimeout(timeout);
+    }
   }
 
   async function cloudSave() {
@@ -15,11 +23,18 @@
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
       try {
-        await fetch(SYNC_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ projects: state.projects })
-        });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 6000);
+        try {
+          await fetch(SYNC_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ projects: state.projects }),
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
       } catch (e) {
         console.error("HUB cloud save failed", e);
       }
@@ -140,13 +155,22 @@
     moveBefore(draggingId, card.dataset.projectId);
   });
 
+  function applyRemoteProjects(remoteProjects) {
+    if (window.HubDeletedProjects) {
+      window.HubDeletedProjects.syncDeletedIdsFromCloud(remoteProjects);
+      remoteProjects = window.HubDeletedProjects.removeDeletedFromProjects(remoteProjects);
+    }
+    state.projects = remoteProjects.map(normalizeProject);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
+  }
+
   async function bootstrap() {
     try {
       const remote = await cloudGet();
       if (remote?.ok && Array.isArray(remote.projects)) {
-        state.projects = remote.projects.map(normalizeProject);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
+        applyRemoteProjects(remote.projects);
       } else {
+        if (window.HubDeletedProjects) window.HubDeletedProjects.removeDeletedFromState();
         cloudReady = true;
         await fetch(SYNC_URL, {
           method: "POST",
@@ -159,8 +183,13 @@
       addDragAttributes();
     } catch (e) {
       console.error("HUB cloud bootstrap failed", e);
+      if (window.HubDeletedProjects) window.HubDeletedProjects.removeDeletedFromState();
       cloudReady = true;
+      render();
       addDragAttributes();
+    } finally {
+      document.documentElement.classList.remove("hub-syncing");
+      document.documentElement.classList.add("hub-sync-ready");
     }
   }
 
