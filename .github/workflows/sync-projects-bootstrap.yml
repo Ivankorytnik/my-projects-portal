@@ -1,0 +1,65 @@
+name: Bootstrap Korytnik Hub project paths
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-projects-bootstrap.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout hub
+        uses: actions/checkout@v4
+        with:
+          path: hub
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout Speech Lab
+        uses: actions/checkout@v4
+        with:
+          repository: Ivankorytnik/Sound
+          path: src-sound
+
+      - name: Checkout Fishing Day
+        uses: actions/checkout@v4
+        with:
+          repository: Ivankorytnik/fishing-day
+          path: src-fishing
+
+      - name: Checkout calculator
+        uses: actions/checkout@v4
+        with:
+          repository: Ivankorytnik/calculator
+          path: src-calculator
+
+      - name: Checkout KP AUTO
+        uses: actions/checkout@v4
+        with:
+          repository: Ivankorytnik/KP_AUTO
+          path: src-auto
+
+      - name: Copy and publish
+        shell: bash
+        run: |
+          set -e
+          rm -rf hub/sound hub/fishing hub/calculator hub/auto
+          mkdir -p hub/sound hub/fishing hub/calculator hub/auto
+          rsync -a --delete --exclude='.git' --exclude='CNAME' src-sound/ hub/sound/
+          rsync -a --delete --exclude='.git' --exclude='CNAME' src-fishing/ hub/fishing/
+          rsync -a --delete --exclude='.git' --exclude='CNAME' src-calculator/ hub/calculator/
+          rsync -a --delete --exclude='.git' --exclude='CNAME' src-auto/ hub/auto/
+          cd hub
+          git config user.name 'korytnik-hub-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sound fishing calculator auto
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m 'Bootstrap project sites into hub paths'
+          git pull --rebase origin main
+          git push origin main
