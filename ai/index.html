@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0a0c10" />
+  <title>KORYTNIK AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=0.1.0" />
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Вернуться в KORYTNIK HUB">
+        <span class="brand-mark">KH<span>.</span></span>
+        <span><strong>KORYTNIK AI</strong><small>Voice Assistant · v0.1</small></span>
+      </a>
+      <div class="status-pill" id="statusPill"><span class="dot"></span><span id="statusText">Не подключено</span></div>
+    </header>
+
+    <section class="hero-panel">
+      <div class="hero-copy">
+        <p class="eyebrow">ПЕРСОНАЛЬНЫЙ ГОЛОСОВОЙ ИИ</p>
+        <h1>Говорите.<br><span>Я отвечу голосом.</span></h1>
+        <p class="lead">Нажмите подключение, разрешите микрофон и разговаривайте естественно. Можно перебивать ответ в любой момент.</p>
+      </div>
+
+      <div class="voice-stage" id="voiceStage">
+        <div class="orb" id="orb" aria-hidden="true"><div class="orb-core"></div></div>
+        <div class="voice-state" id="voiceState">Готов к подключению</div>
+        <div class="meter" id="meter" aria-hidden="true">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+        </div>
+        <div class="controls">
+          <button class="main-button" id="connectButton" type="button">Подключить голос</button>
+          <button class="icon-button" id="muteButton" type="button" disabled aria-label="Выключить микрофон" title="Микрофон">🎙</button>
+          <button class="icon-button danger" id="stopButton" type="button" disabled aria-label="Завершить разговор" title="Завершить">■</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="conversation-panel">
+      <div class="conversation-head">
+        <div><p class="eyebrow">ДИАЛОГ</p><h2>Текущий разговор</h2></div>
+        <button class="text-button" id="clearButton" type="button">Очистить</button>
+      </div>
+      <div class="messages" id="messages" aria-live="polite">
+        <div class="empty-message" id="emptyMessage">Здесь появится расшифровка вашего разговора.</div>
+      </div>
+      <form class="text-composer" id="textForm">
+        <input id="textInput" type="text" placeholder="Или напишите сообщение..." autocomplete="off" disabled />
+        <button id="sendButton" type="submit" disabled>Отправить</button>
+      </form>
+    </section>
+
+    <footer class="footer-note">KORYTNIK HUB · Голос передаётся в OpenAI только во время активной сессии.</footer>
+  </main>
+
+  <dialog class="access-dialog" id="accessDialog">
+    <form method="dialog" id="accessForm">
+      <p class="eyebrow">ЗАЩИЩЁННЫЙ ДОСТУП</p>
+      <h2>KORYTNIK AI</h2>
+      <p>Введите код доступа к голосовому помощнику.</p>
+      <input id="accessInput" type="password" autocomplete="current-password" placeholder="Код доступа" required />
+      <div class="dialog-error" id="dialogError"></div>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary-button" type="button" id="cancelAccess">Отмена</button>
+        <button value="default" class="primary-button" type="submit">Продолжить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <audio id="remoteAudio" autoplay></audio>
+  <script src="app.js?v=0.1.0"></script>
+</body>
+</html>
