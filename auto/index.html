@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#07090a">
+  <title>АТОМ | Генератор коммерческого предложения PDF</title>
+  <link rel="stylesheet" href="styles.css?v=4.4">
+</head>
+<body class="auth-locked">
+  <section id="authGate" class="auth-gate" aria-label="Вход в генератор">
+    <form id="authForm" class="auth-gate__card">
+      <div class="brand-mark auth-gate__brand" aria-label="АТОМ"><span>АТОМ</span></div>
+      <div class="auth-gate__eyebrow">ЗАЩИЩЁННЫЙ ДОСТУП</div>
+      <h1 class="auth-gate__title">Генератор коммерческого предложения</h1>
+      <p class="auth-gate__description">Введите пароль для продолжения.</p>
+      <label class="auth-gate__field">
+        <span>Пароль</span>
+        <input id="authPassword" type="password" inputmode="numeric" autocomplete="current-password" required>
+      </label>
+      <button class="primary-button auth-gate__button" type="submit">Войти</button>
+      <div id="authMessage" class="auth-gate__message" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <div id="appContent" class="site-content" aria-hidden="true">
+  <header class="hero">
+    <div class="hero__inner">
+      <div class="brand-mark" aria-label="АТОМ"><span>АТОМ</span></div>
+      <div class="hero__copy">
+        <div class="hero__eyebrow">B2B SALES PLATFORM</div>
+        <h1>Генератор коммерческого предложения</h1>
+        <p>Выберите характеристики. Артикул и готовое КП в PDF сформируются автоматически.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="page-shell">
+    <noscript><div class="alert alert--error">Для работы генератора необходимо включить JavaScript.</div></noscript>
+
+    <section class="card">
+      <div class="section-heading"><span class="step">1</span><div><h2>Подбор артикула</h2><p>Каждый следующий список показывает только доступные сочетания.</p></div></div>
+      <div class="form-grid form-grid--selection">
+        <label class="field"><span>Назначение</span><select id="purpose"></select></label>
+        <label class="field"><span>Модификация</span><select id="modification"></select></label>
+        <label class="field"><span>Цвет кузова</span><select id="bodyColor"></select></label>
+        <label class="field"><span>Цвет салона</span><select id="interiorColor"></select></label>
+        <label class="field"><span>Тонировка</span><select id="tint"></select></label>
+      </div>
+      <div class="article-panel">
+        <div class="article-panel__label">Выбранный артикул</div>
+        <div id="article" class="article-panel__value">Загрузка справочника...</div>
+        <div id="templateInfo" class="article-panel__meta"></div>
+      </div>
+      <details class="decode" open><summary>Расшифровка артикула</summary><div id="articleDecode" class="decode__body"></div></details>
+    </section>
+
+    <section class="card">
+      <div class="section-heading"><span class="step">2</span><div><h2>Параметры коммерческого предложения</h2><p>Эти данные будут автоматически подставлены в PDF.</p></div></div>
+      <div class="form-grid">
+        <label class="field field--wide"><span>Контактное лицо клиента</span><input id="client" type="text" placeholder="Например: Иван Иванович"></label>
+        <label class="field"><span>Базовая цена, руб.</span><input id="basePrice" type="text" inputmode="numeric" value="3980000"></label>
+        <label class="field"><span>Специальная цена, руб.</span><input id="specialPrice" type="text" inputmode="numeric" value="3980000"></label>
+        <label class="field"><span>Модельный год</span><input id="modelYear" type="number" min="2026" max="2035" value="2026"></label>
+        <label class="field"><span>Дата поставки</span><input id="deliveryDate" type="date"></label>
+        <label class="field"><span>КП действительно до</span><input id="validTo" type="date"></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-heading"><span class="step">3</span><div><h2>Данные менеджера</h2><p>После первого формирования КП заполненные контакты сохранятся в этом браузере и появятся в списке.</p></div></div>
+      <div class="form-grid">
+        <label class="field field--wide">
+          <span>Сохранённый менеджер</span>
+          <div class="manager-profile-row">
+            <select id="managerProfile" aria-label="Выбор сохранённого менеджера">
+              <option value="">Новый менеджер</option>
+            </select>
+            <button id="deleteManagerProfile" class="secondary-button" type="button" disabled>Удалить</button>
+          </div>
+        </label>
+        <label class="field field--wide"><span>ФИО менеджера</span><input id="manager" type="text" placeholder="Фамилия Имя Отчество" autocomplete="name"></label>
+        <label class="field"><span>Телефон</span><input id="phone" type="tel" placeholder="+7 (___) ___-__-__" autocomplete="tel"></label>
+        <label class="field"><span>Email</span><input id="email" type="email" placeholder="manager@atom.team" autocomplete="email"></label>
+        <div id="managerSaveInfo" class="field-note field--wide">Менеджер сохранится автоматически после успешного формирования PDF.</div>
+      </div>
+    </section>
+
+    <section class="card action-card">
+      <div><h2>Готовое КП в формате PDF</h2><p>PDF формируется в браузере. Данные никуда не отправляются.</p></div>
+      <button id="generateButton" class="primary-button" type="button" disabled>Сформировать и скачать PDF</button>
+      <div id="progressArea" class="progress-area" hidden><div class="progress-track"><div id="progressBar" class="progress-bar"></div></div><div id="progressText" class="progress-text">Подготовка...</div></div>
+      <div id="message" class="message" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer>АТОМ B2B · Генератор коммерческих предложений PDF · v4.4</footer>
+  </div>
+  <script src="auth.js?v=4.4"></script>
+  <script src="app-v4.4-pdf.js?v=4.4"></script>
+</body>
+</html>

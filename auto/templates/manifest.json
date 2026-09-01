@@ -1,0 +1,22 @@
+{
+  "personal_turquoise": {
+    "basePath": "templates/personal_turquoise",
+    "pages": 9
+  },
+  "personal_white": {
+    "basePath": "templates/personal_white",
+    "pages": 9
+  },
+  "personal_black": {
+    "basePath": "templates/personal_black",
+    "pages": 9
+  },
+  "personal_purple": {
+    "basePath": "templates/personal_purple",
+    "pages": 9
+  },
+  "personal_light_blue": {
+    "basePath": "templates/personal_light_blue",
+    "pages": 9
+  }
+}
