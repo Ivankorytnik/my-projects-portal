@@ -15,11 +15,15 @@
     localStorage.setItem(DELETED_KEY, JSON.stringify([...ids]));
   }
 
-  function removeDeletedFromState() {
-    if (!window.state || !Array.isArray(state.projects)) return;
+  function removeDeletedFromProjects(projects) {
     const deleted = getDeletedIds();
-    if (!deleted.size) return;
-    const filtered = state.projects.filter(project => !deleted.has(project.id));
+    if (!Array.isArray(projects) || !deleted.size) return Array.isArray(projects) ? projects : [];
+    return projects.filter(project => !deleted.has(project.id));
+  }
+
+  function removeDeletedFromState() {
+    if (typeof state === "undefined" || !Array.isArray(state.projects)) return;
+    const filtered = removeDeletedFromProjects(state.projects);
     if (filtered.length === state.projects.length) return;
     state.projects = filtered;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
@@ -34,7 +38,7 @@
   }
 
   function syncDeletedIdsFromCloud(remoteProjects) {
-    if (!Array.isArray(remoteProjects) || !window.initialProjects) return;
+    if (!Array.isArray(remoteProjects) || typeof initialProjects === "undefined") return;
     const remoteIds = new Set(remoteProjects.map(project => project.id));
     const deleted = getDeletedIds();
     initialProjects.forEach(project => {
@@ -46,12 +50,18 @@
   document.addEventListener("click", event => {
     const button = event.target.closest("button[data-action='delete']");
     if (!button) return;
-    rememberDeletion(button.dataset.id);
+    const projectId = button.dataset.id;
+    setTimeout(() => {
+      if (typeof state === "undefined" || !Array.isArray(state.projects)) return;
+      const stillExists = state.projects.some(project => project.id === projectId);
+      if (!stillExists) rememberDeletion(projectId);
+    }, 0);
   }, true);
 
   window.HubDeletedProjects = {
     getDeletedIds,
     rememberDeletion,
+    removeDeletedFromProjects,
     removeDeletedFromState,
     syncDeletedIdsFromCloud
   };
