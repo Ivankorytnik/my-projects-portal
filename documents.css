@@ -1,0 +1,115 @@
+/* Private document manager */
+.documents-nav {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 12px;
+  padding: 11px 12px;
+  border: 1px solid #e2e5e9;
+  border-radius: 10px;
+  color: #34393f;
+  background: #fff;
+  text-align: left;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 160ms ease;
+}
+.documents-nav:hover { border-color: #b9cee9; background: #f7faff; }
+.documents-nav.active { color: #0b4ba9; border-color: #cfe0f7; background: #edf4ff; box-shadow: inset 3px 0 0 #0b5ec7; }
+.documents-hidden { display: none !important; }
+
+.documents-workspace { min-height: calc(100vh - 72px); }
+.documents-page-header { display:flex; justify-content:space-between; gap:24px; align-items:flex-end; margin-bottom:24px; }
+.documents-page-header h1 { margin:0; font-family:"Manrope",Arial,sans-serif; font-size:clamp(34px,4vw,48px); line-height:1.05; letter-spacing:-.04em; }
+.documents-page-header p { margin:9px 0 0; color:#6c727a; font-size:13px; line-height:1.5; }
+.documents-security-pill { flex:0 0 auto; padding:9px 11px; border:1px solid #d9e8df; border-radius:999px; color:#317050; background:#f2faf5; font-size:10px; font-weight:700; }
+
+.documents-unlock { width:min(520px,100%); margin:70px auto 0; padding:28px; border:1px solid #e3e6ea; border-radius:16px; background:#fff; box-shadow:0 8px 28px rgba(18,24,33,.05); }
+.documents-unlock h2 { margin:0 0 8px; font-family:"Manrope",Arial,sans-serif; font-size:24px; }
+.documents-unlock p { margin:0 0 18px; color:#737981; font-size:12px; line-height:1.55; }
+.documents-unlock-row { display:flex; gap:9px; }
+.documents-unlock-row input { flex:1; }
+.documents-unlock-row button { flex:0 0 auto; }
+.documents-status { min-height:18px; margin-top:10px; color:#737981; font-size:11px; }
+.documents-status.error { color:#b33d46; }
+
+.documents-manager { display:grid; grid-template-columns:250px minmax(0,1fr); gap:14px; }
+.documents-tree-panel,
+.documents-content-panel { border:1px solid #e3e6ea; border-radius:15px; background:#fff; box-shadow:0 2px 8px rgba(18,24,33,.025); }
+.documents-tree-panel { min-height:620px; padding:14px; }
+.documents-tree-title { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:3px 4px 12px; border-bottom:1px solid #edf0f2; }
+.documents-tree-title strong { font-size:11px; letter-spacing:.06em; text-transform:uppercase; }
+.documents-lock-button { border:0; padding:5px 7px; color:#8c929a; background:transparent; font-size:10px; cursor:pointer; }
+.documents-lock-button:hover { color:#b33d46; }
+.folder-tree { display:grid; gap:3px; margin-top:10px; }
+.folder-tree-item { width:100%; min-height:34px; display:flex; align-items:center; gap:8px; padding:7px 8px 7px calc(8px + var(--depth,0) * 14px); border:0; border-radius:8px; color:#5d646c; background:transparent; text-align:left; font-size:11px; font-weight:600; cursor:pointer; }
+.folder-tree-item:hover { background:#f5f7f9; }
+.folder-tree-item.active { color:#0b5ec7; background:#edf4ff; }
+.folder-tree-icon { width:15px; color:#9aa0a8; text-align:center; }
+.folder-tree-item.active .folder-tree-icon { color:#0b5ec7; }
+
+.documents-content-panel { min-width:0; overflow:hidden; }
+.documents-toolbar { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:14px 16px; border-bottom:1px solid #edf0f2; background:#fbfcfd; }
+.documents-toolbar-actions { display:flex; flex-wrap:wrap; gap:7px; }
+.documents-toolbar button,
+.documents-upload-label { min-height:36px; display:inline-flex; align-items:center; justify-content:center; padding:8px 11px; border:1px solid #dfe3e8; border-radius:9px; color:#4f565e; background:#fff; font-size:10px; font-weight:700; cursor:pointer; }
+.documents-toolbar button:hover,
+.documents-upload-label:hover { color:#0b5ec7; border-color:#b9cee9; background:#f7faff; }
+.documents-upload-label.primary { color:#fff; border-color:#0b5ec7; background:#0b5ec7; }
+.documents-upload-label.primary:hover { color:#fff; border-color:#084da5; background:#084da5; }
+.documents-upload-label input { display:none; }
+.documents-path { min-width:0; }
+.documents-path strong { display:block; color:#22262a; font-size:11px; }
+.documents-path span { display:block; margin-top:3px; color:#9298a0; font-size:9px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+.documents-breadcrumb { min-height:45px; display:flex; align-items:center; gap:6px; padding:10px 16px; border-bottom:1px solid #f0f1f3; overflow-x:auto; }
+.documents-breadcrumb button { border:0; padding:3px 4px; color:#5e6670; background:transparent; font-size:10px; font-weight:600; white-space:nowrap; cursor:pointer; }
+.documents-breadcrumb button:hover { color:#0b5ec7; }
+.documents-breadcrumb span { color:#bcc1c7; font-size:10px; }
+
+.documents-list-head { display:grid; grid-template-columns:minmax(0,1fr) 190px 150px; gap:12px; padding:9px 16px; border-bottom:1px solid #edf0f2; color:#9aa0a7; background:#fff; font-size:8px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.documents-file-list { min-height:410px; }
+.document-row { display:grid; grid-template-columns:minmax(0,1fr) 190px 150px; gap:12px; align-items:center; min-height:62px; padding:9px 16px; border-bottom:1px solid #f0f2f4; transition:background 140ms ease; }
+.document-row:hover { background:#fafbfc; }
+.document-main { min-width:0; display:flex; align-items:center; gap:11px; border:0; padding:0; color:inherit; background:transparent; text-align:left; }
+button.document-main { cursor:pointer; }
+.document-icon { flex:0 0 39px; height:39px; display:flex; align-items:center; justify-content:center; border:1px solid #e0e4e9; border-radius:9px; color:#59616a; background:#f5f7f9; font-size:8px; font-weight:800; letter-spacing:.04em; }
+.folder-icon { color:#8b6b16; border-color:#f0e1b7; background:#fff9e8; font-size:17px; }
+.document-info { min-width:0; }
+.document-info strong { display:block; overflow:hidden; color:#272b30; font-size:11px; font-weight:650; text-overflow:ellipsis; white-space:nowrap; }
+.document-info small { display:block; margin-top:4px; color:#999fa6; font-size:9px; }
+.document-meta { display:grid; grid-template-columns:70px minmax(0,1fr); gap:8px; color:#858b93; font-size:9px; }
+.document-actions { display:flex; justify-content:flex-end; gap:6px; }
+.document-actions button { min-height:31px; padding:6px 8px; border:1px solid #e1e4e8; border-radius:8px; color:#7d838a; background:#fff; font-size:9px; font-weight:650; cursor:pointer; }
+.document-actions button:hover { color:#b13e47; border-color:#ebcbd0; background:#fff8f8; }
+.document-actions button.download:hover { color:#0b5ec7; border-color:#c5d9f2; background:#f6faff; }
+.documents-empty { padding:70px 20px; color:#9aa0a7; text-align:center; font-size:12px; }
+.documents-footer { display:flex; justify-content:space-between; gap:14px; min-height:44px; padding:12px 16px; border-top:1px solid #edf0f2; color:#959ba3; background:#fbfcfd; font-size:9px; }
+
+@media (max-width: 1000px) {
+  .documents-manager { grid-template-columns:210px minmax(0,1fr); }
+  .documents-list-head,
+  .document-row { grid-template-columns:minmax(0,1fr) 120px 140px; }
+}
+@media (max-width: 800px) {
+  .documents-page-header { align-items:flex-start; flex-direction:column; }
+  .documents-manager { grid-template-columns:1fr; }
+  .documents-tree-panel { min-height:0; }
+  .folder-tree { max-height:220px; overflow:auto; }
+  .documents-list-head { display:none; }
+  .document-row { grid-template-columns:minmax(0,1fr) auto; }
+  .document-meta { grid-column:1; padding-left:50px; }
+  .document-actions { grid-column:2; grid-row:1 / span 2; }
+}
+@media (max-width: 560px) {
+  .documents-unlock { margin-top:30px; padding:20px; }
+  .documents-unlock-row { flex-direction:column; }
+  .documents-toolbar { align-items:stretch; flex-direction:column; }
+  .documents-toolbar-actions { display:grid; grid-template-columns:1fr 1fr; }
+  .documents-upload-label.primary { grid-column:1 / -1; }
+  .document-row { grid-template-columns:1fr; gap:8px; }
+  .document-meta { grid-column:auto; padding-left:50px; }
+  .document-actions { grid-column:auto; grid-row:auto; padding-left:50px; justify-content:flex-start; }
+  .documents-footer { flex-direction:column; }
+}
