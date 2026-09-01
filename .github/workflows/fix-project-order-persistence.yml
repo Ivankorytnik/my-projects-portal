@@ -1,0 +1,128 @@
+name: Fix project order persistence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-project-order-persistence.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch portal ordering and persistence
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('app.js')
+          s = p.read_text(encoding='utf-8')
+
+          s = s.replace('const APP_VERSION = "1.4.0";\nconst STORAGE_KEY = "ivan-projects-portal-v1";', 'const APP_VERSION = "1.4.3";\nconst STORAGE_KEY = "ivan-projects-portal-v1";\nconst DELETED_KEY = "ivan-projects-portal-deleted-v1";')
+
+          old = '''function mergeWithCatalog(savedProjects) {\n  const catalog = initialProjects.map(normalizeProject);\n  const saved = Array.isArray(savedProjects) ? savedProjects.map(normalizeProject) : [];\n  const result = [...saved];\n  const byId = new Map(result.map((project, index) => [project.id, index]));\n\n  catalog.forEach(catalogProject => {\n    if (byId.has(catalogProject.id)) {\n      const index = byId.get(catalogProject.id);\n      const old = result[index];\n      result[index] = normalizeProject({\n        ...catalogProject,\n        ...old,\n        githubUrl: old.githubUrl || catalogProject.githubUrl,\n        url: old.url || catalogProject.url,\n        nextStep: old.nextStep || catalogProject.nextStep,\n        status: old.status === "archived" && catalogProject.status === "live" ? catalogProject.status : old.status\n      });\n    } else {\n      result.push(catalogProject);\n    }\n  });\n\n  return result;\n}'''
+
+          new = '''function getDeletedProjectIds() {\n  try {\n    const value = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");\n    return Array.isArray(value) ? value : [];\n  } catch {\n    return [];\n  }\n}\n\nfunction saveDeletedProjectIds(ids) {\n  localStorage.setItem(DELETED_KEY, JSON.stringify([...new Set(ids)]));\n}\n\nfunction mergeWithCatalog(savedProjects) {\n  const deleted = new Set(getDeletedProjectIds());\n  const catalog = initialProjects.map(normalizeProject).filter(project => !deleted.has(project.id));\n  const saved = Array.isArray(savedProjects) ? savedProjects.map(normalizeProject) : [];\n  const result = saved.filter(project => !deleted.has(project.id));\n  const byId = new Map(result.map((project, index) => [project.id, index]));\n\n  catalog.forEach(catalogProject => {\n    if (byId.has(catalogProject.id)) {\n      const index = byId.get(catalogProject.id);\n      const savedProject = result[index];\n      result[index] = normalizeProject({ ...catalogProject, ...savedProject });\n    } else {\n      result.push(catalogProject);\n    }\n  });\n\n  return result;\n}'''
+
+          if old not in s:
+              raise SystemExit('mergeWithCatalog block not found')
+          s = s.replace(old, new)
+
+          old_sort = '''    .filter(project => {\n      if (!query) return true;\n      return [project.title, project.category, project.description, project.nextStep, project.owner]\n        .some(value => String(value || "").toLowerCase().includes(query));\n    })\n    .sort((a, b) => String(b.updated || "").localeCompare(String(a.updated || "")) || a.title.localeCompare(b.title, "ru"));'''
+          new_sort = '''    .filter(project => {\n      if (!query) return true;\n      return [project.title, project.category, project.description, project.nextStep, project.owner]\n        .some(value => String(value || "").toLowerCase().includes(query));\n    });'''
+          if old_sort not in s:
+              raise SystemExit('sort block not found')
+          s = s.replace(old_sort, new_sort)
+
+          s = s.replace('<article class="project-card" style="${projectStyle(project)}">', '<article class="project-card" draggable="true" data-project-id="${escapeHtml(project.id)}" style="${projectStyle(project)}">')
+
+          old_delete = '''    state.projects = state.projects.filter(item => item.id !== project.id);\n    saveProjects();\n    render();'''
+          new_delete = '''    state.projects = state.projects.filter(item => item.id !== project.id);\n    const deleted = getDeletedProjectIds();\n    if (!deleted.includes(project.id)) deleted.push(project.id);\n    saveDeletedProjectIds(deleted);\n    saveProjects();\n    render();'''
+          if old_delete not in s:
+              raise SystemExit('delete block not found')
+          s = s.replace(old_delete, new_delete)
+
+          insert_before = '''elements.exportButton.addEventListener("click", () => {'''
+          drag_code = r'''
+let draggedProjectId = null;
+
+function moveProjectBefore(sourceId, targetId) {
+  if (!sourceId || !targetId || sourceId === targetId) return;
+  const sourceIndex = state.projects.findIndex(project => project.id === sourceId);
+  const targetIndex = state.projects.findIndex(project => project.id === targetId);
+  if (sourceIndex < 0 || targetIndex < 0) return;
+  const [source] = state.projects.splice(sourceIndex, 1);
+  const newTargetIndex = state.projects.findIndex(project => project.id === targetId);
+  state.projects.splice(newTargetIndex, 0, source);
+  saveProjects();
+  renderProjects();
+}
+
+elements.projectsGrid.addEventListener("dragstart", event => {
+  const card = event.target.closest(".project-card[data-project-id]");
+  if (!card) return;
+  draggedProjectId = card.dataset.projectId;
+  card.classList.add("dragging");
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", draggedProjectId);
+  }
+});
+
+elements.projectsGrid.addEventListener("dragend", event => {
+  event.target.closest(".project-card")?.classList.remove("dragging");
+  elements.projectsGrid.querySelectorAll(".drag-over").forEach(card => card.classList.remove("drag-over"));
+  draggedProjectId = null;
+});
+
+elements.projectsGrid.addEventListener("dragover", event => {
+  const card = event.target.closest(".project-card[data-project-id]");
+  if (!card || !draggedProjectId || card.dataset.projectId === draggedProjectId) return;
+  event.preventDefault();
+  elements.projectsGrid.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
+  card.classList.add("drag-over");
+});
+
+elements.projectsGrid.addEventListener("drop", event => {
+  const card = event.target.closest(".project-card[data-project-id]");
+  if (!card || !draggedProjectId) return;
+  event.preventDefault();
+  moveProjectBefore(draggedProjectId, card.dataset.projectId);
+});
+
+'''
+          if insert_before not in s:
+              raise SystemExit('export anchor not found')
+          s = s.replace(insert_before, drag_code + insert_before)
+
+          p.write_text(s, encoding='utf-8')
+
+          cssp = Path('theme-fix.css')
+          css = cssp.read_text(encoding='utf-8')
+          extra = '''\n/* v1.4.3 manual project ordering */\n.project-card[draggable="true"] { cursor: grab; }\n.project-card[draggable="true"]:active { cursor: grabbing; }\n.project-card.dragging { opacity: .48; transform: scale(.985); }\n.project-card.drag-over { outline: 2px dashed var(--project-color); outline-offset: 5px; }\n'''
+          if 'manual project ordering' not in css:
+              css += extra
+          cssp.write_text(css, encoding='utf-8')
+
+          htmlp = Path('index.html')
+          html = htmlp.read_text(encoding='utf-8')
+          html = html.replace('v1.4.0', 'v1.4.3').replace('app.js?v=1.4.0', 'app.js?v=1.4.3').replace('theme-fix.css?v=1.4.0', 'theme-fix.css?v=1.4.3')
+          htmlp.write_text(html, encoding='utf-8')
+          PY
+
+      - name: Commit changes
+        shell: bash
+        run: |
+          git config user.name 'korytnik-hub-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add app.js theme-fix.css index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Persist project order and deleted cards'
+          git pull --rebase origin main
+          git push origin main
