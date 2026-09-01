@@ -48,6 +48,16 @@
   font-weight: 700;
   user-select: none;
 }
+.mobile-order-controls { display: none; }
+.mobile-order-controls button {
+  width: 38px;
+  height: 34px;
+  border: 1px solid rgba(var(--project-color-rgb), .25);
+  border-radius: 9px;
+  background: #fff;
+  color: var(--project-color);
+  font-weight: 800;
+}
 
 .project-card h3 {
   position: relative;
@@ -58,30 +68,11 @@
   line-height: 1.2;
 }
 
-.project-card > p {
-  min-height: 62px;
-}
-
-.project-card .project-identity {
-  margin-top: 18px;
-}
-
-.project-card .project-color-dot {
-  width: 42px;
-  height: 5px;
-  background: var(--project-color);
-}
-
-.project-card .project-accent-dot {
-  width: 18px;
-  height: 5px;
-  background: var(--project-accent);
-}
-
-.project-card .category {
-  color: var(--project-color);
-  font-weight: 700;
-}
+.project-card > p { min-height: 62px; }
+.project-card .project-identity { margin-top: 18px; }
+.project-card .project-color-dot { width: 42px; height: 5px; background: var(--project-color); }
+.project-card .project-accent-dot { width: 18px; height: 5px; background: var(--project-accent); }
+.project-card .category { color: var(--project-color); font-weight: 700; }
 
 .project-type-business,
 .project-type-work,
@@ -111,7 +102,6 @@
   border-radius: 0 5px 5px 0;
   background: rgba(var(--project-accent-rgb), .10);
 }
-
 .next-step span {
   display: block;
   margin-bottom: 5px;
@@ -121,7 +111,6 @@
   letter-spacing: .09em;
   text-transform: uppercase;
 }
-
 .next-step strong {
   display: block;
   color: var(--ink);
@@ -130,11 +119,7 @@
   font-weight: 600;
 }
 
-.card-meta {
-  padding-top: 3px;
-  border-top: 1px solid rgba(var(--project-color-rgb), .10);
-}
-
+.card-meta { padding-top: 3px; border-top: 1px solid rgba(var(--project-color-rgb), .10); }
 .card-actions-main { padding-top: 18px; }
 .card-actions-admin { padding-top: 8px; }
 .open-link { min-height: 40px; }
@@ -155,19 +140,8 @@
   font-weight: 700;
   transition: 180ms ease;
 }
-
-.github-link:hover {
-  color: var(--project-color);
-  border-color: var(--project-color);
-  background: rgba(var(--project-color-rgb), .05);
-}
-
-.github-link.disabled {
-  color: #8b9096;
-  background: var(--soft-white);
-  pointer-events: none;
-}
-
+.github-link:hover { color: var(--project-color); border-color: var(--project-color); background: rgba(var(--project-color-rgb), .05); }
+.github-link.disabled { color: #8b9096; background: var(--soft-white); pointer-events: none; }
 .card-actions-admin .card-button:first-child { flex: 1; }
 .project-dialog form { border-top: 5px solid var(--project-color); }
 .project-dialog .dialog-header { background: linear-gradient(110deg, rgba(var(--project-color-rgb), 0.15), rgba(var(--project-accent-rgb), 0.10)); }
@@ -184,4 +158,5 @@
   .card-actions-main { flex-wrap: wrap; }
   .github-link { flex: 1; }
   .drag-hint { display: none; }
+  .mobile-order-controls { display: flex; gap: 7px; margin-bottom: 10px; }
 }
