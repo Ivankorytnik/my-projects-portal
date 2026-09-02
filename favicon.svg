@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Korytnik Hub">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="6" x2="56" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38c9ff"/>
+      <stop offset="1" stop-color="#0a5cff"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#bg)"/>
+  <path d="M42.9 15.1c-7.1 1.1-13.4 4.4-18.4 9.4l-7.3 7.3 8.9 8.9 7.3-7.3c5-5 8.3-11.3 9.5-18.3Z" fill="#fff"/>
+  <path d="M25.1 24.1 19 24.8l-5.8 5.8 7.6 1.4 4.3-7.9ZM33.9 32.9l7.9-4.3-1.4 7.6-5.8 5.8-.7-6.1Z" fill="#eaf7ff"/>
+  <circle cx="34.7" cy="23.7" r="4.2" fill="#0b67ff" stroke="#dff6ff" stroke-width="1.4"/>
+  <path d="M22.2 39.4c-3.5 1.6-6.5 4.7-8.1 9.1 4.4-1.6 7.5-4.6 9.1-8.1l-1-1Z" fill="#9ef3ff" filter="url(#glow)"/>
+  <path d="m12.8 18.2 1.2 2.7 2.8 1.2-2.8 1.2-1.2 2.8-1.2-2.8-2.7-1.2 2.7-1.2 1.2-2.7ZM49.2 40.5l.9 2 .2.2 2 .9-2 .9-.2.2-.9 2-.9-2-.2-.2-2-.9 2-.9.2-.2.9-2Z" fill="#fff"/>
+</svg>
