@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Фото на почту — приложение для Android и iPhone." />
+  <meta name="description" content="Фото на почту - приложение для Android и iPhone." />
   <meta name="theme-color" content="#111827" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -12,15 +12,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.0.1" />
+  <link rel="stylesheet" href="style.css?v=1.0.2" />
   <style>
     .platform-wrap{max-width:980px;margin:-8px auto 34px;padding:0 20px}.platform-title{text-align:center;margin-bottom:18px}.platform-title .eyebrow{margin-bottom:6px}.platform-title h2{margin:0;font:700 32px Manrope,sans-serif;color:#111827}.platform-title p{margin:8px auto 0;max-width:680px;color:#64748b}
     .platform-switch{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:640px;margin:0 auto 22px;background:#eef2f7;padding:7px;border-radius:20px}.platform-btn{border:0;border-radius:15px;padding:16px 18px;background:transparent;color:#475569;font:700 17px Inter,sans-serif;cursor:pointer;transition:.2s}.platform-btn.active{background:#111827;color:#fff;box-shadow:0 8px 24px rgba(15,23,42,.18)}
     .platform-panel{display:none}.platform-panel.active{display:block}.platform-card{background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:28px;box-shadow:0 18px 50px rgba(15,23,42,.08)}.platform-card.dark{background:#111827;color:#fff;border-color:#111827}.platform-card.dark p{color:#cbd5e1}.platform-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}.platform-head h2{margin:4px 0 8px;font:700 30px Manrope,sans-serif}.platform-head p{margin:0;max-width:650px;color:#64748b}.platform-tag{flex:none;border-radius:999px;padding:8px 11px;background:#eef2f7;color:#475569;font-size:12px;font-weight:700}.dark .platform-tag{background:#1f2937;color:#cbd5e1}
     .platform-actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.platform-primary{display:inline-flex;align-items:center;justify-content:center;min-height:50px;border:0;border-radius:14px;padding:0 20px;background:#111827;color:#fff;text-decoration:none;font:700 16px Inter,sans-serif;cursor:pointer}.dark .platform-primary{background:#fff;color:#111827}.platform-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #cbd5e1;border-radius:14px;padding:0 18px;background:#fff;color:#111827;text-decoration:none;font:600 15px Inter,sans-serif;cursor:pointer}.dark .platform-secondary{background:#1f2937;color:#fff;border-color:#475569}
     .mini-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.mini-step{padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}.mini-step strong{display:block;margin-bottom:5px}.mini-step span{font-size:14px;color:#64748b}.dark .mini-step{background:#1f2937;border-color:#374151}.dark .mini-step span{color:#94a3b8}
+    .help-block{margin-top:28px;padding-top:26px;border-top:1px solid #e2e8f0}.dark .help-block{border-top-color:#374151}.help-block h3{margin:0 0 6px;font:700 24px Manrope,sans-serif}.help-intro{margin:0 0 18px;color:#64748b}.dark .help-intro{color:#94a3b8}.instruction-list{display:grid;gap:12px}.instruction-step{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start;padding:16px;border:1px solid #e2e8f0;border-radius:17px;background:#f8fafc}.instruction-step .n{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#111827;color:#fff;font-weight:700}.instruction-step h4{margin:1px 0 5px;font-size:16px}.instruction-step p{margin:0;color:#64748b;line-height:1.5}.dark .instruction-step{background:#1f2937;border-color:#374151}.dark .instruction-step .n{background:#fff;color:#111827}.dark .instruction-step p{color:#cbd5e1}.settings-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}.settings-table th,.settings-table td{text-align:left;padding:11px 12px;border-bottom:1px solid #e2e8f0}.settings-table th{color:#64748b;font-weight:600}.dark .settings-table th,.dark .settings-table td{border-bottom-color:#374151}.dark .settings-table th{color:#94a3b8}.tip{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:14px;line-height:1.5}.dark .tip{background:#0f172a;border-color:#334155;color:#cbd5e1}.tip strong{color:inherit}
     .ios-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.ios-box{background:#1f2937;border:1px solid #374151;border-radius:18px;padding:18px}.ios-box label{display:block;font-size:13px;color:#94a3b8;margin:0 0 7px}.ios-box input,.ios-box select{width:100%;box-sizing:border-box;border:1px solid #475569;border-radius:12px;background:#0f172a;color:#fff;padding:13px;font:inherit}.ios-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:10px}.ios-btn{border:0;border-radius:14px;padding:14px 18px;font:600 15px Inter,sans-serif;cursor:pointer}.ios-btn.primary{background:#fff;color:#111827;width:100%;font-size:17px}.ios-btn.secondary{background:#334155;color:#fff}.ios-btn.text{background:transparent;color:#94a3b8;padding-left:0}.ios-preview{margin-top:14px}.ios-preview img{display:block;width:100%;max-height:360px;object-fit:contain;background:#000;border-radius:16px;margin-bottom:12px}.ios-status{min-height:24px;margin:12px 0 0;color:#93c5fd!important}.hidden-local{display:none!important}.install-note{margin-top:16px;padding:15px 16px;border-radius:15px;background:#0f172a;color:#cbd5e1;font-size:14px}.install-note strong{color:#fff}.android-note{margin-top:18px;padding:15px 16px;border-radius:15px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:14px}
-    @media(max-width:720px){.platform-title h2{font-size:27px}.platform-switch{gap:6px}.platform-btn{padding:14px 8px;font-size:16px}.platform-card{padding:19px;border-radius:22px}.platform-head{display:block}.platform-tag{display:inline-block;margin-top:10px}.mini-steps,.ios-grid{grid-template-columns:1fr}.platform-actions{display:grid}.platform-primary,.platform-secondary{width:100%;box-sizing:border-box}}
+    @media(max-width:720px){.platform-title h2{font-size:27px}.platform-switch{gap:6px}.platform-btn{padding:14px 8px;font-size:16px}.platform-card{padding:19px;border-radius:22px}.platform-head{display:block}.platform-tag{display:inline-block;margin-top:10px}.mini-steps,.ios-grid{grid-template-columns:1fr}.platform-actions{display:grid}.platform-primary,.platform-secondary{width:100%;box-sizing:border-box}.instruction-step{grid-template-columns:38px 1fr;padding:14px}.settings-table{font-size:13px}.settings-table th,.settings-table td{padding:9px 7px}}
   </style>
 </head>
 <body>
@@ -53,7 +54,7 @@
       <div class="platform-title">
         <div class="eyebrow">ВЫБЕРИТЕ ТЕЛЕФОН</div>
         <h2>Android или iPhone?</h2>
-        <p>После выбора останется только инструкция и действия для вашей платформы.</p>
+        <p>После выбора показывается только ваша версия и ее инструкция.</p>
       </div>
 
       <div class="platform-switch" role="tablist" aria-label="Выбор платформы">
@@ -74,7 +75,7 @@
 
           <div class="platform-actions">
             <a class="platform-primary" href="download/PhotoToMail.apk" download>Скачать APK</a>
-            <a class="platform-secondary" href="#android-help">Инструкция Android</a>
+            <a class="platform-secondary" href="#android-instruction">Инструкция Android</a>
           </div>
 
           <div class="mini-steps">
@@ -83,8 +84,26 @@
             <div class="mini-step"><strong>3. Фотографировать</strong><span>Выберите адрес и снимайте. Отправка автоматическая.</span></div>
           </div>
 
-          <div id="android-help" class="android-note">
-            <strong>Mail.ru:</strong> SMTP <code>smtp.mail.ru</code>, порт <code>465</code>. Используйте только пароль для внешнего приложения. Если видите код <strong>535</strong>, сервер не принял логин или пароль. Создайте новый пароль для внешнего приложения Mail.ru.
+          <div id="android-instruction" class="help-block">
+            <h3>Инструкция для Android</h3>
+            <p class="help-intro">Настройка выполняется один раз. После этого для отправки фото достаточно выбрать получателя и открыть камеру.</p>
+            <div class="instruction-list">
+              <div class="instruction-step"><div class="n">1</div><div><h4>Скачайте и установите APK</h4><p>Нажмите «Скачать APK». Откройте загруженный файл. Если Android попросит разрешение на установку из этого источника, разрешите установку для браузера, из которого скачали файл.</p></div></div>
+              <div class="instruction-step"><div class="n">2</div><div><h4>Откройте «Настройка почты отправителя»</h4><p>Введите полный адрес вашей почты. Для Mail.ru это адрес целиком, например <code>name@mail.ru</code>.</p></div></div>
+              <div class="instruction-step"><div class="n">3</div><div><h4>Введите пароль для внешнего приложения</h4><p>Не используйте основной пароль от почты. В Mail.ru откройте: Настройки → Все настройки → Безопасность → Пароли для внешних приложений. Создайте новый пароль и вставьте его в приложение.</p></div></div>
+              <div class="instruction-step"><div class="n">4</div><div><h4>Заполните SMTP</h4><p>Для Mail.ru укажите <code>smtp.mail.ru</code> и порт <code>465</code>. Затем нажмите «Сохранить настройку почты».</p></div></div>
+              <div class="instruction-step"><div class="n">5</div><div><h4>Добавьте получателя</h4><p>Введите адрес, куда должны уходить фотографии, и нажмите «Добавить». Можно сохранить несколько адресов и выбирать их из списка.</p></div></div>
+              <div class="instruction-step"><div class="n">6</div><div><h4>Сделайте фото</h4><p>Выберите нужный email и нажмите «Сделать фото и отправить». Подтвердите снимок. Приложение отправит фото автоматически и покажет статус.</p></div></div>
+            </div>
+
+            <table class="settings-table" aria-label="SMTP настройки">
+              <tr><th>Почта</th><th>SMTP</th><th>Порт</th></tr>
+              <tr><td>Mail.ru</td><td><code>smtp.mail.ru</code></td><td><code>465</code></td></tr>
+              <tr><td>Gmail</td><td><code>smtp.gmail.com</code></td><td><code>465</code></td></tr>
+              <tr><td>Яндекс</td><td><code>smtp.yandex.ru</code></td><td><code>465</code></td></tr>
+            </table>
+
+            <div class="tip"><strong>Ошибка 535:</strong> соединение с SMTP-сервером есть, но сервер не принял логин или пароль. Проверьте полный адрес почты и создайте новый пароль для внешнего приложения. Старый пароль Mail.ru повторно посмотреть нельзя.</div>
           </div>
         </div>
       </div>
@@ -122,7 +141,19 @@
             </div>
           </div>
 
-          <div class="install-note"><strong>Установить на iPhone:</strong> откройте `korytnikhub.pro/photo-mail/` в Safari → «Поделиться» → «На экран Домой». После этого запускайте «Фото на почту» с иконки.</div>
+          <div class="help-block" id="iphone-instruction">
+            <h3>Инструкция для iPhone</h3>
+            <p class="help-intro">Пароль почты в веб-версии не вводится. Фото передается через стандартное меню iPhone.</p>
+            <div class="instruction-list">
+              <div class="instruction-step"><div class="n">1</div><div><h4>Откройте страницу в Safari</h4><p>На iPhone откройте <code>korytnikhub.pro/photo-mail/</code> именно в Safari и выберите вкладку «iPhone».</p></div></div>
+              <div class="instruction-step"><div class="n">2</div><div><h4>Добавьте приложение на экран «Домой»</h4><p>В Safari нажмите кнопку «Поделиться», пролистайте меню и выберите «На экран Домой». Подтвердите добавление. Появится отдельная иконка «Фото на почту».</p></div></div>
+              <div class="instruction-step"><div class="n">3</div><div><h4>Добавьте адрес получателя</h4><p>Введите email и нажмите «Добавить». Адрес сохранится на этом iPhone. Можно сохранить несколько адресов.</p></div></div>
+              <div class="instruction-step"><div class="n">4</div><div><h4>Сделайте фотографию</h4><p>Выберите нужный адрес и нажмите «Сделать фото». Разрешите доступ к камере, если iPhone попросит разрешение.</p></div></div>
+              <div class="instruction-step"><div class="n">5</div><div><h4>Нажмите «Отправить фото»</h4><p>Откроется стандартное меню iPhone с фотографией. Выберите Mail или другое почтовое приложение. Адрес получателя дополнительно копируется в буфер обмена.</p></div></div>
+              <div class="instruction-step"><div class="n">6</div><div><h4>Вставьте адрес и отправьте</h4><p>Если почтовое приложение не подставило адрес автоматически, нажмите в поле «Кому» и выберите «Вставить». Затем отправьте письмо.</p></div></div>
+            </div>
+            <div class="tip"><strong>Важно:</strong> веб-приложение iPhone не хранит пароль Mail.ru и не подключается напрямую к SMTP. Это сделано специально, чтобы не сохранять пароль почты в Safari.</div>
+          </div>
         </div>
       </div>
     </section>
@@ -140,14 +171,13 @@
     const androidPanel = document.getElementById('androidPanel');
     const iphonePanel = document.getElementById('iphonePanel');
 
-    function setPlatform(platform, scroll = false) {
+    function setPlatform(platform) {
       const iphone = platform === 'iphone';
       androidTab.classList.toggle('active', !iphone);
       iphoneTab.classList.toggle('active', iphone);
       androidPanel.classList.toggle('active', !iphone);
       iphonePanel.classList.toggle('active', iphone);
       try { localStorage.setItem('photo-mail-platform', platform); } catch {}
-      if (scroll) document.getElementById('platform').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     androidTab.addEventListener('click', () => setPlatform('android'));
