@@ -109,6 +109,13 @@
   }
   function addSecurityLinks() {
     const actions = document.querySelector('.top-actions');
+    if (actions && !actions.querySelector('.desktop-version-link')) {
+      const desktop = document.createElement('a');
+      desktop.href = '../td-secure-v02.html';
+      desktop.className = 'btn ghost desktop-version-link';
+      desktop.textContent = 'Десктопная версия';
+      actions.insertBefore(desktop, document.querySelector('#lockBtn'));
+    }
     if (actions && !actions.querySelector('.pdn-security-link')) {
       const a = document.createElement('a');
       a.href = './security.html';
