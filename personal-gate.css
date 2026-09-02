@@ -9,9 +9,12 @@ body.personal-gate-open { overflow: hidden; }
 .personal-gate-project { position: relative; z-index: 1; margin: 0; color: #b9ccd7; font-size: 12px; line-height: 1.45; }
 .personal-gate-note { margin: 18px 0 14px; color: #8da4b3; font-size: 11px; }
 .personal-gate-form label > span { display: block; margin-bottom: 7px; color: #607583; font-size: 8px; font-weight: 900; letter-spacing: .13em; }
-.personal-gate-input { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid rgba(151,190,211,.18); border-radius: 13px; outline: none; color: #f5fbff; background: #07141c; font-size: 18px; letter-spacing: .18em; }
+.personal-gate-input { width: 100%; min-height: 50px; padding: 0 14px; border: 1px solid rgba(151,190,211,.18); border-radius: 13px; outline: none; color: #111111 !important; -webkit-text-fill-color: #111111; caret-color: #111111; background: #ffffff; font-size: 18px; letter-spacing: .18em; }
 .personal-gate-input:focus { border-color: rgba(49,213,255,.48); box-shadow: 0 0 0 3px rgba(49,213,255,.07); }
 .personal-gate-input.error { border-color: rgba(255,100,115,.48); }
+.personal-gate-input:-webkit-autofill,
+.personal-gate-input:-webkit-autofill:hover,
+.personal-gate-input:-webkit-autofill:focus { -webkit-text-fill-color: #111111 !important; box-shadow: 0 0 0 1000px #ffffff inset !important; }
 .personal-gate-error { min-height: 19px; padding-top: 7px; color: #ff8894; font-size: 10px; }
 .personal-gate-actions { display: grid; grid-template-columns: 1fr 1.35fr; gap: 9px; margin-top: 7px; }
 .personal-gate-actions button { min-height: 46px; border-radius: 13px; font-size: 10px; font-weight: 900; letter-spacing: .04em; cursor: pointer; }
