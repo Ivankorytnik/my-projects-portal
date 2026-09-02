@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Фото на почту — Android-приложение: сфотографировать и автоматически отправить фото на сохраненный email." />
+  <title>Фото на почту | KORYTNIK HUB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1.0.0" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/">KH<span>.</span></a>
+    <a class="back" href="/">← Все проекты</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow">ANDROID MVP · v1.0.0</div>
+        <h1>Фото <span>→</span> Почта</h1>
+        <p class="lead">Сделали фотографию на телефоне, и она сразу отправилась на выбранный email. Получателей можно сохранить и выбирать из списка.</p>
+        <div class="actions">
+          <a class="button primary" href="download/PhotoToMail.apk" download>Скачать APK</a>
+          <a class="button secondary" href="#instruction">Инструкция</a>
+        </div>
+        <p class="meta">Android 10 и новее · APK устанавливается напрямую · фото также остается в галерее телефона</p>
+      </div>
+
+      <div class="phone" aria-label="Схема работы приложения">
+        <div class="phone-top"></div>
+        <div class="screen">
+          <div class="mini-label">ФОТО → ПОЧТА</div>
+          <h2>Фото на почту</h2>
+          <p>Куда отправлять</p>
+          <div class="select-demo">office@example.com <span>⌄</span></div>
+          <div class="camera-button">Сделать фото и отправить</div>
+          <div class="sent">✓ Отправлено</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <article><strong>01</strong><h3>Адрес сохраняется</h3><p>Добавьте один или несколько email. Последний выбранный адрес приложение запоминает.</p></article>
+      <article><strong>02</strong><h3>Одна кнопка</h3><p>Нажимаете «Сделать фото и отправить», снимаете, подтверждаете кадр. Дальше отправка идет автоматически.</p></article>
+      <article><strong>03</strong><h3>Без пароля в APK</h3><p>Пароль приложения от почты вводится только на телефоне и хранится зашифрованно через Android Keystore.</p></article>
+    </section>
+
+    <section id="instruction" class="instruction">
+      <div class="section-head">
+        <div class="eyebrow">ИНСТРУКЦИЯ</div>
+        <h2>Установка и первый запуск</h2>
+      </div>
+
+      <div class="steps">
+        <article class="step"><div class="num">1</div><div><h3>Скачайте APK</h3><p>Нажмите «Скачать APK» выше. Откройте файл на Android. Если телефон спросит разрешение на установку из этого источника, разрешите его только для браузера, из которого скачали файл.</p></div></article>
+        <article class="step"><div class="num">2</div><div><h3>Один раз настройте отправителя</h3><p>Откройте «Настройка почты отправителя». Введите адрес отправителя, пароль приложения и SMTP-сервер. Для Gmail сервер <code>smtp.gmail.com</code>, порт <code>465</code>. Для Яндекса <code>smtp.yandex.ru</code>, порт <code>465</code>. Для Mail.ru <code>smtp.mail.ru</code>, порт <code>465</code>.</p></div></article>
+        <article class="step"><div class="num">3</div><div><h3>Добавьте получателя</h3><p>Введите email, куда должны уходить фотографии, и нажмите «Добавить». Можно сохранить несколько адресов и выбирать нужный из выпадающего списка.</p></div></article>
+        <article class="step"><div class="num">4</div><div><h3>Фотографируйте</h3><p>Выберите адрес и нажмите «Сделать фото и отправить». После подтверждения снимка приложение само отправит его и покажет статус «Отправлено».</p></div></article>
+      </div>
+    </section>
+
+    <section class="note-grid">
+      <article class="note warning">
+        <div class="eyebrow">ВАЖНО</div>
+        <h3>Используйте пароль приложения</h3>
+        <p>Не вводите основной пароль от Gmail, Яндекса или Mail.ru. Для SMTP создайте отдельный пароль приложения в настройках вашей почты. Его можно в любой момент отозвать.</p>
+      </article>
+      <article class="note">
+        <div class="eyebrow">БЕЗОПАСНОСТЬ</div>
+        <h3>Что хранится на телефоне</h3>
+        <p>Адрес отправителя, SMTP-сервер и список получателей сохраняются локально. Пароль приложения шифруется ключом Android Keystore. Резервное копирование данных приложения отключено.</p>
+      </article>
+    </section>
+
+    <section class="support">
+      <h2>Если письмо не отправляется</h2>
+      <div class="support-grid">
+        <p><strong>Ошибка авторизации.</strong> Проверьте, что используется именно пароль приложения и SMTP-доступ разрешен вашим почтовым сервисом.</p>
+        <p><strong>Нет соединения.</strong> Проверьте интернет и порт 465. Корпоративные сети могут блокировать прямое SMTP-подключение.</p>
+        <p><strong>Фото слишком большое.</strong> Обычно почтовые сервисы ограничивают размер письма. Если камера создает очень большие файлы, уменьшите разрешение камеры.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>KORYTNIK HUB</span>
+    <span>Фото на почту · v1.0.0</span>
+  </footer>
+</body>
+</html>
