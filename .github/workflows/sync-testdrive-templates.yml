@@ -16,11 +16,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download current TestDrive_Doc package
+      - name: Download authorized TestDrive_Doc package
         run: |
           set -euo pipefail
-          python -m pip install --quiet gdown
-          gdown '1qEC2-mnzUOEr_XpxsCQclw3JuHFEJBx8' -O /tmp/TestDrive_Doc.zip
+          curl -L --fail --retry 3 'https://sdmntprdenmarkeast.oaiusercontent.com/files/00000000-c030-8210-b83f-6f057a9e5976/raw?se=2026-09-02T06%3A51%3A17Z&sp=r&sv=2026-02-06&sr=b&scid=f83973ac-3788-5976-a136-ed9a4c12fc39&skoid=ba81670d-b682-4d2d-9682-ac0ffdfb3fa1&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-02T05%3A19%3A00Z&ske=2026-09-03T05%3A19%3A00Z&sks=b&skv=2026-02-06&sig=BrE9vtGhPgsu7cvrr2oxEO0sk5c9FPRLHgZUlAEcwB4%3D' -o /tmp/TestDrive_Doc.zip
           unzip -t /tmp/TestDrive_Doc.zip
 
       - name: Publish Word templates
@@ -49,14 +48,14 @@ jobs:
       - name: Commit templates
         run: |
           set -euo pipefail
-          if git diff --quiet -- testdrive/templates; then
-            echo 'Templates are already current.'
-            exit 0
-          fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add testdrive/templates
+          if git diff --cached --quiet; then
+            echo 'Templates are already current.'
+            exit 0
+          fi
           git commit -m 'Publish TestDrive_Doc web templates'
           git push
 
-# refresh: 2026-09-02-3
+# one-time authorized publish 2026-09-02
