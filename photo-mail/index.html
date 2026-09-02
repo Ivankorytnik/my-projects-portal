@@ -56,17 +56,49 @@
 
       <div class="steps">
         <article class="step"><div class="num">1</div><div><h3>Скачайте APK</h3><p>Нажмите «Скачать APK» выше. Откройте файл на Android. Если телефон спросит разрешение на установку из этого источника, разрешите его только для браузера, из которого скачали файл.</p></div></article>
-        <article class="step"><div class="num">2</div><div><h3>Один раз настройте отправителя</h3><p>Откройте «Настройка почты отправителя». Введите адрес отправителя, пароль приложения и SMTP-сервер. Для Gmail сервер <code>smtp.gmail.com</code>, порт <code>465</code>. Для Яндекса <code>smtp.yandex.ru</code>, порт <code>465</code>. Для Mail.ru <code>smtp.mail.ru</code>, порт <code>465</code>.</p></div></article>
+        <article class="step"><div class="num">2</div><div><h3>Один раз настройте отправителя</h3><p>Откройте «Настройка почты отправителя». Введите полный адрес почты отправителя, специальный пароль для внешнего приложения, SMTP-сервер и порт. Обычный пароль от почты использовать нельзя.</p></div></article>
         <article class="step"><div class="num">3</div><div><h3>Добавьте получателя</h3><p>Введите email, куда должны уходить фотографии, и нажмите «Добавить». Можно сохранить несколько адресов и выбирать нужный из выпадающего списка.</p></div></article>
         <article class="step"><div class="num">4</div><div><h3>Фотографируйте</h3><p>Выберите адрес и нажмите «Сделать фото и отправить». После подтверждения снимка приложение само отправит его и покажет статус «Отправлено».</p></div></article>
       </div>
     </section>
 
+    <section class="instruction">
+      <div class="section-head">
+        <div class="eyebrow">MAIL.RU · ПОШАГОВО</div>
+        <h2>Настройка Mail.ru</h2>
+      </div>
+
+      <div class="steps">
+        <article class="step"><div class="num">1</div><div><h3>Откройте настройки безопасности Mail.ru</h3><p>В Почте Mail откройте <strong>Настройки → Все настройки → Безопасность → Пароли для внешних приложений</strong>. Если раздел не виден, проверьте, что к аккаунту привязан номер телефона.</p></div></article>
+        <article class="step"><div class="num">2</div><div><h3>Создайте отдельный пароль</h3><p>Нажмите «Создать», назовите пароль, например <strong>PhotoToMail</strong>, выберите доступ к Почте/SMTP и скопируйте выданный код. Mail.ru показывает этот пароль только при создании. Если потеряли его, создайте новый.</p></div></article>
+        <article class="step"><div class="num">3</div><div><h3>Введите данные в приложении</h3><p><strong>Почта:</strong> полный адрес, например <code>name@mail.ru</code><br><strong>Пароль:</strong> пароль для внешнего приложения<br><strong>SMTP:</strong> <code>smtp.mail.ru</code><br><strong>Порт:</strong> <code>465</code></p></div></article>
+        <article class="step"><div class="num">4</div><div><h3>Проверьте SMTP-доступ</h3><p>В Mail.ru откройте <strong>Настройки → Все настройки → Безопасность → Внешние сервисы</strong> и убедитесь, что разрешен доступ к почте по <strong>IMAP, POP и SMTP</strong>.</p></div></article>
+      </div>
+
+      <div class="actions">
+        <a class="button secondary" href="https://account.mail.ru/user/2-step-auth/passwords/" target="_blank" rel="noopener">Открыть пароли приложений Mail.ru</a>
+        <a class="button secondary" href="https://help.mail.ru/mail/login/mailer/" target="_blank" rel="noopener">Официальная инструкция Mail.ru</a>
+      </div>
+    </section>
+
     <section class="note-grid">
       <article class="note warning">
+        <div class="eyebrow">ОШИБКА 535</div>
+        <h3>SMTP сервер отклонил логин или пароль</h3>
+        <p>Код <strong>535</strong> обычно означает, что соединение с SMTP-сервером уже установлено, но Mail.ru не принял данные авторизации. Проверьте полный адрес почты и замените обычный пароль на специально созданный пароль для внешнего приложения.</p>
+      </article>
+      <article class="note">
         <div class="eyebrow">ВАЖНО</div>
-        <h3>Используйте пароль приложения</h3>
-        <p>Не вводите основной пароль от Gmail, Яндекса или Mail.ru. Для SMTP создайте отдельный пароль приложения в настройках вашей почты. Его можно в любой момент отозвать.</p>
+        <h3>Старый пароль нельзя посмотреть</h3>
+        <p>Mail.ru не показывает ранее созданный пароль для внешнего приложения. Если вы его не сохранили или не уверены, какой пароль ввели, удалите старый и создайте новый.</p>
+      </article>
+    </section>
+
+    <section class="note-grid">
+      <article class="note warning">
+        <div class="eyebrow">ПАРОЛЬ</div>
+        <h3>Не используйте основной пароль</h3>
+        <p>Для Gmail, Яндекса и Mail.ru используйте отдельный пароль приложения. Его можно отозвать без смены основного пароля от почты.</p>
       </article>
       <article class="note">
         <div class="eyebrow">БЕЗОПАСНОСТЬ</div>
@@ -76,18 +108,27 @@
     </section>
 
     <section class="support">
+      <h2>Готовые SMTP-настройки</h2>
+      <div class="support-grid">
+        <p><strong>Mail.ru</strong><br><code>smtp.mail.ru</code><br>порт <code>465</code><br>SSL/TLS</p>
+        <p><strong>Gmail</strong><br><code>smtp.gmail.com</code><br>порт <code>465</code><br>SSL/TLS</p>
+        <p><strong>Яндекс</strong><br><code>smtp.yandex.ru</code><br>порт <code>465</code><br>SSL/TLS</p>
+      </div>
+    </section>
+
+    <section class="support">
       <h2>Если письмо не отправляется</h2>
       <div class="support-grid">
-        <p><strong>Ошибка авторизации.</strong> Проверьте, что используется именно пароль приложения и SMTP-доступ разрешен вашим почтовым сервисом.</p>
-        <p><strong>Нет соединения.</strong> Проверьте интернет и порт 465. Корпоративные сети могут блокировать прямое SMTP-подключение.</p>
-        <p><strong>Фото слишком большое.</strong> Обычно почтовые сервисы ограничивают размер письма. Если камера создает очень большие файлы, уменьшите разрешение камеры.</p>
+        <p><strong>Код 535.</strong> Сервер доступен, но не принял авторизацию. Проверьте полный email, пароль для внешнего приложения и создайте новый пароль, если есть сомнения.</p>
+        <p><strong>Нет соединения.</strong> Проверьте интернет, SMTP-сервер и порт 465. Корпоративные сети могут блокировать прямое SMTP-подключение.</p>
+        <p><strong>Фото слишком большое.</strong> Почтовые сервисы ограничивают размер письма. Если камера создает очень большие файлы, уменьшите разрешение камеры.</p>
       </div>
     </section>
   </main>
 
   <footer>
     <span>KORYTNIK HUB</span>
-    <span>Фото на почту · v1.0.0</span>
+    <span>Фото на почту · инструкция обновлена 02.09.2026</span>
   </footer>
 </body>
 </html>
