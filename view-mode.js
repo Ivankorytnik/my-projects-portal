@@ -1,19 +1,26 @@
 (() => {
   const VIEW_KEY = "korytnik-hub-project-view";
 
+  function cleanProjectCards() {
+    document.querySelectorAll(".project-card").forEach(card => {
+      card.querySelectorAll(".next-step").forEach(el => el.remove());
+
+      card.querySelectorAll(".card-meta span").forEach(span => {
+        const text = (span.textContent || "").trim().toLowerCase();
+        if (text.startsWith("ответственный:")) {
+          span.remove();
+        }
+      });
+    });
+  }
+
   function installCardCleanupStyles() {
     if (document.getElementById("projectCardCleanupStyles")) return;
 
     const style = document.createElement("style");
     style.id = "projectCardCleanupStyles";
     style.textContent = `
-      .project-card .next-step {
-        display: none !important;
-      }
-
-      .project-card .card-meta span:first-child {
-        display: none !important;
-      }
+      .project-card .next-step { display: none !important; }
 
       .projects-grid.view-list .project-card {
         grid-template-columns: minmax(190px, 1.15fr) minmax(280px, 2fr) minmax(175px, .8fr) !important;
@@ -68,7 +75,14 @@
 
     const grid = document.getElementById("projectsGrid");
     const heading = document.querySelector(".section-heading");
-    if (!grid || !heading || document.getElementById("projectViewSwitch")) return;
+    if (!grid || !heading) return;
+
+    cleanProjectCards();
+
+    const observer = new MutationObserver(() => cleanProjectCards());
+    observer.observe(grid, { childList: true, subtree: true });
+
+    if (document.getElementById("projectViewSwitch")) return;
 
     const switcher = document.createElement("div");
     switcher.id = "projectViewSwitch";
