@@ -107,7 +107,27 @@
     status(`Шаблоны обновлены и сохранены только в этом браузере · ${stamp}.`,'ok');
     render();
   }
+  function addSecurityLinks() {
+    const actions = document.querySelector('.top-actions');
+    if (actions && !actions.querySelector('.pdn-security-link')) {
+      const a = document.createElement('a');
+      a.href = './security.html';
+      a.className = 'btn ghost pdn-security-link';
+      a.textContent = 'Безопасность ПДн';
+      actions.insertBefore(a, document.querySelector('#lockBtn'));
+    }
+    const banner = document.querySelector('.security-banner > div');
+    if (banner && !banner.querySelector('.pdn-more-link')) {
+      const more = document.createElement('a');
+      more.href = './security.html';
+      more.className = 'pdn-more-link';
+      more.textContent = 'Почему это безопасно →';
+      more.style.cssText = 'display:inline-block;margin-top:8px;color:#08776f;font-weight:700;text-decoration:none;font-size:13px';
+      banner.appendChild(more);
+    }
+  }
   function addUi() {
+    addSecurityLinks();
     const card = document.querySelector('.setup-card');
     const input = document.querySelector('#templateFilesInput');
     const oldBtn = document.querySelector('#chooseTemplatesBtn');
