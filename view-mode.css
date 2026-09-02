@@ -1,0 +1,246 @@
+/* KORYTNIK HUB: project view switcher */
+.view-mode-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #d8dee8;
+  border-radius: 12px;
+  background: #f5f7fa;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.view-mode-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 0;
+  border-radius: 9px;
+  color: #667085;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+}
+
+.view-mode-button:hover {
+  color: #1d2939;
+  background: rgba(255,255,255,.72);
+}
+
+.view-mode-button.active {
+  color: #101828;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(16, 24, 40, .12);
+}
+
+.view-mode-icon {
+  width: 15px;
+  height: 15px;
+  display: block;
+}
+
+/* List view keeps the same project data but changes only the layout. */
+.projects-grid.view-list {
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+.projects-grid.view-list .project-card {
+  min-height: 0 !important;
+  display: grid !important;
+  grid-template-columns: minmax(190px, 1.15fr) minmax(260px, 1.8fr) minmax(190px, 1.2fr) minmax(175px, .8fr);
+  grid-template-areas:
+    "top top top actions"
+    "title desc next actions"
+    "meta desc next admin";
+  gap: 9px 22px;
+  align-items: start;
+  padding: 16px 18px !important;
+  border-radius: 14px !important;
+}
+
+.projects-grid.view-list .project-card::before {
+  width: 4px !important;
+  height: auto !important;
+  top: 12px !important;
+  bottom: 12px !important;
+  left: 0 !important;
+  right: auto !important;
+  border-radius: 0 4px 4px 0;
+}
+
+.projects-grid.view-list .project-card::after {
+  display: none !important;
+}
+
+.projects-grid.view-list .card-top {
+  grid-area: top;
+  min-width: 0;
+  margin: 0 !important;
+}
+
+.projects-grid.view-list .project-identity {
+  position: absolute !important;
+  top: 17px;
+  right: 18px;
+  margin: 0 !important;
+  opacity: .75;
+}
+
+.projects-grid.view-list .project-card h3 {
+  grid-area: title;
+  align-self: start;
+  margin: 2px 0 0 !important;
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+  letter-spacing: -.02em !important;
+  text-transform: none !important;
+}
+
+.projects-grid.view-list .project-card > p {
+  grid-area: desc;
+  margin: 2px 0 0 !important;
+  font-size: 13px !important;
+  line-height: 1.48 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.projects-grid.view-list .next-step {
+  grid-area: next;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  min-height: 58px;
+  border-radius: 10px !important;
+}
+
+.projects-grid.view-list .next-step span {
+  margin-bottom: 3px !important;
+  font-size: 9px !important;
+}
+
+.projects-grid.view-list .next-step strong {
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.projects-grid.view-list .card-meta {
+  grid-area: meta;
+  align-self: end;
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 5px 12px !important;
+  margin: 5px 0 0 !important;
+  font-size: 10px !important;
+}
+
+.projects-grid.view-list .card-actions-main {
+  grid-area: actions;
+  align-self: center;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 7px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.projects-grid.view-list .card-actions-admin {
+  grid-area: admin;
+  display: flex !important;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 7px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.projects-grid.view-list .open-link,
+.projects-grid.view-list .github-link,
+.projects-grid.view-list .card-button {
+  min-height: 34px !important;
+  padding: 8px 10px !important;
+  font-size: 10px !important;
+}
+
+.projects-grid.view-list .card-button.delete {
+  flex: 0 0 34px !important;
+  width: 34px !important;
+}
+
+@media (max-width: 1180px) {
+  .projects-grid.view-list .project-card {
+    grid-template-columns: minmax(190px, 1fr) minmax(240px, 1.4fr) minmax(170px, 1fr);
+    grid-template-areas:
+      "top top actions"
+      "title desc actions"
+      "meta next admin";
+  }
+}
+
+@media (max-width: 900px) {
+  .section-heading {
+    align-items: center !important;
+    gap: 12px;
+  }
+
+  .projects-grid.view-list .project-card {
+    grid-template-columns: minmax(180px, .9fr) minmax(230px, 1.4fr);
+    grid-template-areas:
+      "top top"
+      "title desc"
+      "next desc"
+      "meta actions"
+      "admin actions";
+  }
+}
+
+@media (max-width: 640px) {
+  .section-heading {
+    align-items: flex-start !important;
+    flex-direction: column;
+  }
+
+  .view-mode-switch {
+    width: 100%;
+  }
+
+  .view-mode-button {
+    flex: 1;
+  }
+
+  .projects-grid.view-list .project-card {
+    display: flex !important;
+    flex-direction: column;
+    gap: 9px;
+    padding: 15px !important;
+  }
+
+  .projects-grid.view-list .project-identity {
+    display: none !important;
+  }
+
+  .projects-grid.view-list .project-card h3,
+  .projects-grid.view-list .project-card > p,
+  .projects-grid.view-list .next-step,
+  .projects-grid.view-list .card-meta,
+  .projects-grid.view-list .card-actions-main,
+  .projects-grid.view-list .card-actions-admin {
+    width: 100%;
+  }
+
+  .projects-grid.view-list .card-actions-main {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}
