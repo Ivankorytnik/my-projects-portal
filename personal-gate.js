@@ -5,7 +5,11 @@
   let gateInput = null;
   let gateError = null;
   let gateProject = null;
+  let gateNote = null;
+  let gateSubmit = null;
   let pendingUrl = "";
+  let pendingAction = null;
+  let bypassProtectedTypeChange = false;
 
   async function sha256(value) {
     const bytes = new TextEncoder().encode(value);
@@ -21,14 +25,21 @@
     gateInput.classList.toggle("error", Boolean(message));
   }
 
+  function resetGateMode() {
+    pendingUrl = "";
+    pendingAction = null;
+    if (gateNote) gateNote.textContent = "Введите пароль для доступа.";
+    if (gateSubmit) gateSubmit.innerHTML = "Открыть <span>→</span>";
+  }
+
   function closeGate() {
     if (!gateRoot) return;
     gateRoot.classList.add("hidden");
     gateRoot.setAttribute("aria-hidden", "true");
     document.body.classList.remove("personal-gate-open");
-    pendingUrl = "";
     if (gateInput) gateInput.value = "";
     setError("");
+    resetGateMode();
   }
 
   function createGate() {
@@ -61,6 +72,8 @@
     gateInput = gateRoot.querySelector(".personal-gate-input");
     gateError = gateRoot.querySelector(".personal-gate-error");
     gateProject = gateRoot.querySelector("#personalGateProject");
+    gateNote = gateRoot.querySelector(".personal-gate-note");
+    gateSubmit = gateRoot.querySelector(".personal-gate-submit");
 
     gateRoot.querySelector(".personal-gate-cancel").addEventListener("click", closeGate);
     gateRoot.addEventListener("click", event => {
@@ -85,7 +98,14 @@
         }
 
         const target = pendingUrl;
+        const action = pendingAction;
         closeGate();
+
+        if (typeof action === "function") {
+          action();
+          return;
+        }
+
         if (target) window.open(target, "_blank", "noopener,noreferrer");
       } catch (error) {
         console.error("Personal gate error", error);
@@ -98,9 +118,8 @@
     });
   }
 
-  function openGate(url, projectName) {
+  function showGate(projectName) {
     createGate();
-    pendingUrl = url;
     gateProject.textContent = projectName || "Личный проект";
     gateInput.value = "";
     setError("");
@@ -108,6 +127,23 @@
     gateRoot.setAttribute("aria-hidden", "false");
     document.body.classList.add("personal-gate-open");
     requestAnimationFrame(() => gateInput.focus());
+  }
+
+  function openGate(url, projectName) {
+    pendingUrl = url;
+    pendingAction = null;
+    if (gateNote) gateNote.textContent = "Введите пароль для доступа.";
+    if (gateSubmit) gateSubmit.innerHTML = "Открыть <span>→</span>";
+    showGate(projectName);
+  }
+
+  function verifyProtectedChange(projectName, onVerified) {
+    pendingUrl = "";
+    pendingAction = onVerified;
+    createGate();
+    gateNote.textContent = "Введите пароль, чтобы изменить тип личного проекта.";
+    gateSubmit.innerHTML = "Подтвердить <span>→</span>";
+    showGate(projectName);
   }
 
   function isPersonalCard(card) {
@@ -128,9 +164,46 @@
     openGate(link.href, projectName);
   }
 
+  function protectPersonalTypeChange() {
+    const projectForm = document.getElementById("projectForm");
+    const projectId = document.getElementById("projectId");
+    const projectType = document.getElementById("projectType");
+    if (!projectForm || !projectId || !projectType) return;
+
+    projectForm.addEventListener("submit", event => {
+      if (bypassProtectedTypeChange) {
+        bypassProtectedTypeChange = false;
+        return;
+      }
+
+      const id = projectId.value;
+      if (!id || projectType.value === "personal") return;
+
+      let originalProject = null;
+      try {
+        if (typeof state !== "undefined" && Array.isArray(state.projects)) {
+          originalProject = state.projects.find(project => project.id === id) || null;
+        }
+      } catch (error) {
+        console.error("Personal project type protection error", error);
+      }
+
+      if (!originalProject || originalProject.type !== "personal") return;
+
+      event.preventDefault();
+      event.stopImmediatePropagation();
+
+      verifyProtectedChange(originalProject.title || "Личный проект", () => {
+        bypassProtectedTypeChange = true;
+        projectForm.requestSubmit();
+      });
+    }, true);
+  }
+
   function start() {
     createGate();
     document.addEventListener("click", handleProtectedClick, true);
+    protectPersonalTypeChange();
   }
 
   if (document.readyState === "loading") {
