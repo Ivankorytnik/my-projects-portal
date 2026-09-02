@@ -15,16 +15,35 @@
     accent: "#8ab4f8"
   };
 
-  try {
-    if (Array.isArray(initialProjects) && !initialProjects.some(item => item.id === project.id)) {
-      initialProjects.unshift(project);
-    }
+  function addProject() {
+    try {
+      if (Array.isArray(initialProjects) && !initialProjects.some(item => item.id === project.id)) {
+        initialProjects.unshift(project);
+      }
 
-    if (state && Array.isArray(state.projects) && !state.projects.some(item => item.id === project.id)) {
+      if (!state || !Array.isArray(state.projects)) return;
+      if (state.projects.some(item => item.id === project.id)) return;
+
       state.projects.unshift(typeof normalizeProject === "function" ? normalizeProject(project) : project);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
+      if (typeof saveProjects === "function") saveProjects();
+      else localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
+      if (typeof render === "function") render();
+    } catch (error) {
+      console.error("File Optimizer card bootstrap failed:", error);
     }
-  } catch (error) {
-    console.error("File Optimizer card bootstrap failed:", error);
+  }
+
+  addProject();
+
+  const root = document.documentElement;
+  if (root.classList.contains("hub-sync-ready")) {
+    addProject();
+  } else {
+    const observer = new MutationObserver(() => {
+      if (!root.classList.contains("hub-sync-ready")) return;
+      observer.disconnect();
+      addProject();
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
   }
 })();
