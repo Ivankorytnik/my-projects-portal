@@ -1,13 +1,17 @@
 (() => {
   const VIEW_KEY = "korytnik-hub-project-view";
 
-  function installNextStepRemovalStyles() {
-    if (document.getElementById("hideProjectNextStepStyles")) return;
+  function installCardCleanupStyles() {
+    if (document.getElementById("projectCardCleanupStyles")) return;
 
     const style = document.createElement("style");
-    style.id = "hideProjectNextStepStyles";
+    style.id = "projectCardCleanupStyles";
     style.textContent = `
       .project-card .next-step {
+        display: none !important;
+      }
+
+      .project-card .card-meta span:first-child {
         display: none !important;
       }
 
@@ -60,7 +64,7 @@
   }
 
   function initViewSwitcher() {
-    installNextStepRemovalStyles();
+    installCardCleanupStyles();
 
     const grid = document.getElementById("projectsGrid");
     const heading = document.querySelector(".section-heading");
