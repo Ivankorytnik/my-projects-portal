@@ -1,21 +1,6 @@
 (() => {
   const projects = [
     {
-      id: "korytnik-ai",
-      type: "personal",
-      title: "KORYTNIK AI",
-      category: "AI / Voice",
-      status: "mvp",
-      description: "Персональный голосовой помощник: разговор через микрофон, голосовые ответы и текстовая история диалога.",
-      nextStep: "Подключить постоянную память и действия с проектами, файлами, почтой и календарем.",
-      url: "https://korytnikhub.pro/ai/",
-      githubUrl: "https://github.com/Ivankorytnik/my-projects-portal/tree/main/ai",
-      owner: "Иван Корытник",
-      updated: "2026-09-01",
-      color: "#111827",
-      accent: "#78a8ff"
-    },
-    {
       id: "file-optimizer",
       type: "personal",
       title: "Оптимизация файлов",
