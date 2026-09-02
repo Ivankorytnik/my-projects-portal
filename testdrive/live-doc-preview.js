@@ -1,159 +1,241 @@
 'use strict';
 
 (() => {
+  const months = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   let active = 'poa';
-  let lastSignature = '';
   let mounted = false;
 
-  const esc = (v) => String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
-  const byField = (name) => document.querySelector(`[data-f="${name}"]`)?.value?.trim() || '';
-  const byCheck = (name) => !!document.querySelector(`[data-c="${name}"]`)?.checked;
-  const dateText = (v) => {
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const value = (name) => $(`[data-f="${name}"]`)?.value?.trim() || '';
+  const checked = (name) => !!$(`[data-c="${name}"]`)?.checked;
+
+  function fmtDate(v) {
     if (!v) return '';
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
     return m ? `${m[3]}.${m[2]}.${m[1]}` : v;
-  };
-  const fill = (v, empty='не заполнено') => `<span class="td-doc-fill${v ? '' : ' empty'}">${esc(v || empty)}</span>`;
-  const mark = (yes) => `<span class="td-check-mark" aria-hidden="true">${yes ? '☒' : '☐'}</span>`;
-
+  }
+  function dateParts(v) {
+    if (!v) return {day:'____',month:'_______',year:'2026'};
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v);
+    if (!m) return {day:'____',month:'_______',year:'2026'};
+    return {day:m[3],month:months[Number(m[2])-1] || '_______',year:m[1]};
+  }
+  function shortName(name) {
+    const a = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (a.length < 2) return a[0] || '';
+    return `${a[0]} ${(a[1]?.[0] || '')}.${(a[2]?.[0] || '')}.`;
+  }
   function data() {
-    return {
-      fullName: byField('fullName'), phone: byField('phone'), email: byField('email'), birthDate: dateText(byField('birthDate')),
-      passportSeries: byField('passportSeries'), passportNumber: byField('passportNumber'), passportIssuedBy: byField('passportIssuedBy'),
-      passportIssueDate: dateText(byField('passportIssueDate')), passportCode: byField('passportCode'), registrationAddress: byField('registrationAddress'), actualAddress: byField('actualAddress'),
-      driverLicense: byField('driverLicense'), driverLicenseIssueDate: dateText(byField('driverLicenseIssueDate')), driverCategory: byField('driverCategory'), driverIssuedBy: byField('driverIssuedBy'),
-      carModel: byField('carModel'), vin: byField('vin'), plate: byField('plate'), carYear: byField('carYear'), bodyNumber: byField('bodyNumber'), chassis: byField('chassis'), pts: byField('pts'), sts: byField('sts'),
-      managerName: byField('managerName'), poaNumber: byField('poaNumber'), poaDate: dateText(byField('poaDate')), poaValidUntil: dateText(byField('poaValidUntil')),
-      companyRepRole: byField('companyRepRole'), companyRepName: byField('companyRepName'), companyRepPoaNo: byField('companyRepPoaNo'), companyRepPoaDate: dateText(byField('companyRepPoaDate')), testDriveDate: dateText(byField('testDriveDate')),
-      salutation: byField('salutation'), messenger: byField('messenger'),
-      consentEmail: byCheck('consentEmail'), consentSms: byCheck('consentSms'), consentPhone: byCheck('consentPhone'), consentPost: byCheck('consentPost'), consentMessenger: byCheck('consentMessenger')
-    };
+    const d = {};
+    $$('[data-f]').forEach(el => d[el.dataset.f] = el.value.trim());
+    $$('[data-c]').forEach(el => d[el.dataset.c] = !!el.checked);
+    d.passportCombined = [d.passportSeries,d.passportNumber].filter(Boolean).join(' ');
+    d.birthDateText = fmtDate(d.birthDate);
+    d.passportIssueDateText = fmtDate(d.passportIssueDate);
+    d.driverLicenseIssueDateText = fmtDate(d.driverLicenseIssueDate);
+    d.companyRepPoaDateText = fmtDate(d.companyRepPoaDate);
+    d.testDriveDateText = fmtDate(d.testDriveDate);
+    d.poaDateText = d.poaDate ? fmtDate(d.poaDate) : '______.__________.2026 год';
+    const p = dateParts(d.poaValidUntil);
+    d.poaValidUntilDay = p.day;
+    d.poaValidUntilMonth = p.month;
+    d.poaValidUntilYear = p.year;
+    d.companyRepShort = shortName(d.companyRepName);
+    d.salutationMr = d.salutation === 'Господин' ? '☒' : '☐';
+    d.salutationMs = d.salutation === 'Госпожа' ? '☒' : '☐';
+    d.consentEmailMark = d.consentEmail ? '☒' : '☐';
+    d.consentSmsMark = d.consentSms ? '☒' : '☐';
+    d.consentPhoneMark = d.consentPhone ? '☒' : '☐';
+    d.consentPostMark = d.consentPost ? '☒' : '☐';
+    d.consentMessengerMark = d.consentMessenger ? '☒' : '☐';
+    return d;
   }
 
-  function row(label, value) {
-    return `<div class="td-doc-row"><div class="td-doc-label">${esc(label)}</div><div>${fill(value)}</div></div>`;
+  function put(key,val) {
+    $$(`[data-o="${key}"]`).forEach(el => el.textContent = val || '');
   }
-
-  function poa(d) {
-    const passport = [d.passportSeries,d.passportNumber].filter(Boolean).join(' ');
-    return `<div class="td-doc-sheet">
-      <div class="td-doc-kicker">АКЦИОНЕРНОЕ ОБЩЕСТВО «КАМА» (АО «Кама»)<br>Российская Федерация, г. Москва</div>
-      <h3 class="td-doc-title">ДОВЕРЕННОСТЬ № ${fill(d.poaNumber,'Б/Н')}</h3>
-      <div class="td-doc-subtitle">Дата: ${fill(d.poaDate)}</div>
-      <p class="td-doc-text">Акционерное общество «КАМА», в лице ${fill(d.companyRepRole,'должность представителя')} ${fill(d.companyRepName,'ФИО представителя')}, действующего на основании доверенности № ${fill(d.companyRepPoaNo)} от ${fill(d.companyRepPoaDate)}, имеет в собственности следующее транспортное средство:</p>
-      <div class="td-doc-section">
-        ${row('Марка и модель',d.carModel)}${row('Государственный регистрационный знак',d.plate)}${row('VIN',d.vin)}${row('Год выпуска',d.carYear)}${row('Номер шасси (рамы)',d.chassis)}${row('Номер кузова (кабины)',d.bodyNumber)}${row('ПТС',d.pts)}${row('СТС',d.sts)}
-      </div>
-      <div class="td-doc-section"><h4>НАСТОЯЩИМ УПОЛНОМОЧИВАЕТ</h4>
-        <p class="td-doc-text">${fill(d.fullName,'ФИО доверенного лица')}, паспорт ${fill(passport)}, выдан ${fill(d.passportIssueDate)} ${fill(d.passportIssuedBy)}, код подразделения ${fill(d.passportCode)}, водительское удостоверение ${fill(d.driverLicense)}, выдано ${fill(d.driverLicenseIssueDate)}, ГИБДД ${fill(d.driverIssuedBy)}, категория ${fill(d.driverCategory)}.</p>
-        <ul class="td-doc-list"><li>осуществлять управление и пользование Автомобилем;</li><li>являться законным представителем Общества в ГИБДД и страховых компаниях;</li><li>следить за техническим состоянием Автомобиля;</li><li>выполнять действия, связанные с данным поручением.</li></ul>
-      </div>
-      <p class="td-doc-text">Настоящая Доверенность выдана сроком действия до ${fill(d.poaValidUntil)} включительно без права передоверия другим лицам.</p>
-      <div class="td-doc-sign"><div><div class="td-doc-line"></div>Подпись Доверенного лица</div><div><div class="td-doc-line"></div>${fill(d.companyRepName,'ФИО представителя')}</div></div>
-      <div class="td-doc-file">01_Доверенность.docx · предварительный просмотр заполняемых полей</div>
-    </div>`;
-  }
-
-  function questionnaire(d) {
-    return `<div class="td-doc-sheet">
-      <h3 class="td-doc-title">АНКЕТА КЛИЕНТА</h3><div class="td-doc-subtitle">для предоставления Электромобиля Атом в краткосрочный тест-драйв</div>
-      ${row('ФИО',d.fullName)}${row('Контактный телефон',d.phone)}${row('E-mail',d.email)}${row('Серия паспорта',d.passportSeries)}${row('Номер паспорта',d.passportNumber)}${row('Кем выдан',d.passportIssuedBy)}${row('Дата выдачи',d.passportIssueDate)}${row('Код подразделения',d.passportCode)}${row('Адрес регистрации',d.registrationAddress)}${row('Фактический адрес',d.actualAddress)}
-      <div class="td-doc-section">${row('Модель электромобиля',d.carModel)}${row('VIN',d.vin)}${row('Гос. номер',d.plate)}${row('ФИО сопровождающего менеджера',d.managerName)}${row('Дата тест-драйва',d.testDriveDate)}</div>
-      <div class="td-doc-section"><h4>Правила предоставления автомобилей АО «Кама» в краткосрочный тест-драйв</h4>
-        <p class="td-doc-text">Клиент получает Электромобиль с целью ознакомления с его потребительскими свойствами и осуществляет поездку только в сопровождении ответственного сотрудника.</p>
-        <p class="td-doc-text">Клиент обязан соблюдать Правила дорожного движения, бережно обращаться с Электромобилем и выполнять рекомендации сопровождающего менеджера.</p>
-        <p class="td-doc-text">АО «Кама» вправе отказать в предоставлении Электромобиля лицу моложе 25 лет и/или со стажем вождения менее 5 лет.</p>
-        <p class="td-doc-text">С Правилами предоставления Электромобилей АО «Кама» в краткосрочный тест-драйв ознакомлен, согласен и обязуюсь соблюдать.</p>
-      </div>
-      <div class="td-doc-sign"><div>ФИО<br>${fill(d.fullName)}</div><div>Подпись<div class="td-doc-line"></div></div></div>
-      <div class="td-doc-file">02_Анкета_клиента.docx · предварительный просмотр заполняемых полей</div>
-    </div>`;
-  }
-
-  function consent(d) {
-    return `<div class="td-doc-sheet">
-      <h3 class="td-doc-title">СОГЛАСИЕ НА ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ</h3>
-      <p class="td-doc-text">Уважаемый клиент, данные используются для коммуникаций, приглашений на мероприятия и направления информации в соответствии с выбранными ниже вариантами связи.</p>
-      ${row('Обращение',d.salutation)}${row('Фамилия Имя Отчество',d.fullName)}${row('Мобильный телефон',d.phone)}${row('Адрес электронной почты',d.email)}${row('Дата рождения',d.birthDate)}
-      <div class="td-doc-section"><h4>Согласие на варианты связи</h4><div class="td-consent-grid">
-        <div class="td-check-line">${mark(d.consentEmail)} Электронная почта</div><div class="td-check-line">${mark(d.consentSms)} СМС</div>
-        <div class="td-check-line">${mark(d.consentPhone)} Телефон (звонки)</div><div class="td-check-line">${mark(d.consentPost)} Почта</div>
-        <div class="td-check-line">${mark(d.consentMessenger)} Мессенджеры: ${fill(d.messenger,'не указан')}</div>
-      </div></div>
-      <div class="td-doc-section"><h4>Условия обработки</h4>
-        <p class="td-doc-text">Настоящим клиент выражает согласие на обработку АО «КАМА» предоставленных персональных данных в целях, предусмотренных штатной формой согласия.</p>
-        <p class="td-doc-text">Обработка осуществляется с соблюдением требований законодательства Российской Федерации и условий полного документа СОПД.</p>
-      </div>
-      <div class="td-doc-sign"><div>ФИО<br>${fill(d.fullName)}</div><div>Подпись<div class="td-doc-line"></div></div></div>
-      <div class="td-doc-file">03_Согласие_на_обработку_ПДн.docx · предварительный просмотр заполняемых полей</div>
-    </div>`;
-  }
-
-  function renderLive(force=false) {
+  function render() {
     if (!mounted) return;
     const d = data();
-    const sig = JSON.stringify(d);
-    if (!force && sig === lastSignature) return;
-    lastSignature = sig;
-    const views = {poa:poa(d),questionnaire:questionnaire(d),consent:consent(d)};
-    Object.entries(views).forEach(([kind,html]) => {
-      const panel = document.querySelector(`[data-doc-panel="${kind}"]`);
-      if (panel) panel.innerHTML = html;
+    Object.entries(d).forEach(([k,v]) => {
+      if (typeof v !== 'boolean') put(k,v);
     });
+  }
+
+  function poaMarkup() {
+    return `<article class="td-doc-paper td-poa-paper">
+      <div class="td-center"><b>АКЦИОНЕРНОЕ ОБЩЕСТВО «КАМА» (АО «Кама»)</b><br>Российская Федерация, г. Москва</div>
+      <div class="td-spacer"></div>
+      <div class="td-center td-doc-title">ДОВЕРЕННОСТЬ №<span class="td-fill" data-o="poaNumber">Б/Н</span></div>
+      <div class="td-poa-date"><span data-o="poaDateText">______.__________.2026 год</span></div>
+      <div class="td-poa-ref">Доверенность<br>№ 49 от Двадцать восьмого января 2025 г.</div>
+      <p>Акционерное общество «КАМА» (далее также – АО «КАМА» и/или «Общество»), являющееся юридическим лицом, учрежденным и осуществляющим свою деятельность в соответствии с законодательством Российской Федерации, в лице <span class="td-fill" data-o="companyRepRole"></span> <span class="td-fill" data-o="companyRepName"></span>, действующей на основании доверенности № <span class="td-fill" data-o="companyRepPoaNo"></span> от <span class="td-fill" data-o="companyRepPoaDateText"></span>, имея в собственности следующее транспортное средство (далее также именуемый по отдельности по тексту – «Автомобиль»):</p>
+      <p><b>Транспортное средство 1:</b></p>
+      <table class="td-grid-table td-vehicle-table"><tbody>
+        <tr><td>Марка и модель транспортного средства 1:</td><td class="td-fill" data-o="carModel"></td></tr>
+        <tr><td>Государственный регистрационный знак:</td><td class="td-fill" data-o="plate"></td></tr>
+        <tr><td>Идентификационный номер (VIN):</td><td class="td-fill" data-o="vin"></td></tr>
+        <tr><td>Год выпуска:</td><td class="td-fill" data-o="carYear"></td></tr>
+        <tr><td>Номер шасси (рамы):</td><td class="td-fill" data-o="chassis"></td></tr>
+        <tr><td>Номер кузова (кабины):</td><td class="td-fill" data-o="bodyNumber"></td></tr>
+        <tr><td>Паспорт транспортного средства (серия и номер)</td><td class="td-fill" data-o="pts"></td></tr>
+        <tr><td>Свидетельство о регистрации транспортного средства (серия и номер)</td><td class="td-fill" data-o="sts"></td></tr>
+      </tbody></table>
+      <p class="td-authorize"><b>НАСТОЯЩИМ УПОЛНОМОЧИВАЕТ:</b> <span class="td-fill" data-o="fullName"></span>, паспорт <span class="td-fill" data-o="passportCombined"></span> выдан <span class="td-fill" data-o="passportIssueDateText"></span> г. <span class="td-fill" data-o="passportIssuedBy"></span>, код подразделения <span class="td-fill" data-o="passportCode"></span>, водительское удостоверение <span class="td-fill" data-o="driverLicense"></span>, выдан <span class="td-fill" data-o="driverLicenseIssueDateText"></span>, ГИБДД <span class="td-fill" data-o="driverIssuedBy"></span>, категория <span class="td-fill" data-o="driverCategory"></span>, далее также «Доверенное лицо», осуществлять от имени и в интересах АО «КАМА» следующие действия в отношении вышеуказанного транспортного средства:</p>
+      <ul class="td-bullets"><li>осуществлять управление и пользование Автомобилем;</li><li>являться законным представителем Общества в органах и подразделениях Государственной инспекции безопасности дорожного движения Министерства внутренних дел Российской Федерации и страховых компаниях, в связи с чем уполномочивает совершать от имени Общества все связанные с этим действия;</li><li>следить за техническим состоянием Автомобиля;</li><li>осуществлять прохождение всех предусмотренных законодательством формальностей и процедур,</li><li>выполнять иные действия и формальности, связанные с данным поручением.</li></ul>
+      <p>Доверенность может быть отозвана Обществом в любой момент. От имени Акционерного общества «КАМА»</p>
+      <div class="td-signature-row td-poa-sign"><div>Подпись Доверенного лица<br><br><span class="td-sign-line"></span><br><span class="td-small">(Подпись Доверенного лица)</span></div><div>удостоверяю.<br><br><span class="td-sign-line"></span><br><span class="td-fill" data-o="companyRepShort"></span></div></div>
+      <p class="td-valid-until">Настоящая Доверенность выдана сроком действия до «<span class="td-fill" data-o="poaValidUntilDay">____</span>» <span class="td-fill" data-o="poaValidUntilMonth">_______</span> <span class="td-fill" data-o="poaValidUntilYear">2026</span> года включительно без права передоверия другим лицам.</p>
+      <div class="td-poa-manager"><span class="td-fill" data-o="companyRepShort"></span><div class="td-manager-caption"><span>(Подпись)</span><span>ФИО</span></div></div>
+      <div class="td-doc-footer"><span>АО «Кама»,<br>ОГРН 1211600055424, ИНН 1650404549</span><span>Стр. 2 из 2</span><span>115191, г. Москва, вн.тер. г. Муниципальный округ Даниловский, пер. Холодильный, д. 6</span></div>
+    </article>`;
+  }
+
+  function questionnaireMarkup() {
+    return `<article class="td-doc-paper td-questionnaire-paper">
+      <div class="td-center td-doc-title">АНКЕТА КЛИЕНТА<br><span class="td-title-sub">для предоставления Электромобиля Атом в краткосрочный тест-драйв</span></div>
+      <table class="td-grid-table td-form-table td-first-form"><tbody>
+        <tr><td>ФИО</td><td class="td-fill" data-o="fullName"></td></tr>
+        <tr><td>Контактный телефон</td><td class="td-fill" data-o="phone"></td></tr>
+        <tr><td>Е-mail</td><td class="td-fill" data-o="email"></td></tr>
+        <tr><td>Серия паспорта</td><td class="td-fill" data-o="passportSeries"></td></tr>
+        <tr><td>Номер паспорта</td><td class="td-fill" data-o="passportNumber"></td></tr>
+        <tr><td>Кем выдан</td><td class="td-fill" data-o="passportIssuedBy"></td></tr>
+        <tr><td>Дата выдачи</td><td class="td-fill" data-o="passportIssueDateText"></td></tr>
+        <tr><td>Код подразделения</td><td class="td-fill" data-o="passportCode"></td></tr>
+        <tr><td>Адрес регистрации</td><td class="td-fill" data-o="registrationAddress"></td></tr>
+        <tr><td>Адрес фактического проживания (если не совпадает с адресом регистрации)</td><td class="td-fill" data-o="actualAddress"></td></tr>
+      </tbody></table>
+      <table class="td-grid-table td-form-table td-car-form"><tbody>
+        <tr><td>Модель электромобиля</td><td class="td-fill" data-o="carModel"></td></tr>
+        <tr><td>VIN</td><td class="td-fill" data-o="vin"></td></tr>
+        <tr><td>Гос. номер</td><td class="td-fill" data-o="plate"></td></tr>
+        <tr><td>ФИО сопровождающего<br>менеджера</td><td class="td-fill" data-o="managerName"></td></tr>
+      </tbody></table>
+      <div class="td-center td-rules-title"><b>Правила предоставления автомобилей АО «Кама»<br>в краткосрочный тест-драйв</b></div>
+      <div class="td-small td-rules-text">
+        <p><b>Основные термины и определения:</b><br>Электромобиль – электромобиль Атом, указанный в анкете Клиента.<br>Клиент – физическое лицо, взявшее Электромобиль в краткосрочный тест-драйв.<br>Стороны – Клиент и АО «Кама», по отдельности – Сторона.<br>Правила – настоящие «Правила предоставления автомобилей АО «Кама» в краткосрочный тест-драйв», утвержденные Директором по продажам и послепродажному обслуживанию АО «Кама» от 30 мая 2025 г.</p>
+        <ol>
+          <li>АО «Кама» передает Электромобиль Клиенту с целью ознакомления Клиента с потребительскими свойствами Электромобиля (осуществление краткосрочного тест-драйва Электромобиля), а Клиент обязуется использовать Электромобиль исключительно в целях, определенных настоящими Правилами, и вернуть Электромобиль АО «Кама» том состоянии, в каком он его получил, с учетом нормального износа.</li>
+          <li>Все поездки краткосрочного тест-драйва Клиент осуществляет только в сопровождении ответственного сотрудника АО «Кама». Во время тест-драйва Клиент обязуется выполнять все рекомендации сопровождающего менеджера, в том числе, относительно маршрута тест-драйва, времени его окончания, управления Электромобилей и иные.</li>
+          <li>Клиент обязан только лично управлять Электромобилем, за исключением случая, описанного в п. 9 настоящих Правил. Клиент обязуется бережно обращаться с Электромобилем и вернуть его в том же месте, где Электромобиль был получен, и в том же внешнем и внутреннем состоянии, в котором он был получен.</li>
+          <li>Во время тест-драйва запрещается начинать движение с максимальным разгоном, направлять Электромобиль в сторону ограждений, сооружений и пр., резко изменять направление движения, совершать маневры, в результате которых может быть причинен вред Электромобилю или имуществу, здоровью или жизни третьих лиц, вождение Электромобиля в тяжелых дорожных условиях, вне дорог общего пользования, а также его эксплуатация в экстремальных условиях или режимах.</li>
+          <li>При вождении Электромобиля Клиент обязан строго соблюдать Правила дорожного движения РФ. В случаях дорожно-транспортных происшествий Клиент обязан оставаться в Электромобиле до приезда ГИБДД, а также способствовать надлежащему оформлению всех необходимых в этом случае документов. В случае, если Клиент в период тест-драйва совершит нарушение Правил дорожного движения РФ (административное правонарушение), он уплачивает штраф самостоятельно. В случае, если в результате нарушения Клиентом Правил дорожного движения РФ АО «Кама», как собственник Электромобиля, будет привлечено к административной ответственности, предусмотренной законодательством РФ, Клиент обязуется возместить АО «Кама» сумму штрафа, указанного в Постановлении о привлечении АО «Кама» к административной ответственности, в течение 5 (пяти) рабочих дней с момента получения соответствующего уведомления от АО «Кама».</li>
+          <li>Передаваемый Клиенту Электромобиль застрахован. Однако Клиент обязуется возместить АО «Кама» в полном объеме ущерб, возникший в результате использования или ненадлежащего использования Электромобиля, в случае отказа выплаты ущерба страховой компанией в течение 10 (десяти) календарных дней с даты предъявления Клиенту письменного отказа страховой компании; например, если ущерб возник в результате преднамеренных действий или небрежности Клиента, включая, но не ограничиваясь случаями нарушения Правил дорожного движения РФ, наличия в крови недопустимой концентрации алкоголя, приема медикаментов, ограничивающих способность к вождению и т.п.</li>
+          <li>Клиент самостоятельно несет ответственность за вред, причиненный им третьим лицам и/или их имуществу во время управления Электромобилем.</li>
+          <li>Передача Электромобиля третьему лицу запрещается.</li>
+          <li>Ответственный менеджер АО «Кама», сопровождающий Клиента, имеет право потребовать досрочного прекращения тест-драйва Электромобиля, а также отстранить Клиента от управления Электромобилем при нарушении Клиентом положений настоящих Правил, несоблюдении рекомендаций менеджера или по иной веской причине. В таком случае Клиент обязан незамедлительно, с соблюдением Правил дорожного движения РФ, совершить остановку и передать управление Электромобилем менеджеру АО «Кама».</li>
+          <li>При проведении тест-драйва в нарушение п. 4 настоящих Правил в тяжелых дорожных условиях, вне дорог общего пользования установлена безусловная франшиза в размере 50 000 рублей (Пятьдесят тысяч рублей) на каждый страховой случай, подлежащая возмещению АО «Кама».</li>
+          <li>АО «Кама» оставляет за собой право отказать в предоставлении Электромобиля клиенту, если клиентом является лицо, моложе 25 лет и/или со стажем вождения менее 5 лет.</li>
+          <li>Для целей проведения тест-драйва в соответствии с настоящими Правилами (включая осуществление взаимодействия между Сторонами, обеспечение подписания документации уполномоченными лицами, ведение учета контрагентов и договоров, учет предоставленных Электромобилей, контроль качества обслуживания и т.п.), а также обеспечения прав и законных интересов Сторон и соблюдения законодательства (в частности, выполнения процедур должной осмотрительности) АО «Кама» обрабатывает персональные данные Клиента. АО «Кама» вправе в указанных целях обрабатывать персональные данные в информационных системах, передавать персональные данные третьим лицам (включая поручение обработки третьим лицам), хранить и обрабатывать персональные данные любыми не противоречащими законодательству способами в течение срока проведения тест-драйва в соответствии с настоящими Правилами и любых связанных с ним правоотношений, а также срока, установленного действующим законодательством РФ. По достижении целей обработки или в случае утраты необходимости в достижении этих целей, если иное не предусмотрено законодательством либо отдельно не согласовано Сторонами, обрабатываемые персональные данные подлежат уничтожению АО «Кама» или по запросу АО «Кама» третьими лицами, обрабатывающими данные по поручению АО «Кама». Обработка персональных данных осуществляется АО «Кама», а также иными третьими лицами, которые привлекаются АО «Кама» к обработке или которым передаются персональные данные (или предоставляется доступ к ним) в выше указанных целях в соответствии с законодательством РФ. К числу подобных третьих лиц могут относиться, в частности, в зависимости от целей обработки персональных данных, контрагенты АО «Кама» (включая компании, оказывающие услуги предоставления или поддержки информационных систем, центров обработки данных, колл-центра и работы с обращениями/рекламациями, проведения исследований, услуги бухгалтерского учета, аудита сделок, аудита гарантийных работ и иные). АО «Кама» имеет право привлекать третьих лиц к обработке полученных персональных данных и/или передавать им полученные данные в указанных целях без дополнительного согласия Клиента, при условии обеспечения указанными третьими лицами конфиденциальности и безопасности персональных данных при обработке. АО «Кама» обязуется принимать необходимые правовые, организационные и технические меры для защиты получаемых персональных данных от неправомерного или случайного доступа к ним, уничтожения, изменения, блокирования, копирования, представления, распространения персональных данных, иных неправомерных действий в отношении персональных данных, и соблюдать принципы и правила обработки персональных данных, предусмотренные Федеральным законом РФ «О персональных данных» от 27.07.2006 г. № 152-ФЗ и иными соответствующими нормативными актами.</li>
+        </ol>
+      </div>
+      <p><b>С Правилами предоставления Электромобилей АО «Кама» в краткосрочный тест-драйв ознакомлен, согласен и обязуюсь соблюдать.</b></p>
+      <div class="td-questionnaire-sign"><div>ФИО&nbsp;&nbsp;&nbsp; <span class="td-fill" data-o="fullName"></span></div><div>Подпись _______________________________________</div><div>Дата&nbsp;&nbsp;&nbsp; <span class="td-fill" data-o="testDriveDateText"></span> _______________________________________</div></div>
+      <div class="td-page-no">2</div>
+    </article>`;
+  }
+
+  function consentMarkup() {
+    return `<article class="td-doc-paper td-consent-paper">
+      <div class="td-center td-doc-title">СОГЛАСИЕ НА ОБРАБОТКУ ПЕРСОНАЛЬНЫХ ДАННЫХ</div>
+      <p>Уважаемый клиент,<br>мы хотели бы иметь возможность информировать Вас о новостях АО «КАМА», приглашать на наши мероприятия и направлять Вам информацию рекламного характера о предложениях нашей компании, наших центров продаж и сервиса. Для этого нам необходимы следующие данные о Вас:</p>
+      <table class="td-grid-table td-form-table"><tbody>
+        <tr><td>Обращение</td><td><span data-o="salutationMr">☐</span> Господин&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span data-o="salutationMs">☐</span> Госпожа</td></tr>
+        <tr><td>Фамилия Имя Отчество</td><td class="td-fill" data-o="fullName"></td></tr>
+        <tr><td>Мобильный телефон</td><td class="td-fill" data-o="phone"></td></tr>
+        <tr><td>Адрес электронной почты</td><td class="td-fill" data-o="email"></td></tr>
+        <tr><td>Дата рождения</td><td class="td-fill" data-o="birthDateText"></td></tr>
+      </tbody></table>
+      <p>Пожалуйста, отметьте те варианты связи и получения рекламной информации, на которые Вы даете свое согласие. Выбор варианта(-ов) связи также означает согласие с условиями обработки персональных данных, указанными далее; пожалуйста, предварительно ознакомьтесь с ними. Можно отметить несколько или все варианты:</p>
+      <table class="td-grid-table td-form-table td-consent-options"><tbody>
+        <tr><td>Электронная почта</td><td data-o="consentEmailMark">☐</td></tr>
+        <tr><td>СМС</td><td data-o="consentSmsMark">☐</td></tr>
+        <tr><td>Телефон (звонки)</td><td data-o="consentPhoneMark">☐</td></tr>
+        <tr><td>Мессенджеры (указать)</td><td><span data-o="consentMessengerMark">☐</span> <span class="td-fill" data-o="messenger"></span></td></tr>
+        <tr><td>Почта</td><td data-o="consentPostMark">☐</td></tr>
+      </tbody></table>
+      <div class="td-small td-consent-text">
+        <p>Согласие на рекламные коммуникации действует в течение 10 лет, однако, Вы всегда можете отказаться от любых коммуникаций в порядке, аналогичном указанному в пункте 5 согласия далее. Дополнительно, для прекращения направления Вам рекламных коммуникаций, Вы можете использовать кнопку «Отписаться» в полученных электронных письмах (в таком случае прекращаются коммуникации на адрес электронной почты, с которого была активирована функция отписки) или обратиться с этой просьбой в контакт-центр АО «КАМА» по контактному номеру, указанному на официальном сайте АО «КАМА». Для Вашего удобства и в зависимости от функционала сервиса отписки в конкретном случае, Вы можете отказаться от получения коммуникаций по одному направлению, сохранив возможность получать информацию по другому интересующему Вас направлению, либо отказаться от получения любых коммуникаций.</p>
+        <p>Обеспечение конфиденциальности и безопасности персональных данных при обработке является для АО «КАМА» приоритетом. Настоящим мы гарантируем, что Ваши персональные данные будут обрабатываться при условии соблюдения требований законодательства Российской Федерации.</p>
+        <p><b>Согласие на обработку персональных данных в соответствии с нижеуказанными условиями:</b></p>
+        <ol>
+          <li>Настоящим я выражаю свое согласие на обработку АО «КАМА», далее «Оператор», своих персональных данных, содержащихся в настоящем документе (в том числе, размещенном на сайте в сети Интернет в виде веб-формы), а также иных своих персональных данных, предоставленных и предоставляемых мной Оператору другими способами (в том числе, при заключении договоров, предоставлении различных документов, при заполнении веб-форм на сайте и/или иных документов, при посещении мероприятий) или ставших известными Оператору (в том числе, при получении от контрагентов Оператора). Подтверждаю, что предоставленные и предоставляемые персональные данные принадлежат мне как субъекту персональных данных, являются достоверными, актуальными, точными.</li>
+          <li><b>Цели обработки персональных данных:</b> продвижение товаров и работ/услуг на рынке путем осуществления прямых контактов, включая предоставление (рекламной) информации (в том числе, о товарах и работах/услугах, наличии специальных предложений в отношении них, о финансовых услугах, связанных с приобретением и использованием товаров и работ/услуг, о проведении мероприятий, о новостях Оператора), подготовку и направление предложений о приобретении товаров и работ/услуг, финансовых услуг, связанных с ними; выполнение процедур должной осмотрительности, преддоговорное согласование, заключение и исполнение любых договоров, а также контроль корректности заключения/исполнения сделок, в частности, по специальным программам (предложениям); организация участия в различного рода мероприятиях; проведение аналитических, маркетинговых и иных исследований для определения состава и/или предпочтений клиентов (целевой аудитории), повышения эффективности взаимодействия с клиентами (в том числе, исследований индекса удовлетворенности качеством предоставленных товаров и работ/услуг), определения рыночных тенденций и перспектив для осуществления продаж; обеспечение коммуникаций и поддержание отношений с клиентами (в том числе, обработка возможных рекламаций и иных обращений); выполнение требований законодательства, а также осуществление прав и законных интересов Оператора. При обработке персональных данных в целях, не связанных с направлением информации рекламного характера, могут использоваться рассылка по электронной почте, СМС-рассылка, мессенджеры, телефонные звонки, почтовая рассылка, любые иные средства связи. Для целей направления информации рекламного характера могут использоваться только варианты связи, отмеченные выше, либо на которые Вами отдельно дано согласие. Согласие на получение информации и согласие на обработку персональных данных</li>
+          <li><b>Перечень персональных данных, в отношении которых действует настоящее согласие:</b> фамилия, имя, отчество, форма обращения/пол, дата, месяц и год рождения, возраст, номер(-а) контактных телефонов, адрес(-а) электронной почты, адрес(-а) регистрации/проживания, сведения о владении автомобилем (в том числе, марка, модель автомобиля, ВИН-номер, регистрационный знак, срок владения автомобилем, период планируемого обмена автомобиля), сведения о приобретении или использовании товаров/работ/услуг Оператора, интересы и хобби, сведения об образе жизни и поведении (в том числе, в сети Интернет), сфера деятельности, место работы и должность (род занятий), другие сведения биографии, иные данные и информация, предоставленные и предоставляемые Вами или ставшие известными Операторам в целях, указанных в настоящем согласии.</li>
+          <li>Настоящее согласие распространяется на обработку персональных данных путем любых действий (операций), допустимых законодательством Российской Федерации, совершаемых как с использованием средств автоматизации, так и без использования таких средств или смешанным образом, включая сбор, запись, систематизацию, накопление, хранение, уточнение (обновление, изменение), извлечение, использование, передачу (предоставление, доступ), трансграничную передачу и передачу третьим лицам, в том числе, с целью обработки персональных данных по поручению, блокирование, удаление, уничтожение. Обработка осуществляется Оператором, а также иными третьими лицами, которые привлекаются Оператором к обработке, или которым передаются персональные данные (или предоставляется доступ к ним) в выше указанных целях в соответствии с законодательством Российской Федерации. К числу подобных третьих лиц могут относиться, в частности, центры продаж или сервиса АО «КАМА» (наименования и адреса доступны на сайте АО «КАМА»), а также контрагенты Оператора (в частности, компании, оказывающие услуги предоставления или поддержки информационных систем, центров обработки данных, колл-центра и работы с обращениями/рекламациями, проведения исследований, организации мероприятий, услуги в сфере маркетинговой и рекламной деятельности и повышения ее эффективности (включая аналитические услуги), услуги бухгалтерского учета, аудита и иные). Перечень подобных третьих лиц может изменяться без моего дополнительного согласия и уведомления. Настоящее согласие означает также предоставление мной согласия на обработку персональных данных подобными третьими лицами. Подтверждаю, что уведомлен о том, что могу запросить у Оператора актуальную информацию о третьих лицах (наименование или фамилию, имя, отчество и адрес), которым осуществляется передача моих персональных данных.</li>
+          <li>Настоящее согласие действует в течение 10 (десяти) лет и может быть отозвано: в отношении АО «КАМА» – путем направления уведомления на адрес электронной почты АО «КАМА», указанный на сайте АО «КАМА»; либо путем направления оригинала письменного уведомления в адрес АО «КАМА» заказным почтовым отправлением с описью вложения или курьерской службой, либо вручено лично под роспись уполномоченному представителю АО «КАМА». Оператор при этом вправе продолжить обработку персональных данных в случаях, установленных законодательством Российской Федерации, или если персональные данные обрабатываются в соответствии с иным правовым основанием (в частности, в соответствии с принятыми Вами условиями использования веб-сервисов или иными договорами/условиями).</li>
+          <li>В случае, если при последующих запросах Оператором согласия (например, при заполнении веб-форм с соответствующим полем для проставления галочки о согласии) таковое не будет дано, настоящее согласие не будет автоматически признаваться отозванным и продолжит действовать в течение указанного выше срока.</li>
+          <li>Политика обработки данных АО «КАМА», а также описание Ваших прав, как субъекта персональных данных, и возможностей их реализации приведены на официальном сайте АО «КАМА».</li>
+        </ol>
+      </div>
+      <div class="td-consent-signature"><div>ФИО<br><br><span class="td-fill" data-o="fullName"></span><div class="td-sign-line td-long-sign"></div></div><div>Подпись<br><br><div class="td-sign-line td-long-sign"></div></div></div>
+      <div class="td-page-no">2</div>
+    </article>`;
   }
 
   function select(kind) {
     active = kind;
-    document.querySelectorAll('[data-doc-tab]').forEach(btn => btn.setAttribute('aria-selected', String(btn.dataset.docTab === kind)));
-    document.querySelectorAll('[data-doc-panel]').forEach(panel => panel.hidden = panel.dataset.docPanel !== kind);
+    $$('[data-doc-tab]').forEach(btn => btn.setAttribute('aria-selected', String(btn.dataset.docTab === kind)));
+    $$('[data-doc-panel]').forEach(panel => panel.hidden = panel.dataset.docPanel !== kind);
   }
 
   function mount() {
-    const card = document.querySelector('.preview-card');
-    const oldList = document.querySelector('#previewList');
-    if (!card || !oldList || card.dataset.liveDocs === '1') return false;
-    card.dataset.liveDocs = '1';
+    const card = $('.preview-card');
+    const oldList = $('#previewList');
+    if (!card || !oldList || card.dataset.liveDocs === 'exact') return false;
+    card.dataset.liveDocs = 'exact';
     card.classList.add('live-doc-preview-card');
     oldList.classList.add('td-doc-hidden-list');
-    const title = card.querySelector('.preview-title');
-    if (title) title.textContent = 'Документы в реальном времени';
+    const title = $('.preview-title',card);
+    if (title) title.textContent = 'Документы по исходным бланкам';
+
     const note = document.createElement('div');
     note.className = 'td-live-note';
-    note.textContent = 'Поля с жёлтым фоном заполняются из карточки участника и меняются сразу при вводе.';
+    note.textContent = 'Предпросмотр повторяет исходные бланки. Меняются только поля, которые заполняются из карточки участника.';
+
     const tabs = document.createElement('div');
     tabs.className = 'td-doc-tabs';
     tabs.setAttribute('role','tablist');
-    const items = [['poa','Доверенность'],['questionnaire','Анкета клиента'],['consent','СОПД']];
-    items.forEach(([kind,label]) => {
+    [['poa','Доверенность'],['questionnaire','Анкета ТД'],['consent','СОПД']].forEach(([kind,label]) => {
       const b = document.createElement('button');
-      b.type = 'button'; b.className = 'td-doc-tab'; b.dataset.docTab = kind; b.setAttribute('role','tab'); b.setAttribute('aria-selected',String(kind===active)); b.textContent = label;
+      b.type = 'button';
+      b.className = 'td-doc-tab';
+      b.dataset.docTab = kind;
+      b.setAttribute('role','tab');
+      b.setAttribute('aria-selected',String(kind === active));
+      b.textContent = label;
       b.addEventListener('click',() => select(kind));
       tabs.appendChild(b);
     });
+
     const stage = document.createElement('div');
     stage.className = 'td-doc-stage';
-    items.forEach(([kind]) => {
+    const docs = {poa:poaMarkup(),questionnaire:questionnaireMarkup(),consent:consentMarkup()};
+    Object.entries(docs).forEach(([kind,html]) => {
       const panel = document.createElement('div');
-      panel.className = 'td-doc-panel'; panel.dataset.docPanel = kind; panel.setAttribute('role','tabpanel'); panel.hidden = kind !== active;
+      panel.className = 'td-doc-panel';
+      panel.dataset.docPanel = kind;
+      panel.setAttribute('role','tabpanel');
+      panel.hidden = kind !== active;
+      panel.innerHTML = html;
       stage.appendChild(panel);
     });
     oldList.before(note,tabs,stage);
     mounted = true;
-    renderLive(true);
+    render();
     return true;
   }
 
   function boot() {
-    if (!mount()) {
-      setTimeout(boot,250);
-      return;
-    }
-    document.addEventListener('input',() => renderLive(),true);
-    document.addEventListener('change',() => renderLive(),true);
-    document.querySelector('#clearBtn')?.addEventListener('click',() => setTimeout(() => renderLive(true),0));
-    document.querySelector('#passportPhoto')?.addEventListener('change',() => setTimeout(() => renderLive(true),800));
-    document.querySelector('#licensePhoto')?.addEventListener('change',() => setTimeout(() => renderLive(true),800));
-    setInterval(() => renderLive(),350);
+    if (!mount()) { setTimeout(boot,200); return; }
+    document.addEventListener('input',render,true);
+    document.addEventListener('change',render,true);
+    $('#clearBtn')?.addEventListener('click',() => setTimeout(render,0));
+    $('#passportPhoto')?.addEventListener('change',() => setTimeout(render,700));
+    $('#licensePhoto')?.addEventListener('change',() => setTimeout(render,700));
+    setInterval(render,500);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
