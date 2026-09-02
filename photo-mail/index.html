@@ -2,133 +2,103 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Фото на почту — Android-приложение: сфотографировать и автоматически отправить фото на сохраненный email." />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="description" content="Фото на почту — Android и iPhone: сфотографировать и отправить фото на сохраненный email." />
+  <meta name="theme-color" content="#111827" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Фото на почту" />
   <title>Фото на почту | KORYTNIK HUB</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=1.0.0" />
+  <style>
+    .ios-app{max-width:980px;margin:32px auto;padding:0 20px}.ios-panel{background:#111827;color:#fff;border-radius:28px;padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.18)}.ios-panel h2{margin:0 0 8px;font:700 30px Manrope,sans-serif}.ios-panel p{color:#cbd5e1}.ios-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.ios-box{background:#1f2937;border:1px solid #374151;border-radius:18px;padding:18px}.ios-box label{display:block;font-size:13px;color:#94a3b8;margin:0 0 7px}.ios-box input,.ios-box select{width:100%;box-sizing:border-box;border:1px solid #475569;border-radius:12px;background:#0f172a;color:#fff;padding:13px;font:inherit}.ios-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:10px}.ios-btn{border:0;border-radius:14px;padding:14px 18px;font:600 15px Inter,sans-serif;cursor:pointer}.ios-btn.primary{background:#fff;color:#111827;width:100%;font-size:17px}.ios-btn.secondary{background:#334155;color:#fff}.ios-btn.text{background:transparent;color:#94a3b8;padding-left:0}.ios-preview{margin-top:14px}.ios-preview img{display:block;width:100%;max-height:360px;object-fit:contain;background:#000;border-radius:16px;margin-bottom:12px}.ios-status{min-height:24px;margin:12px 0 0;color:#93c5fd!important}.ios-hidden{display:none!important}.ios-install{margin-top:14px;padding:14px 16px;border-radius:14px;background:#0f172a;color:#cbd5e1;font-size:14px}.ios-install strong{color:#fff}@media(max-width:720px){.ios-grid{grid-template-columns:1fr}.ios-panel{padding:18px;border-radius:22px}.ios-panel h2{font-size:26px}}
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="brand" href="/">KH<span>.</span></a>
-    <a class="back" href="/">← Все проекты</a>
-  </header>
+  <header class="site-header"><a class="brand" href="/">KH<span>.</span></a><a class="back" href="/">← Все проекты</a></header>
 
   <main>
     <section class="hero">
       <div class="hero-copy">
-        <div class="eyebrow">ANDROID MVP · v1.0.0</div>
+        <div class="eyebrow">ANDROID + iPHONE</div>
         <h1>Фото <span>→</span> Почта</h1>
-        <p class="lead">Сделали фотографию на телефоне, и она сразу отправилась на выбранный email. Получателей можно сохранить и выбирать из списка.</p>
-        <div class="actions">
-          <a class="button primary" href="download/PhotoToMail.apk" download>Скачать APK</a>
-          <a class="button secondary" href="#instruction">Инструкция</a>
-        </div>
-        <p class="meta">Android 10 и новее · APK устанавливается напрямую · фото также остается в галерее телефона</p>
+        <p class="lead">Один проект для Android и iPhone. Android отправляет фото автоматически через SMTP. На iPhone работает веб-приложение без App Store.</p>
+        <div class="actions"><a class="button primary" href="download/PhotoToMail.apk" download>Скачать APK для Android</a><a class="button secondary" href="#iphone">Открыть версию для iPhone</a></div>
       </div>
+      <div class="phone"><div class="phone-top"></div><div class="screen"><div class="mini-label">ФОТО → ПОЧТА</div><h2>Фото на почту</h2><p>Куда отправлять</p><div class="select-demo">office@example.com <span>⌄</span></div><div class="camera-button">Сделать фото</div><div class="sent">✓ Готово</div></div></div>
+    </section>
 
-      <div class="phone" aria-label="Схема работы приложения">
-        <div class="phone-top"></div>
-        <div class="screen">
-          <div class="mini-label">ФОТО → ПОЧТА</div>
-          <h2>Фото на почту</h2>
-          <p>Куда отправлять</p>
-          <div class="select-demo">office@example.com <span>⌄</span></div>
-          <div class="camera-button">Сделать фото и отправить</div>
-          <div class="sent">✓ Отправлено</div>
+    <section id="iphone" class="ios-app">
+      <div class="ios-panel">
+        <div class="eyebrow">iPHONE WEB APP · БЕЗ APP STORE</div>
+        <h2>Фото на почту для iPhone</h2>
+        <p>Адреса сохраняются на этом iPhone. После съемки нажмите «Отправить фото», выберите Mail в системном меню и отправьте письмо.</p>
+        <div class="ios-grid">
+          <div class="ios-box">
+            <label for="iosRecipientSelect">Куда отправлять</label>
+            <select id="iosRecipientSelect"></select>
+            <div class="ios-row"><input id="iosNewRecipient" type="email" inputmode="email" placeholder="name@example.com"><button id="iosAddRecipient" class="ios-btn secondary" type="button">Добавить</button></div>
+            <button id="iosDeleteRecipient" class="ios-btn text" type="button">Удалить выбранный адрес</button>
+          </div>
+          <div class="ios-box">
+            <input id="iosCamera" type="file" accept="image/*" capture="environment" class="ios-hidden">
+            <button id="iosCameraButton" class="ios-btn primary" type="button">Сделать фото</button>
+            <div id="iosPreviewWrap" class="ios-preview ios-hidden"><img id="iosPreview" alt="Снятое фото"><button id="iosShareButton" class="ios-btn primary" type="button">Отправить фото</button></div>
+            <p id="iosStatus" class="ios-status">Готово к работе</p>
+          </div>
         </div>
+        <div class="ios-install"><strong>Установить как приложение:</strong> откройте эту страницу в Safari → нажмите «Поделиться» → «На экран Домой». После этого «Фото на почту» запускается с иконки как обычное приложение.</div>
       </div>
     </section>
 
     <section class="features">
-      <article><strong>01</strong><h3>Адрес сохраняется</h3><p>Добавьте один или несколько email. Последний выбранный адрес приложение запоминает.</p></article>
-      <article><strong>02</strong><h3>Одна кнопка</h3><p>Нажимаете «Сделать фото и отправить», снимаете, подтверждаете кадр. Дальше отправка идет автоматически.</p></article>
-      <article><strong>03</strong><h3>Без пароля в APK</h3><p>Пароль приложения от почты вводится только на телефоне и хранится зашифрованно через Android Keystore.</p></article>
+      <article><strong>01</strong><h3>Android</h3><p>APK, сохраненные адреса, камера и автоматическая отправка через SMTP.</p></article>
+      <article><strong>02</strong><h3>iPhone</h3><p>Без App Store. Устанавливается на главный экран прямо из Safari.</p></article>
+      <article><strong>03</strong><h3>Получатели</h3><p>Можно сохранить несколько адресов и быстро выбирать нужный.</p></article>
     </section>
 
     <section id="instruction" class="instruction">
-      <div class="section-head">
-        <div class="eyebrow">ИНСТРУКЦИЯ</div>
-        <h2>Установка и первый запуск</h2>
-      </div>
-
+      <div class="section-head"><div class="eyebrow">ANDROID · MAIL.RU</div><h2>Настройка отправки</h2></div>
       <div class="steps">
-        <article class="step"><div class="num">1</div><div><h3>Скачайте APK</h3><p>Нажмите «Скачать APK» выше. Откройте файл на Android. Если телефон спросит разрешение на установку из этого источника, разрешите его только для браузера, из которого скачали файл.</p></div></article>
-        <article class="step"><div class="num">2</div><div><h3>Один раз настройте отправителя</h3><p>Откройте «Настройка почты отправителя». Введите полный адрес почты отправителя, специальный пароль для внешнего приложения, SMTP-сервер и порт. Обычный пароль от почты использовать нельзя.</p></div></article>
-        <article class="step"><div class="num">3</div><div><h3>Добавьте получателя</h3><p>Введите email, куда должны уходить фотографии, и нажмите «Добавить». Можно сохранить несколько адресов и выбирать нужный из выпадающего списка.</p></div></article>
-        <article class="step"><div class="num">4</div><div><h3>Фотографируйте</h3><p>Выберите адрес и нажмите «Сделать фото и отправить». После подтверждения снимка приложение само отправит его и покажет статус «Отправлено».</p></div></article>
+        <article class="step"><div class="num">1</div><div><h3>Создайте пароль приложения</h3><p>Mail.ru → Настройки → Все настройки → Безопасность → Пароли для внешних приложений. Обычный пароль от почты использовать нельзя.</p></div></article>
+        <article class="step"><div class="num">2</div><div><h3>Введите SMTP</h3><p><strong>Сервер:</strong> <code>smtp.mail.ru</code><br><strong>Порт:</strong> <code>465</code><br><strong>Логин:</strong> полный адрес Mail.ru.</p></div></article>
+        <article class="step"><div class="num">3</div><div><h3>Если код 535</h3><p>Сервер доступен, но не принял логин или пароль. Создайте новый пароль для внешнего приложения и сохраните его в Android-приложении.</p></div></article>
+        <article class="step"><div class="num">4</div><div><h3>iPhone</h3><p>Для веб-версии пароль почты не нужен. Фото передается в системное меню iPhone, где вы выбираете Mail.</p></div></article>
       </div>
-    </section>
-
-    <section class="instruction">
-      <div class="section-head">
-        <div class="eyebrow">MAIL.RU · ПОШАГОВО</div>
-        <h2>Настройка Mail.ru</h2>
-      </div>
-
-      <div class="steps">
-        <article class="step"><div class="num">1</div><div><h3>Откройте настройки безопасности Mail.ru</h3><p>В Почте Mail откройте <strong>Настройки → Все настройки → Безопасность → Пароли для внешних приложений</strong>. Если раздел не виден, проверьте, что к аккаунту привязан номер телефона.</p></div></article>
-        <article class="step"><div class="num">2</div><div><h3>Создайте отдельный пароль</h3><p>Нажмите «Создать», назовите пароль, например <strong>PhotoToMail</strong>, выберите доступ к Почте/SMTP и скопируйте выданный код. Mail.ru показывает этот пароль только при создании. Если потеряли его, создайте новый.</p></div></article>
-        <article class="step"><div class="num">3</div><div><h3>Введите данные в приложении</h3><p><strong>Почта:</strong> полный адрес, например <code>name@mail.ru</code><br><strong>Пароль:</strong> пароль для внешнего приложения<br><strong>SMTP:</strong> <code>smtp.mail.ru</code><br><strong>Порт:</strong> <code>465</code></p></div></article>
-        <article class="step"><div class="num">4</div><div><h3>Проверьте SMTP-доступ</h3><p>В Mail.ru откройте <strong>Настройки → Все настройки → Безопасность → Внешние сервисы</strong> и убедитесь, что разрешен доступ к почте по <strong>IMAP, POP и SMTP</strong>.</p></div></article>
-      </div>
-
-      <div class="actions">
-        <a class="button secondary" href="https://account.mail.ru/user/2-step-auth/passwords/" target="_blank" rel="noopener">Открыть пароли приложений Mail.ru</a>
-        <a class="button secondary" href="https://help.mail.ru/mail/login/mailer/" target="_blank" rel="noopener">Официальная инструкция Mail.ru</a>
-      </div>
-    </section>
-
-    <section class="note-grid">
-      <article class="note warning">
-        <div class="eyebrow">ОШИБКА 535</div>
-        <h3>SMTP сервер отклонил логин или пароль</h3>
-        <p>Код <strong>535</strong> обычно означает, что соединение с SMTP-сервером уже установлено, но Mail.ru не принял данные авторизации. Проверьте полный адрес почты и замените обычный пароль на специально созданный пароль для внешнего приложения.</p>
-      </article>
-      <article class="note">
-        <div class="eyebrow">ВАЖНО</div>
-        <h3>Старый пароль нельзя посмотреть</h3>
-        <p>Mail.ru не показывает ранее созданный пароль для внешнего приложения. Если вы его не сохранили или не уверены, какой пароль ввели, удалите старый и создайте новый.</p>
-      </article>
-    </section>
-
-    <section class="note-grid">
-      <article class="note warning">
-        <div class="eyebrow">ПАРОЛЬ</div>
-        <h3>Не используйте основной пароль</h3>
-        <p>Для Gmail, Яндекса и Mail.ru используйте отдельный пароль приложения. Его можно отозвать без смены основного пароля от почты.</p>
-      </article>
-      <article class="note">
-        <div class="eyebrow">БЕЗОПАСНОСТЬ</div>
-        <h3>Что хранится на телефоне</h3>
-        <p>Адрес отправителя, SMTP-сервер и список получателей сохраняются локально. Пароль приложения шифруется ключом Android Keystore. Резервное копирование данных приложения отключено.</p>
-      </article>
-    </section>
-
-    <section class="support">
-      <h2>Готовые SMTP-настройки</h2>
-      <div class="support-grid">
-        <p><strong>Mail.ru</strong><br><code>smtp.mail.ru</code><br>порт <code>465</code><br>SSL/TLS</p>
-        <p><strong>Gmail</strong><br><code>smtp.gmail.com</code><br>порт <code>465</code><br>SSL/TLS</p>
-        <p><strong>Яндекс</strong><br><code>smtp.yandex.ru</code><br>порт <code>465</code><br>SSL/TLS</p>
-      </div>
-    </section>
-
-    <section class="support">
-      <h2>Если письмо не отправляется</h2>
-      <div class="support-grid">
-        <p><strong>Код 535.</strong> Сервер доступен, но не принял авторизацию. Проверьте полный email, пароль для внешнего приложения и создайте новый пароль, если есть сомнения.</p>
-        <p><strong>Нет соединения.</strong> Проверьте интернет, SMTP-сервер и порт 465. Корпоративные сети могут блокировать прямое SMTP-подключение.</p>
-        <p><strong>Фото слишком большое.</strong> Почтовые сервисы ограничивают размер письма. Если камера создает очень большие файлы, уменьшите разрешение камеры.</p>
-      </div>
+      <div class="actions"><a class="button secondary" href="https://account.mail.ru/user/2-step-auth/passwords/" target="_blank" rel="noopener">Пароли приложений Mail.ru</a></div>
     </section>
   </main>
 
-  <footer>
-    <span>KORYTNIK HUB</span>
-    <span>Фото на почту · инструкция обновлена 02.09.2026</span>
-  </footer>
+  <footer><span>KORYTNIK HUB</span><span>Фото на почту · Android + iPhone</span></footer>
+
+  <script>
+  (()=>{
+    const key='photo-mail-ios-recipients-v1';
+    const select=document.getElementById('iosRecipientSelect');
+    const input=document.getElementById('iosNewRecipient');
+    const add=document.getElementById('iosAddRecipient');
+    const del=document.getElementById('iosDeleteRecipient');
+    const camera=document.getElementById('iosCamera');
+    const cameraBtn=document.getElementById('iosCameraButton');
+    const wrap=document.getElementById('iosPreviewWrap');
+    const preview=document.getElementById('iosPreview');
+    const share=document.getElementById('iosShareButton');
+    const status=document.getElementById('iosStatus');
+    let photo=null;
+    const valid=v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+    const load=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return[]}};
+    const save=a=>localStorage.setItem(key,JSON.stringify(a));
+    function render(prefer){const a=load();select.innerHTML='';if(!a.length){const o=new Option('Сначала добавьте email','');select.add(o);return}a.forEach(v=>select.add(new Option(v,v)));if(prefer&&a.includes(prefer))select.value=prefer;}
+    add.onclick=()=>{const v=input.value.trim().toLowerCase();if(!valid(v)){status.textContent='Введите корректный email';return}const a=load();if(!a.includes(v))a.push(v);save(a);render(v);input.value='';status.textContent='Адрес сохранен';};
+    del.onclick=()=>{const v=select.value;if(!v)return;const a=load().filter(x=>x!==v);save(a);render();status.textContent='Адрес удален';};
+    cameraBtn.onclick=()=>{if(!select.value){status.textContent='Сначала добавьте email';return}camera.click();};
+    camera.onchange=()=>{photo=camera.files&&camera.files[0];if(!photo)return;preview.src=URL.createObjectURL(photo);wrap.classList.remove('ios-hidden');status.textContent='Фото готово. Нажмите «Отправить фото».';};
+    share.onclick=async()=>{if(!photo||!select.value)return;const recipient=select.value;try{await navigator.clipboard?.writeText(recipient)}catch{}const data={files:[photo],title:'Фото на почту',text:'Получатель: '+recipient};if(navigator.canShare&&navigator.canShare({files:[photo]})){try{await navigator.share(data);status.textContent='Адрес получателя скопирован. В Mail вставьте его в поле «Кому».';}catch(e){if(e.name!=='AbortError')status.textContent='Не удалось открыть меню отправки';}}else{status.textContent='Откройте страницу в Safari на iPhone для отправки фото.';}};
+    render();
+  })();
+  </script>
 </body>
 </html>
