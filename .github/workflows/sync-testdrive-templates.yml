@@ -20,7 +20,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m pip install --quiet gdown
-          gdown --id '1qEC2-mnzUOEr_XpxsCQclw3JuHFEJBx8' -O /tmp/TestDrive_Doc.zip
+          gdown '1qEC2-mnzUOEr_XpxsCQclw3JuHFEJBx8' -O /tmp/TestDrive_Doc.zip
           unzip -t /tmp/TestDrive_Doc.zip
 
       - name: Publish Word templates
@@ -59,4 +59,4 @@ jobs:
           git commit -m 'Publish TestDrive_Doc web templates'
           git push
 
-# refresh: 2026-09-02-2
+# refresh: 2026-09-02-3
