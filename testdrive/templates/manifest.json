@@ -1,6 +1,22 @@
 {
-  "version": "2026.09.02-1",
+  "version": "2026.09.02-approved-1",
   "updated": "2026-09-02",
+  "status": "approved",
+  "source": {
+    "poa": {
+      "name": "Т546НК977 Доверенность бланк.docx",
+      "sha256": "f063ed1a1403d05ad62c99432371b952400938476aa141e0eec51b597cff5e12"
+    },
+    "questionnaire": {
+      "name": "Анкета клиента короткий ТД шаблон С994НТ977 уменьш.docx",
+      "sha256": "b3fb6918eb2cd14b492d8468cc8c949ed0bf0933c3f5fd43fe1b4373c77b8cb7"
+    },
+    "consent": {
+      "name": "СОПД для тест-драйв Атом.docx",
+      "sha256": "18a6a973d2acdc785cdd5d1d55da1bc0b8c2155ce9e3df6ed02585c2be10d274"
+    }
+  },
+  "note": "Штатные web-шаблоны являются динамическими версиями утверждённых исходников: юридический текст и структура сохраняются, заполняемые места заменены на технические поля {{...}} для локального автозаполнения.",
   "templates": {
     "poa": "poa_template.docx",
     "questionnaire": "questionnaire_template.docx",
