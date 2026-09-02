@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Локальный оптимизатор файлов: изображения, видео, аудио, PDF, Office и архивы." />
+  <title>Оптимизация файлов | KORYTNIK HUB</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">KORYTNIK HUB · MVP v0.1</div>
+        <h1>Оптимизация файлов</h1>
+        <p class="subtitle">Изображения, видео, звук, PDF, Office, ZIP и любые другие файлы. Обработка выполняется локально в браузере.</p>
+      </div>
+      <div class="privacy-badge" title="Исходные файлы не загружаются на сервер"><span class="dot"></span>Локально · без загрузки</div>
+    </header>
+
+    <section class="card controls-card">
+      <div class="control-group grow">
+        <label for="profile">Режим оптимизации</label>
+        <select id="profile">
+          <option value="safe">Бережный</option>
+          <option value="balanced" selected>Баланс</option>
+          <option value="max">Максимум</option>
+        </select>
+      </div>
+      <div class="control-group"><label>Обработка</label><div class="mode-note" id="modeNote">Качество / размер: оптимальный баланс</div></div>
+      <button id="optimizeBtn" class="primary" disabled>Оптимизировать всё</button>
+    </section>
+
+    <section id="dropZone" class="drop-zone" tabindex="0" role="button" aria-label="Добавить файлы">
+      <input id="fileInput" type="file" multiple hidden />
+      <div class="drop-icon">↓</div>
+      <h2>Перетащите файлы сюда</h2>
+      <p>или выберите их на компьютере</p>
+      <button id="pickBtn" class="secondary" type="button">Выбрать файлы</button>
+      <div class="format-line">JPG · PNG · WebP · MP4 · MOV · MKV · MP3 · WAV · M4A · PDF · DOCX · XLSX · PPTX · ZIP · и другие</div>
+    </section>
+
+    <section id="summary" class="summary hidden" aria-live="polite">
+      <div class="stat"><span>Файлов</span><strong id="sumFiles">0</strong></div>
+      <div class="stat"><span>Исходный размер</span><strong id="sumBefore">0 Б</strong></div>
+      <div class="stat"><span>После</span><strong id="sumAfter">—</strong></div>
+      <div class="stat emphasis"><span>Экономия</span><strong id="sumSaved">—</strong></div>
+    </section>
+
+    <section id="queueCard" class="card queue-card hidden">
+      <div class="queue-head">
+        <div><h2>Очередь</h2><p id="queueHint">Файлы готовы к обработке</p></div>
+        <div class="queue-actions"><button id="downloadAllBtn" class="secondary" disabled>Скачать всё ZIP</button><button id="clearBtn" class="ghost">Очистить</button></div>
+      </div>
+      <div id="fileList" class="file-list"></div>
+    </section>
+
+    <section class="info-grid">
+      <article class="mini-card"><span class="mini-kicker">Фото</span><strong>Canvas / WebP / JPEG</strong><p>Снижение качества и удаление лишних метаданных с контролем размера.</p></article>
+      <article class="mini-card"><span class="mini-kicker">Видео + звук</span><strong>FFmpeg WebAssembly</strong><p>Перекодирование прямо в браузере. Для больших файлов нужна свободная оперативная память.</p></article>
+      <article class="mini-card"><span class="mini-kicker">Office</span><strong>DOCX / XLSX / PPTX</strong><p>Перепаковка контейнера и оптимизация встроенных изображений без отправки документа наружу.</p></article>
+      <article class="mini-card"><span class="mini-kicker">Прочее</span><strong>Lossless ZIP</strong><p>Неизвестные форматы сохраняются без изменения содержимого и упаковываются без потерь.</p></article>
+    </section>
+
+    <footer><a href="/">← KORYTNIK HUB</a><span id="engineStatus">Медиа-движок загрузится только при необходимости</span></footer>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
