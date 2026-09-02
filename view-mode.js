@@ -1,6 +1,56 @@
 (() => {
   const VIEW_KEY = "korytnik-hub-project-view";
 
+  function installNextStepRemovalStyles() {
+    if (document.getElementById("hideProjectNextStepStyles")) return;
+
+    const style = document.createElement("style");
+    style.id = "hideProjectNextStepStyles";
+    style.textContent = `
+      .project-card .next-step {
+        display: none !important;
+      }
+
+      .projects-grid.view-list .project-card {
+        grid-template-columns: minmax(190px, 1.15fr) minmax(280px, 2fr) minmax(175px, .8fr) !important;
+        grid-template-areas:
+          "top top actions"
+          "title desc actions"
+          "meta desc admin" !important;
+      }
+
+      @media (max-width: 1180px) {
+        .projects-grid.view-list .project-card {
+          grid-template-columns: minmax(190px, 1fr) minmax(260px, 1.55fr) minmax(170px, .85fr) !important;
+          grid-template-areas:
+            "top top actions"
+            "title desc actions"
+            "meta desc admin" !important;
+        }
+      }
+
+      @media (max-width: 900px) {
+        .projects-grid.view-list .project-card {
+          grid-template-columns: minmax(180px, .9fr) minmax(230px, 1.4fr) !important;
+          grid-template-areas:
+            "top top"
+            "title desc"
+            "meta desc"
+            "admin actions" !important;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .projects-grid.view-list .project-card {
+          display: flex !important;
+          flex-direction: column;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
   function iconCards() {
     return `<svg class="view-mode-icon" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="5.5" height="5.5" rx="1" fill="currentColor"/><rect x="9.5" y="1" width="5.5" height="5.5" rx="1" fill="currentColor"/><rect x="1" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/><rect x="9.5" y="9.5" width="5.5" height="5.5" rx="1" fill="currentColor"/></svg>`;
   }
@@ -10,6 +60,8 @@
   }
 
   function initViewSwitcher() {
+    installNextStepRemovalStyles();
+
     const grid = document.getElementById("projectsGrid");
     const heading = document.querySelector(".section-heading");
     if (!grid || !heading || document.getElementById("projectViewSwitch")) return;
