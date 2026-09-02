@@ -2,7 +2,7 @@
   const PROJECT = {
     id: "td-secure",
     type: "work",
-    title: "Secure TD Docs",
+    title: "TestDrive_Doc",
     category: "Документы / Security",
     status: "mvp",
     description: "Защищённый MVP для подготовки и печати комплекта документов из одной карточки клиента без облачного хранения персональных данных.",
@@ -10,7 +10,7 @@
     url: "https://korytnikhub.pro/td-secure-v02.html",
     githubUrl: "",
     owner: "Иван Корытник",
-    updated: "2026-09-01",
+    updated: "2026-09-02",
     color: "#303846",
     accent: "#aeb7c4"
   };
