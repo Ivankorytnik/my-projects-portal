@@ -1,0 +1,9 @@
+{
+  "version": "2026.09.02-1",
+  "updated": "2026-09-02",
+  "templates": {
+    "poa": "poa_template.docx",
+    "questionnaire": "questionnaire_template.docx",
+    "consent": "consent_template.docx"
+  }
+}
