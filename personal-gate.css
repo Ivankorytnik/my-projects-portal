@@ -22,3 +22,6 @@ body.personal-gate-open { overflow: hidden; }
 .personal-protected::after { content: "PRIVATE"; position:absolute; right:12px; bottom:10px; color:rgba(126,232,255,.30); font-size:7px; font-weight:900; letter-spacing:.15em; }
 .personal-protected .open-link { position: relative; }
 .personal-protected .open-link::before { content: ""; width:6px; height:6px; margin-right:6px; border-radius:50%; background:#31d5ff; box-shadow:0 0 10px rgba(49,213,255,.55); }
+
+/* Project name edit visibility fix */
+#projectTitle { color: #111111 !important; }
