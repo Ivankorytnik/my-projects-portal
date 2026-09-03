@@ -4,32 +4,90 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex,nofollow" />
+  <meta name="theme-color" content="#151e32" />
   <title>Воспоминания | KORYTNIK HUB</title>
-  <style>
-    *{box-sizing:border-box}
-    html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif;background:#f3f6f9;color:#172033}
-    body{min-height:100vh;display:grid;place-items:center;padding:24px}
-    .card{width:min(620px,100%);background:#fff;border:1px solid #d9e1ea;border-radius:24px;padding:36px;box-shadow:0 18px 55px rgba(25,43,68,.12)}
-    .brand{font-size:12px;font-weight:800;letter-spacing:.12em;color:#b37400;text-transform:uppercase;margin-bottom:14px}
-    h1{margin:0 0 12px;font-size:36px;letter-spacing:-.03em}
-    p{margin:0 0 24px;color:#687588;line-height:1.6}
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    a{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:12px;text-decoration:none;font-weight:700}
-    .primary{background:#172033;color:#fff}
-    .secondary{background:#f3f6f9;color:#172033;border:1px solid #d9e1ea}
-    .note{margin-top:22px;font-size:12px;color:#8c97a7}
-  </style>
+  <link rel="stylesheet" href="style.css?v=1.0.0" />
 </head>
 <body>
-  <main class="card">
-    <div class="brand">KORYTNIK HUB / ЛИЧНЫЙ АРХИВ</div>
-    <h1>Воспоминания</h1>
-    <p>Семейные воспоминания Ивана Корытника. Проект подключён к KORYTNIK HUB и пока работает на отдельной площадке.</p>
-    <div class="actions">
-      <a class="primary" href="https://kniga-dlya-vnukov.nergy-techno-3776.chatgpt.site/">Открыть воспоминания</a>
-      <a class="secondary" href="https://korytnikhub.pro/">Вернуться в Hub</a>
+  <section id="gate" class="gate">
+    <div class="gate-card">
+      <div class="brand" style="margin-bottom:18px">
+        <div class="brand-icon">▣</div>
+        <div><strong>Воспоминания</strong><small>Личный архив KORYTNIK HUB</small></div>
+      </div>
+      <h1>Доступ к воспоминаниям</h1>
+      <p>Введите пароль личного архива.</p>
+      <div class="gate-row">
+        <input id="gateKey" type="password" autocomplete="off" placeholder="Пароль" />
+        <button id="gateBtn" class="btn primary" type="button">Открыть</button>
+      </div>
+      <div id="gateError" class="gate-error"></div>
     </div>
-    <div class="note">Постоянный адрес проекта: korytnikhub.pro/vospominaniya/</div>
-  </main>
+  </section>
+
+  <div id="app" class="hidden">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon">▣</div>
+        <div><strong>Воспоминания</strong><small>Семейные воспоминания Ивана Корытника</small></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <a class="legacy-link" href="https://korytnikhub.pro/">← KORYTNIK HUB</a>
+        <span class="archive-pill">Личный архив</span>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="sidebar">
+        <div class="side-head"><strong>Мои главы</strong><span id="chapterCount" class="chapter-count">0</span></div>
+        <button id="newBtn" class="new-btn" type="button">+ Новое воспоминание</button>
+        <div id="chapterList" class="chapter-list"></div>
+      </aside>
+
+      <section class="workspace">
+        <div class="workspace-head">
+          <div class="chapter-meta">
+            <span id="ready" class="ready">ГОТОВАЯ ГЛАВА</span>
+            <span id="chapterDate" class="date"></span>
+          </div>
+          <div class="actions">
+            <button id="retranscribe" class="btn" type="button">↻ Распознать заново</button>
+            <button id="download" class="btn" type="button">⇩ Скачать</button>
+            <button id="save" class="btn primary" type="button">▣ Сохранить</button>
+          </div>
+        </div>
+
+        <div class="content">
+          <input id="chapterTitle" class="title-input" type="text" placeholder="Название главы" />
+
+          <div class="audio-tools">
+            <button id="uploadAudio" class="small-btn" type="button">+ Аудиофайл</button>
+            <button id="recordBtn" class="small-btn" type="button">● Записать</button>
+            <span id="audioNote" class="audio-note"></span>
+            <input id="audioInput" class="hidden" type="file" accept="audio/*,video/*" />
+          </div>
+
+          <div class="audio-wrap">
+            <audio id="audio" controls preload="metadata"></audio>
+          </div>
+
+          <textarea id="editor" class="editor" placeholder="Текст воспоминания появится здесь после распознавания. Его можно редактировать вручную."></textarea>
+          <div id="status" class="statusbar"></div>
+
+          <details class="raw-box">
+            <summary>Исходная расшифровка</summary>
+            <div id="rawText" class="raw-text"></div>
+          </details>
+
+          <div style="margin-top:18px;text-align:right">
+            <a id="legacy" class="legacy-link" target="_blank" rel="noopener">Открыть прежнюю версию</a>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="busy" class="busy-banner hidden">Обрабатываю выбранную главу…</div>
+  <script src="app.js?v=1.0.0"></script>
 </body>
 </html>
