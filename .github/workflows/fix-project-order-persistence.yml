@@ -50,53 +50,53 @@ jobs:
 
           insert_before = '''elements.exportButton.addEventListener("click", () => {'''
           drag_code = r'''
-let draggedProjectId = null;
+          let draggedProjectId = null;
 
-function moveProjectBefore(sourceId, targetId) {
-  if (!sourceId || !targetId || sourceId === targetId) return;
-  const sourceIndex = state.projects.findIndex(project => project.id === sourceId);
-  const targetIndex = state.projects.findIndex(project => project.id === targetId);
-  if (sourceIndex < 0 || targetIndex < 0) return;
-  const [source] = state.projects.splice(sourceIndex, 1);
-  const newTargetIndex = state.projects.findIndex(project => project.id === targetId);
-  state.projects.splice(newTargetIndex, 0, source);
-  saveProjects();
-  renderProjects();
-}
+          function moveProjectBefore(sourceId, targetId) {
+            if (!sourceId || !targetId || sourceId === targetId) return;
+            const sourceIndex = state.projects.findIndex(project => project.id === sourceId);
+            const targetIndex = state.projects.findIndex(project => project.id === targetId);
+            if (sourceIndex < 0 || targetIndex < 0) return;
+            const [source] = state.projects.splice(sourceIndex, 1);
+            const newTargetIndex = state.projects.findIndex(project => project.id === targetId);
+            state.projects.splice(newTargetIndex, 0, source);
+            saveProjects();
+            renderProjects();
+          }
 
-elements.projectsGrid.addEventListener("dragstart", event => {
-  const card = event.target.closest(".project-card[data-project-id]");
-  if (!card) return;
-  draggedProjectId = card.dataset.projectId;
-  card.classList.add("dragging");
-  if (event.dataTransfer) {
-    event.dataTransfer.effectAllowed = "move";
-    event.dataTransfer.setData("text/plain", draggedProjectId);
-  }
-});
+          elements.projectsGrid.addEventListener("dragstart", event => {
+            const card = event.target.closest(".project-card[data-project-id]");
+            if (!card) return;
+            draggedProjectId = card.dataset.projectId;
+            card.classList.add("dragging");
+            if (event.dataTransfer) {
+              event.dataTransfer.effectAllowed = "move";
+              event.dataTransfer.setData("text/plain", draggedProjectId);
+            }
+          });
 
-elements.projectsGrid.addEventListener("dragend", event => {
-  event.target.closest(".project-card")?.classList.remove("dragging");
-  elements.projectsGrid.querySelectorAll(".drag-over").forEach(card => card.classList.remove("drag-over"));
-  draggedProjectId = null;
-});
+          elements.projectsGrid.addEventListener("dragend", event => {
+            event.target.closest(".project-card")?.classList.remove("dragging");
+            elements.projectsGrid.querySelectorAll(".drag-over").forEach(card => card.classList.remove("drag-over"));
+            draggedProjectId = null;
+          });
 
-elements.projectsGrid.addEventListener("dragover", event => {
-  const card = event.target.closest(".project-card[data-project-id]");
-  if (!card || !draggedProjectId || card.dataset.projectId === draggedProjectId) return;
-  event.preventDefault();
-  elements.projectsGrid.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
-  card.classList.add("drag-over");
-});
+          elements.projectsGrid.addEventListener("dragover", event => {
+            const card = event.target.closest(".project-card[data-project-id]");
+            if (!card || !draggedProjectId || card.dataset.projectId === draggedProjectId) return;
+            event.preventDefault();
+            elements.projectsGrid.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
+            card.classList.add("drag-over");
+          });
 
-elements.projectsGrid.addEventListener("drop", event => {
-  const card = event.target.closest(".project-card[data-project-id]");
-  if (!card || !draggedProjectId) return;
-  event.preventDefault();
-  moveProjectBefore(draggedProjectId, card.dataset.projectId);
-});
+          elements.projectsGrid.addEventListener("drop", event => {
+            const card = event.target.closest(".project-card[data-project-id]");
+            if (!card || !draggedProjectId) return;
+            event.preventDefault();
+            moveProjectBefore(draggedProjectId, card.dataset.projectId);
+          });
 
-'''
+          '''
           if insert_before not in s:
               raise SystemExit('export anchor not found')
           s = s.replace(insert_before, drag_code + insert_before)
@@ -112,7 +112,7 @@ elements.projectsGrid.addEventListener("drop", event => {
 
           htmlp = Path('index.html')
           html = htmlp.read_text(encoding='utf-8')
-          html = html.replace('v1.4.0', 'v1.4.3').replace('app.js?v=1.4.0', 'app.js?v=1.4.3').replace('theme-fix.css?v=1.4.0', 'theme-fix.css?v=1.4.3')
+          html = html.replace('app.js?v=1.5.1', 'app.js?v=1.5.2').replace('theme-fix.css?v=1.4.4', 'theme-fix.css?v=1.4.5')
           htmlp.write_text(html, encoding='utf-8')
           PY
 
