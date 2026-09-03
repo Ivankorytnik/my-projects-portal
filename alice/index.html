@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Алиса AI - голосовой интерфейс Korytnik Hub через Яндекс Алису, Supabase и OpenAI." />
+  <meta name="theme-color" content="#6f2cff" />
+  <title>Алиса AI | KORYTNIK HUB</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:#f5f7fb;color:#151823}.wrap{max-width:1120px;margin:0 auto;padding:0 24px}.top{display:flex;justify-content:space-between;align-items:center;padding:24px 0}.brand{font:700 22px Manrope,sans-serif;text-decoration:none;color:#151823}.brand span{color:#6f2cff}.back{color:#667085;text-decoration:none;font-weight:600}.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:stretch;padding:34px 0 28px}.panel{background:#fff;border:1px solid #e5e7eb;border-radius:28px;padding:36px;box-shadow:0 20px 55px rgba(15,23,42,.08)}.eyebrow{font-size:12px;letter-spacing:.14em;font-weight:700;color:#6f2cff;text-transform:uppercase}.hero h1{font:700 56px/1.03 Manrope,sans-serif;margin:10px 0 18px}.lead{font-size:19px;line-height:1.6;color:#667085;margin:0 0 24px}.status{display:inline-flex;gap:8px;align-items:center;padding:9px 12px;border-radius:999px;background:#f0e9ff;color:#5b21b6;font-weight:700;font-size:13px}.status:before{content:"";width:8px;height:8px;border-radius:50%;background:#7c3aed}.voice-card{background:linear-gradient(145deg,#16131f,#2a1747);color:#fff;position:relative;overflow:hidden}.orb{width:160px;height:160px;border-radius:50%;margin:18px auto 26px;background:radial-gradient(circle at 35% 30%,#ff9ef5,#7c3aed 42%,#2f1c4c 72%);box-shadow:0 0 80px rgba(139,92,246,.45)}.quote{font:600 24px/1.4 Manrope,sans-serif;text-align:center}.muted{color:#c6bce0;text-align:center;line-height:1.5}.flow{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0 34px}.step{background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:20px}.n{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#17131f;color:#fff;font-weight:700;margin-bottom:12px}.step h3{margin:0 0 7px;font-size:17px}.step p{margin:0;color:#667085;line-height:1.5;font-size:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:34px}.box{background:#fff;border:1px solid #e5e7eb;border-radius:22px;padding:24px}.box h2{font:700 25px Manrope,sans-serif;margin:0 0 12px}.box ul{margin:0;padding-left:19px;color:#475467;line-height:1.75}.roadmap{display:grid;gap:12px}.road{display:grid;grid-template-columns:120px 1fr;gap:16px;padding:16px 0;border-bottom:1px solid #eaecf0}.road:last-child{border-bottom:0}.tag{font-size:13px;font-weight:700;color:#6f2cff}.road strong{display:block;margin-bottom:4px}.road span{color:#667085;line-height:1.5}.notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:18px;padding:18px;line-height:1.55;margin-bottom:36px}.footer{padding:6px 0 34px;color:#98a2b3;font-size:13px}.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#f2f4f7;border-radius:8px;padding:2px 6px;color:#344054}@media(max-width:820px){.hero,.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr 1fr}.hero h1{font-size:42px}.panel{padding:26px}.road{grid-template-columns:1fr;gap:5px}}@media(max-width:560px){.wrap{padding:0 16px}.flow{grid-template-columns:1fr}.hero h1{font-size:36px}.top{padding:18px 0}.back{font-size:14px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top"><a class="brand" href="/">KORYTNIK HUB<span>.</span></a><a class="back" href="/">← Все проекты</a></header>
+    <main>
+      <section class="hero">
+        <div class="panel">
+          <div class="eyebrow">Voice AI / Personal Assistant</div>
+          <h1>Алиса AI</h1>
+          <p class="lead">Голосовой вход в персонального AI-ассистента через Яндекс Алису. Пользователь говорит Алисе, запрос проходит через Supabase и OpenAI, а ответ возвращается голосом.</p>
+          <span class="status">Проектирование MVP</span>
+        </div>
+        <div class="panel voice-card">
+          <div class="orb"></div>
+          <div class="quote">«Алиса, запусти Иван AI»</div>
+          <p class="muted">После запуска навыка можно задавать вопросы о проектах, задачах, письмах и личной базе знаний.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="eyebrow">Архитектура</div>
+        <div class="flow">
+          <article class="step"><div class="n">1</div><h3>Яндекс Алиса</h3><p>Распознает голос и передает текст пользовательской реплики навыку.</p></article>
+          <article class="step"><div class="n">2</div><h3>Webhook</h3><p>HTTPS endpoint навыка принимает запрос и нормализует данные диалога.</p></article>
+          <article class="step"><div class="n">3</div><h3>Supabase</h3><p>Edge Function хранит серверную логику, память и безопасный доступ к ключам.</p></article>
+          <article class="step"><div class="n">4</div><h3>OpenAI</h3><p>Формирует ответ с учетом контекста и возвращает его Алисе для озвучивания.</p></article>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="box">
+          <h2>Что должен уметь MVP</h2>
+          <ul>
+            <li>Принимать голосовые запросы через Алису.</li>
+            <li>Поддерживать короткий контекст текущего диалога.</li>
+            <li>Обращаться к OpenAI через серверную функцию.</li>
+            <li>Возвращать короткий разговорный ответ для озвучивания.</li>
+            <li>Позже подключить память Korytnik Hub и персональные данные из Supabase.</li>
+          </ul>
+        </article>
+        <article class="box">
+          <h2>Компоненты</h2>
+          <ul>
+            <li>Навык в Яндекс Диалогах.</li>
+            <li>Webhook <span class="code">alice-chatgpt</span>.</li>
+            <li>Supabase Edge Function.</li>
+            <li>Secret <span class="code">OPENAI_API_KEY</span>.</li>
+            <li>Таблица памяти диалогов на следующем этапе.</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="box" style="margin-bottom:18px">
+        <div class="eyebrow">Roadmap</div>
+        <div class="roadmap">
+          <div class="road"><div class="tag">Этап 1</div><div><strong>Навык и webhook</strong><span>Создать навык «Иван AI» и подключить HTTPS endpoint Supabase.</span></div></div>
+          <div class="road"><div class="tag">Этап 2</div><div><strong>Ответы OpenAI</strong><span>Добавить серверный запрос к модели, обработку ошибок и лимит длины ответа.</span></div></div>
+          <div class="road"><div class="tag">Этап 3</div><div><strong>Память</strong><span>Хранить диалоги и профиль ассистента в Supabase, чтобы ответы учитывали прошлый контекст.</span></div></div>
+          <div class="road"><div class="tag">Этап 4</div><div><strong>Интеграция с Hub</strong><span>Подключить проекты, задачи и другие разрешенные данные Korytnik Hub.</span></div></div>
+        </div>
+      </section>
+
+      <div class="notice"><strong>Важно:</strong> ключ OpenAI нельзя размещать в коде страницы или навыка. Он должен храниться только в Supabase Secrets и использоваться внутри Edge Function.</div>
+    </main>
+    <footer class="footer">KORYTNIK HUB · Алиса AI · MVP</footer>
+  </div>
+</body>
+</html>
