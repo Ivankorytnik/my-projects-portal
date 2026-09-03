@@ -19,12 +19,11 @@
     .brand-copy strong { font-size:14px; letter-spacing:-.02em; }
     .brand-copy small { color:#607583; font-size:9px; letter-spacing:.08em; }
     .tabs { display:inline-grid; grid-template-columns:1fr 1fr; gap:6px; padding:5px; border:1px solid rgba(151,190,211,.14); border-radius:15px; background:rgba(7,20,28,.9); }
-    .tab { min-width:150px; min-height:38px; padding:0 16px; border:1px solid transparent; border-radius:11px; background:transparent; color:#8da4b3; cursor:pointer; font-size:9px; font-weight:900; letter-spacing:.08em; transition:.18s ease; }
+    .tab { min-width:150px; min-height:38px; padding:0 16px; border:1px solid transparent; border-radius:11px; background:transparent; color:#8da4b3; cursor:pointer; font-size:9px; font-weight:900; letter-spacing:.08em; transition:.18s ease; text-decoration:none; display:grid; place-items:center; }
     .tab:hover { color:#eaf8ff; background:rgba(49,213,255,.04); }
     .tab.active { color:#031319; background:linear-gradient(135deg,#84ebff,#31d5ff); box-shadow:0 8px 22px rgba(49,213,255,.13); }
     .frame-wrap { position:relative; min-height:0; }
     .workspace-frame { position:absolute; inset:0; width:100%; height:100%; border:0; background:#03090e; }
-    .workspace-frame.hidden { display:none; }
     @media (max-width:700px) { .tabs-bar{padding:8px 10px;gap:8px}.brand-copy small{display:none}.tabs{flex:1}.tab{min-width:0;padding:0 10px;font-size:8px} }
     @media (max-width:480px) { .brand-copy{display:none}.brand img{width:34px;height:34px} }
   </style>
@@ -37,37 +36,13 @@
         <div class="brand-copy"><strong>SPEECH LAB</strong><small>LOCAL AI / VOICE TO TEXT</small></div>
       </div>
       <nav class="tabs" aria-label="Разделы Speech Lab">
-        <button class="tab active" id="speechTab" type="button" aria-selected="true">РАСПОЗНАВАНИЕ</button>
-        <button class="tab" id="prompterTab" type="button" aria-selected="false">СУФЛЁР AI</button>
+        <span class="tab active" aria-current="page">РАСПОЗНАВАНИЕ</span>
+        <a class="tab" href="./prompter.html">СУФЛЁР AI</a>
       </nav>
     </header>
     <section class="frame-wrap">
-      <iframe id="speechFrame" class="workspace-frame" src="./speech.html" title="Speech Lab — распознавание"></iframe>
-      <iframe id="prompterFrame" class="workspace-frame hidden" src="./prompter.html" title="Speech Lab — Суфлёр AI" allow="microphone; display-capture"></iframe>
+      <iframe class="workspace-frame" src="./speech.html" title="Speech Lab — распознавание" allow="microphone; display-capture"></iframe>
     </section>
   </main>
-  <script>
-    (() => {
-      const speechTab=document.getElementById('speechTab');
-      const prompterTab=document.getElementById('prompterTab');
-      const speechFrame=document.getElementById('speechFrame');
-      const prompterFrame=document.getElementById('prompterFrame');
-      function openTab(name){
-        const prompter=name==='prompter';
-        speechFrame.classList.toggle('hidden',prompter);
-        prompterFrame.classList.toggle('hidden',!prompter);
-        speechTab.classList.toggle('active',!prompter);
-        prompterTab.classList.toggle('active',prompter);
-        speechTab.setAttribute('aria-selected',prompter?'false':'true');
-        prompterTab.setAttribute('aria-selected',prompter?'true':'false');
-        try{sessionStorage.setItem('speech-lab-tab',prompter?'prompter':'speech')}catch{}
-      }
-      speechTab.addEventListener('click',()=>openTab('speech'));
-      prompterTab.addEventListener('click',()=>openTab('prompter'));
-      let initial='speech';
-      try{initial=sessionStorage.getItem('speech-lab-tab')||'speech'}catch{}
-      openTab(initial);
-    })();
-  </script>
 </body>
 </html>
