@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#0b0d10" />
+  <title>Speech Lab — Суфлёр AI</title>
+  <link rel="icon" href="./favicon.ico" sizes="any" />
+  <link rel="stylesheet" href="./styles.css?build=v1.5.1-20260821-0708" />
+  <link rel="stylesheet" href="./prompter.css?v=1.0.0" />
+</head>
+<body>
+  <main class="shell">
+    <section id="speechWorkspace" class="hidden"></section>
+    <section id="prompterWorkspace" class="prompter-workspace">
+      <div class="prompter-grid">
+        <div class="panel prompter-control-panel">
+          <div class="panel-head"><span>01</span><h2>ИСТОЧНИК И КОНТЕКСТ</h2></div>
+
+          <div class="prompter-intro">
+            <div class="live-kicker"><span class="live-dot"></span> AI PROMPTER · REALTIME</div>
+            <h3>СЛУШАЕТ ВОПРОС<br>И ПИШЕТ ОТВЕТ</h3>
+            <p>Запускаете суфлёр во время разговора. Он распознаёт реплики, определяет вопрос и показывает короткий ответ крупным текстом.</p>
+          </div>
+
+          <div id="prompterStatus" class="prompter-status">
+            <div><span>СТАТУС</span><strong id="prompterStatusText">Готов к работе</strong></div>
+            <i class="prompter-status-indicator"></i>
+          </div>
+
+          <div class="prompter-actions">
+            <button id="prompterStartBtn" class="primary-btn" type="button"><span>НАЧАТЬ СЛУШАТЬ</span><span>●</span></button>
+            <button id="prompterStopBtn" class="danger-btn hidden" type="button"><span>ОСТАНОВИТЬ</span><span>■</span></button>
+            <button id="prompterAnswerNowBtn" class="secondary-btn" type="button" disabled>ОТВЕТИТЬ НА ПОСЛЕДНЮЮ РЕПЛИКУ</button>
+          </div>
+
+          <div class="prompter-context">
+            <div class="prompter-context-head"><strong>КОНТЕКСТ РАЗГОВОРА</strong><small>необязательно</small></div>
+            <label class="prompter-field"><span>ЦЕЛЬ РАЗГОВОРА</span><input id="prompterGoal" type="text" maxlength="300" placeholder="Например: обсуждаем план, бюджет, сроки" /></label>
+            <label class="prompter-field"><span>ФАКТЫ И ОГРАНИЧЕНИЯ</span><textarea id="prompterContext" maxlength="3000" placeholder="Что AI должен знать: цифры, позиция, что можно обещать и что нельзя"></textarea></label>
+
+            <div class="prompter-control-row">
+              <label class="prompter-select-wrap"><span>ИСТОЧНИК ЗВУКА</span><select id="prompterSource"><option value="mic">Микрофон рядом с разговором</option><option value="tab">Вкладка / звонок с аудио</option></select></label>
+              <label class="prompter-select-wrap"><span>СТИЛЬ ОТВЕТА</span><select id="prompterStyle"><option value="коротко и делово">Коротко и делово</option><option value="уверенно и конкретно">Уверенно и конкретно</option><option value="дипломатично">Дипломатично</option><option value="спокойно и нейтрально">Спокойно и нейтрально</option></select></label>
+            </div>
+
+            <label class="prompter-toggle"><span><strong>АВТООТВЕТ</strong><small>После каждой завершённой реплики AI проверяет, был ли это вопрос</small></span><input id="prompterAuto" type="checkbox" checked /></label>
+          </div>
+
+          <div class="prompter-transcript-box">
+            <div class="prompter-transcript-head"><strong>ПОСЛЕДНИЕ РЕПЛИКИ</strong><button id="prompterClearTranscriptBtn" class="prompter-mini-btn" type="button">ОЧИСТИТЬ</button></div>
+            <div id="prompterTranscript" class="prompter-transcript"></div>
+          </div>
+        </div>
+
+        <div class="panel prompter-answer-panel">
+          <div class="prompter-answer-head">
+            <div class="panel-head"><span>02</span><h2>ЧТО СКАЗАТЬ</h2></div>
+            <span class="prompter-ai-badge">AI ANSWER</span>
+          </div>
+          <div id="prompterQuestion" class="prompter-question">Последний распознанный вопрос появится здесь.</div>
+          <div id="prompterAnswer" class="prompter-answer placeholder">После вопроса здесь появится готовая формулировка.</div>
+          <div class="prompter-answer-tools">
+            <button id="prompterCopyAnswerBtn" class="secondary-btn result-copy-btn" type="button" disabled>СКОПИРОВАТЬ ОТВЕТ</button>
+            <button id="prompterClearAnswerBtn" class="secondary-btn" type="button" disabled>ОЧИСТИТЬ</button>
+          </div>
+          <p class="prompter-note">Аудио не сохраняется. Для подготовки подсказки в AI отправляется распознанный текст и введённый контекст. Используйте с учётом правил компании и согласия участников разговора.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="prompterAccess" class="prompter-access hidden">
+    <div class="prompter-access-card">
+      <div class="eyebrow">KORYTNIK HUB</div>
+      <h3>Доступ к AI</h3>
+      <p>Введите ваш код доступа. Он сохраняется только до закрытия текущей вкладки.</p>
+      <label class="prompter-field"><span>КОД ДОСТУПА</span><input id="prompterAccessInput" type="password" autocomplete="off" /></label>
+      <div id="prompterAccessError" class="prompter-access-error"></div>
+      <div class="prompter-access-actions"><button id="prompterAccessSubmit" class="primary-btn" type="button"><span>ОТКРЫТЬ</span><span>↗</span></button><button id="prompterAccessCancel" class="secondary-btn" type="button">ОТМЕНА</button></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script defer src="./prompter.js?v=1.0.0"></script>
+</body>
+</html>
