@@ -3,12 +3,10 @@
 
   const SESSION_URL = 'https://ytdacypygsfalkixhemj.supabase.co/functions/v1/voice-session';
   const ANSWER_URL = 'https://ytdacypygsfalkixhemj.supabase.co/functions/v1/prompter-answer';
-  const ACCESS_KEY = 'kh-ai-access';
   const CONTEXT_KEY = 'kh-prompter-context-v1';
 
   const byId = id => document.getElementById(id);
   const els = {
-    workspaceButtons: [...document.querySelectorAll('[data-workspace]')],
     speechWorkspace: byId('speechWorkspace'),
     prompterWorkspace: byId('prompterWorkspace'),
     start: byId('prompterStartBtn'),
@@ -26,15 +24,10 @@
     context: byId('prompterContext'),
     style: byId('prompterStyle'),
     source: byId('prompterSource'),
-    auto: byId('prompterAuto'),
-    access: byId('prompterAccess'),
-    accessInput: byId('prompterAccessInput'),
-    accessSubmit: byId('prompterAccessSubmit'),
-    accessCancel: byId('prompterAccessCancel'),
-    accessError: byId('prompterAccessError')
+    auto: byId('prompterAuto')
   };
 
-  if (!els.prompterWorkspace || !els.speechWorkspace) return;
+  if (!els.prompterWorkspace) return;
 
   let pc = null;
   let dc = null;
@@ -43,17 +36,15 @@
   let utterances = [];
   let pendingTranscript = '';
   let answerController = null;
-  let accessResolver = null;
 
   restoreContext();
   bindUi();
   renderTranscript();
+  clearAnswer();
+  setConnectedUi(false);
   setStatus('Готов к работе', 'idle');
 
   function bindUi() {
-    els.workspaceButtons.forEach(button => {
-      button.addEventListener('click', () => switchWorkspace(button.dataset.workspace));
-    });
     els.start?.addEventListener('click', connect);
     els.stop?.addEventListener('click', () => disconnect());
     els.answerNow?.addEventListener('click', () => requestAnswer(true));
@@ -61,29 +52,14 @@
       utterances = [];
       pendingTranscript = '';
       renderTranscript();
+      if (els.answerNow) els.answerNow.disabled = true;
     });
-    els.clearAnswer?.addEventListener('click', clearAnswer);
+    els.clearAnswer?.addEventListener('click', () => clearAnswer());
     els.copyAnswer?.addEventListener('click', copyAnswer);
     [els.goal, els.context, els.style, els.source, els.auto].forEach(node => node?.addEventListener('change', saveContext));
     els.goal?.addEventListener('input', saveContext);
     els.context?.addEventListener('input', saveContext);
-    els.accessSubmit?.addEventListener('click', submitAccess);
-    els.accessCancel?.addEventListener('click', cancelAccess);
-    els.accessInput?.addEventListener('keydown', event => {
-      if (event.key === 'Enter') submitAccess();
-    });
     window.addEventListener('beforeunload', () => disconnect(false));
-  }
-
-  function switchWorkspace(name) {
-    const prompter = name === 'prompter';
-    els.speechWorkspace.classList.toggle('hidden', prompter);
-    els.prompterWorkspace.classList.toggle('hidden', !prompter);
-    els.workspaceButtons.forEach(button => {
-      const active = button.dataset.workspace === name;
-      button.classList.toggle('active', active);
-      button.setAttribute('aria-selected', active ? 'true' : 'false');
-    });
   }
 
   function restoreContext() {
@@ -117,41 +93,9 @@
   }
 
   function setConnectedUi(connected) {
-    if (els.start) els.start.classList.toggle('hidden', connected);
-    if (els.stop) els.stop.classList.toggle('hidden', !connected);
+    els.start?.classList.toggle('hidden', connected);
+    els.stop?.classList.toggle('hidden', !connected);
     if (els.answerNow) els.answerNow.disabled = !utterances.length;
-  }
-
-  function showAccess(message = '') {
-    if (!els.access) return Promise.resolve('');
-    els.accessError.textContent = message;
-    els.accessInput.value = '';
-    els.access.classList.remove('hidden');
-    setTimeout(() => els.accessInput.focus(), 50);
-    return new Promise(resolve => { accessResolver = resolve; });
-  }
-
-  function hideAccess() {
-    els.access?.classList.add('hidden');
-  }
-
-  function submitAccess() {
-    const code = (els.accessInput?.value || '').trim();
-    if (!code) return;
-    sessionStorage.setItem(ACCESS_KEY, code);
-    hideAccess();
-    accessResolver?.(code);
-    accessResolver = null;
-  }
-
-  function cancelAccess() {
-    hideAccess();
-    accessResolver?.('');
-    accessResolver = null;
-  }
-
-  function getAccess() {
-    return sessionStorage.getItem(ACCESS_KEY) || '';
   }
 
   async function getInputStream() {
@@ -168,7 +112,7 @@
       display.getVideoTracks().forEach(track => track.stop());
       if (!audioTrack) {
         display.getTracks().forEach(track => track.stop());
-        throw new Error('В выбранном источнике нет аудио. Выберите вкладку звонка и включите «Поделиться аудио».');
+        throw new Error('В выбранном источнике нет аудио. Выберите вкладку звонка и включите передачу аудио.');
       }
       audioTrack.addEventListener('ended', () => disconnect());
       return new MediaStream([audioTrack]);
@@ -179,7 +123,7 @@
     });
   }
 
-  async function openRealtime(accessCode) {
+  async function openRealtime() {
     inputStream = await getInputStream();
     pc = new RTCPeerConnection();
     inputStream.getAudioTracks().forEach(track => pc.addTrack(track, inputStream));
@@ -219,16 +163,7 @@
     form.append('sdp', offer.sdp);
     form.append('session', JSON.stringify(sessionConfig));
 
-    const response = await fetch(SESSION_URL, {
-      method: 'POST',
-      headers: { 'x-kh-access': accessCode },
-      body: form
-    });
-
-    if (response.status === 401) {
-      sessionStorage.removeItem(ACCESS_KEY);
-      throw Object.assign(new Error('Неверный код доступа.'), { code: 'access_denied' });
-    }
+    const response = await fetch(SESSION_URL, { method: 'POST', body: form });
     if (!response.ok) {
       let message = `Ошибка подключения (${response.status})`;
       try {
@@ -257,6 +192,7 @@
 
   function handleRealtimeEvent(data) {
     const type = data.type || '';
+
     if (type === 'input_audio_buffer.speech_started') {
       setStatus('Слышу речь…', 'listening');
       return;
@@ -279,6 +215,7 @@
     if (type === 'error') {
       console.error('Prompter realtime error', data);
       setStatus('Ошибка распознавания', 'idle');
+      showToast('Ошибка распознавания речи.', true);
     }
   }
 
@@ -290,27 +227,12 @@
     saveContext();
 
     try {
-      let accessCode = getAccess();
-      if (!accessCode) accessCode = await showAccess();
-      if (!accessCode) throw new Error('Подключение отменено.');
-
-      try {
-        await openRealtime(accessCode);
-      } catch (error) {
-        if (error.code === 'access_denied') {
-          disconnect(false);
-          const retry = await showAccess('Код не подошел. Попробуйте еще раз.');
-          if (!retry) throw new Error('Подключение отменено.');
-          await openRealtime(retry);
-        } else {
-          throw error;
-        }
-      }
+      await openRealtime();
     } catch (error) {
       console.error(error);
       disconnect(false);
       setStatus(error.message || 'Не удалось подключиться', 'idle');
-      showToast(error.message || 'Не удалось подключить суфлер.', true);
+      showToast(error.message || 'Не удалось подключить суфлёр.', true);
     } finally {
       connecting = false;
       if (els.start) els.start.disabled = false;
@@ -351,6 +273,7 @@
       els.transcript.appendChild(p);
       return;
     }
+
     utterances.forEach(item => {
       const row = document.createElement('div');
       row.className = 'prompter-utterance';
@@ -370,8 +293,6 @@
 
   async function requestAnswer(force) {
     if (!utterances.length) return;
-    const accessCode = getAccess() || await showAccess();
-    if (!accessCode) return;
 
     answerController?.abort();
     answerController = new AbortController();
@@ -380,10 +301,7 @@
     try {
       const response = await fetch(ANSWER_URL, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-kh-access': accessCode
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transcript: transcriptForAi(),
           goal: els.goal?.value || '',
@@ -394,13 +312,6 @@
         signal: answerController.signal
       });
 
-      if (response.status === 401) {
-        sessionStorage.removeItem(ACCESS_KEY);
-        clearAnswer('Нужен код доступа.');
-        if (force) await showAccess('Код не подошел. Введите правильный код.');
-        return;
-      }
-
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.ok) throw new Error(data.message || `Ошибка AI (${response.status})`);
 
@@ -409,7 +320,7 @@
         return;
       }
 
-      showAnswer(data.question || utterances.at(-1).text, data.answer || '');
+      showAnswer(data.question || utterances.at(-1)?.text || '', data.answer || '');
     } catch (error) {
       if (error.name === 'AbortError') return;
       console.error(error);
@@ -463,7 +374,7 @@
 
   async function copyAnswer() {
     const text = els.answer?.textContent?.trim() || '';
-    if (!text || els.answer.classList.contains('placeholder')) return;
+    if (!text || els.answer?.classList.contains('placeholder')) return;
     try {
       await navigator.clipboard.writeText(text);
       showToast('Ответ скопирован.');
@@ -481,6 +392,4 @@
     clearTimeout(showToast.timer);
     showToast.timer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
-
-  setConnectedUi(false);
 })();
