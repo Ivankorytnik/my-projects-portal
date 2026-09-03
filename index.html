@@ -27,181 +27,25 @@
       <div>
         <div class="brand">
           <div class="brand-mark">KH<span>.</span></div>
-          <div>
-            <strong>KORYTNIK HUB</strong>
-            <span>Project Portal</span>
-          </div>
+          <div><strong>KORYTNIK HUB</strong><span>Project Portal</span></div>
         </div>
-
         <nav class="side-nav" aria-label="Навигация">
-          <button class="nav-item active" data-view="all">Все проекты</button>
-          <button class="nav-item" data-view="business">Бизнес</button>
-          <button class="nav-item" data-view="work">Рабочие</button>
-          <button class="nav-item" data-view="personal">Личные</button>
+          <button class="nav-item active" data-view="all">Все проекты</button><button class="nav-item" data-view="business">Бизнес</button><button class="nav-item" data-view="work">Рабочие</button><button class="nav-item" data-view="personal">Личные</button>
         </nav>
-
         <button id="documentsNavButton" class="documents-nav" type="button">Документы</button>
-
-        <div class="status-nav">
-          <span class="status-nav__title">Статус</span>
-          <button class="status-filter active" data-filter="all">Все</button>
-          <button class="status-filter" data-filter="idea">Идея</button>
-          <button class="status-filter" data-filter="active">В работе</button>
-          <button class="status-filter" data-filter="mvp">MVP</button>
-          <button class="status-filter" data-filter="live">Работает</button>
-          <button class="status-filter" data-filter="paused">Пауза</button>
-          <button class="status-filter" data-filter="archived">Архив</button>
-        </div>
+        <div class="status-nav"><span class="status-nav__title">Статус</span><button class="status-filter active" data-filter="all">Все</button><button class="status-filter" data-filter="idea">Идея</button><button class="status-filter" data-filter="active">В работе</button><button class="status-filter" data-filter="mvp">MVP</button><button class="status-filter" data-filter="live">Работает</button><button class="status-filter" data-filter="paused">Пауза</button><button class="status-filter" data-filter="archived">Архив</button></div>
       </div>
-
-      <div class="sidebar-footer">
-        <div class="app-version">Версия <strong>v1.7.0</strong></div>
-        <button id="exportButton" class="text-button" type="button">Экспорт проектов</button>
-        <label class="text-button file-label">
-          Импорт проектов
-          <input id="importInput" type="file" accept=".json,application/json" />
-        </label>
-      </div>
+      <div class="sidebar-footer"><div class="app-version">Версия <strong>v1.7.0</strong></div><button id="exportButton" class="text-button" type="button">Экспорт проектов</button><label class="text-button file-label">Импорт проектов<input id="importInput" type="file" accept=".json,application/json" /></label></div>
     </aside>
-
     <main class="main">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow">KORYTNIK HUB</p>
-          <h1>Мои проекты</h1>
-          <p class="topbar-note">Единая точка входа в сайты, MVP, рабочие инструменты и репозитории.</p>
-        </div>
-
-        <div class="topbar-actions">
-          <div class="version-badge" aria-label="Версия портала">v1.7.0</div>
-          <button id="addProjectButton" class="primary-button" type="button">+ Добавить проект</button>
-        </div>
-      </header>
-
-      <section class="stats-grid" aria-label="Статистика проектов">
-        <article class="stat-card"><span>Всего</span><strong id="totalCount">0</strong></article>
-        <article class="stat-card"><span>Бизнес</span><strong id="businessCount">0</strong></article>
-        <article class="stat-card"><span>Личные</span><strong id="personalCount">0</strong></article>
-        <article class="stat-card"><span>Активные</span><strong id="activeCount">0</strong></article>
-      </section>
-
-      <section class="toolbar">
-        <label class="search">
-          <span>Поиск</span>
-          <input id="searchInput" type="search" placeholder="Название, категория, описание, следующий шаг..." />
-        </label>
-        <label class="select-control">
-          <span>Категория</span>
-          <select id="categoryFilter"><option value="all">Все категории</option></select>
-        </label>
-      </section>
-
-      <section>
-        <div class="section-heading">
-          <div><h2 id="sectionTitle">Все проекты</h2><p id="resultCount">Найдено: 0</p></div>
-        </div>
-        <div id="projectsGrid" class="projects-grid"></div>
-        <div id="emptyState" class="empty-state hidden"><h3>Проекты не найдены</h3><p>Измените фильтр или добавьте новый проект.</p></div>
-      </section>
-
-      <section id="documentsWorkspace" class="documents-workspace hidden">
-        <div class="documents-page-header">
-          <div>
-            <p class="eyebrow">KORYTNIK HUB / STORAGE</p>
-            <h1>Документы</h1>
-            <p>Приватное облачное хранилище: фото, Excel, Word, PDF, презентации и другие файлы.</p>
-          </div>
-          <div class="documents-security-pill">Приватное хранилище</div>
-        </div>
-
-        <div id="documentsUnlock" class="documents-unlock">
-          <h2>Доступ к документам</h2>
-          <p>Введите ключ файлового хранилища. Он сохраняется только до закрытия текущей вкладки браузера.</p>
-          <div class="documents-unlock-row">
-            <input id="documentsAccessKey" type="password" autocomplete="off" placeholder="Ключ доступа" />
-            <button id="documentsUnlockButton" class="primary-button" type="button">Открыть</button>
-          </div>
-          <div id="documentsStatus" class="documents-status"></div>
-        </div>
-
-        <div id="documentsManager" class="documents-manager hidden">
-          <aside class="documents-tree-panel">
-            <div class="documents-tree-title">
-              <strong>Папки</strong>
-              <button id="documentsLockButton" class="documents-lock-button" type="button">Закрыть доступ</button>
-            </div>
-            <div id="folderTree" class="folder-tree"></div>
-          </aside>
-
-          <div class="documents-content-panel">
-            <div class="documents-toolbar">
-              <div class="documents-path">
-                <strong>Текущая папка</strong>
-                <span id="documentsPathLabel">/</span>
-              </div>
-              <div class="documents-toolbar-actions">
-                <button id="documentsNewFolderButton" type="button">+ Папка</button>
-                <button id="documentsRefreshButton" type="button">Обновить</button>
-                <label id="documentsUploadButton" class="documents-upload-label primary">
-                  + Загрузить файлы
-                  <input id="documentsUploadInput" type="file" multiple />
-                </label>
-              </div>
-            </div>
-
-            <div id="documentsBreadcrumb" class="documents-breadcrumb"></div>
-            <div class="documents-list-head"><span>Название</span><span>Размер / дата</span><span>Действия</span></div>
-            <div id="documentsFileList" class="documents-file-list"></div>
-            <div id="documentsEmpty" class="documents-empty hidden">В этой папке пока нет файлов.</div>
-            <div class="documents-footer">
-              <span id="documentsCount">0 папок · 0 файлов</span>
-              <span>Максимальный размер одного файла: 50 МБ</span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <header class="topbar"><div><p class="eyebrow">KORYTNIK HUB</p><h1>Мои проекты</h1><p class="topbar-note">Единая точка входа в сайты, MVP, рабочие инструменты и репозитории.</p></div><div class="topbar-actions"><div class="version-badge" aria-label="Версия портала">v1.7.0</div><button id="addProjectButton" class="primary-button" type="button">+ Добавить проект</button></div></header>
+      <section class="stats-grid" aria-label="Статистика проектов"><article class="stat-card"><span>Всего</span><strong id="totalCount">0</strong></article><article class="stat-card"><span>Бизнес</span><strong id="businessCount">0</strong></article><article class="stat-card"><span>Личные</span><strong id="personalCount">0</strong></article><article class="stat-card"><span>Активные</span><strong id="activeCount">0</strong></article></section>
+      <section class="toolbar"><label class="search"><span>Поиск</span><input id="searchInput" type="search" placeholder="Название, категория, описание, следующий шаг..." /></label><label class="select-control"><span>Категория</span><select id="categoryFilter"><option value="all">Все категории</option></select></label></section>
+      <section><div class="section-heading"><div><h2 id="sectionTitle">Все проекты</h2><p id="resultCount">Найдено: 0</p></div></div><div id="projectsGrid" class="projects-grid"></div><div id="emptyState" class="empty-state hidden"><h3>Проекты не найдены</h3><p>Измените фильтр или добавьте новый проект.</p></div></section>
+      <section id="documentsWorkspace" class="documents-workspace hidden"><div class="documents-page-header"><div><p class="eyebrow">KORYTNIK HUB / STORAGE</p><h1>Документы</h1><p>Приватное облачное хранилище: фото, Excel, Word, PDF, презентации и другие файлы.</p></div><div class="documents-security-pill">Приватное хранилище</div></div><div id="documentsUnlock" class="documents-unlock"><h2>Доступ к документам</h2><p>Введите ключ файлового хранилища. Он сохраняется только до закрытия текущей вкладки браузера.</p><div class="documents-unlock-row"><input id="documentsAccessKey" type="password" autocomplete="off" placeholder="Ключ доступа" /><button id="documentsUnlockButton" class="primary-button" type="button">Открыть</button></div><div id="documentsStatus" class="documents-status"></div></div><div id="documentsManager" class="documents-manager hidden"><aside class="documents-tree-panel"><div class="documents-tree-title"><strong>Папки</strong><button id="documentsLockButton" class="documents-lock-button" type="button">Закрыть доступ</button></div><div id="folderTree" class="folder-tree"></div></aside><div class="documents-content-panel"><div class="documents-toolbar"><div class="documents-path"><strong>Текущая папка</strong><span id="documentsPathLabel">/</span></div><div class="documents-toolbar-actions"><button id="documentsNewFolderButton" type="button">+ Папка</button><button id="documentsRefreshButton" type="button">Обновить</button><label id="documentsUploadButton" class="documents-upload-label primary">+ Загрузить файлы<input id="documentsUploadInput" type="file" multiple /></label></div></div><div id="documentsBreadcrumb" class="documents-breadcrumb"></div><div class="documents-list-head"><span>Название</span><span>Размер / дата</span><span>Действия</span></div><div id="documentsFileList" class="documents-file-list"></div><div id="documentsEmpty" class="documents-empty hidden">В этой папке пока нет файлов.</div><div class="documents-footer"><span id="documentsCount">0 папок · 0 файлов</span><span>Максимальный размер одного файла: 50 МБ</span></div></div></div></section>
     </main>
   </div>
-
-  <div id="projectDialog" class="project-dialog hidden" role="dialog" aria-modal="true" aria-hidden="true">
-    <form id="projectForm">
-      <div class="dialog-header">
-        <div><p class="eyebrow">Карточка проекта</p><h2 id="dialogTitle">Новый проект</h2></div>
-        <button id="closeDialogButton" class="dialog-close" type="button" aria-label="Закрыть">×</button>
-      </div>
-
-      <input id="projectId" type="hidden" />
-
-      <div class="form-grid">
-        <label class="field field-wide"><span>Название проекта</span><input id="projectTitle" type="text" required maxlength="90" /></label>
-        <label class="field"><span>Тип проекта</span><select id="projectType" required><option value="business">Бизнес</option><option value="work">Рабочий</option><option value="personal">Личный</option></select></label>
-        <label class="field"><span>Категория</span><input id="projectCategory" type="text" required maxlength="50" placeholder="Например, AI / Сервис" /></label>
-        <label class="field"><span>Статус</span><select id="projectStatus" required><option value="idea">Идея</option><option value="active">В работе</option><option value="mvp">MVP</option><option value="live">Работает</option><option value="paused">Пауза</option><option value="archived">Архив</option></select></label>
-
-        <div class="field field-wide project-colors-field">
-          <span>Цвета проекта</span>
-          <div class="project-color-controls">
-            <label class="color-control"><span>Основной</span><input id="projectColor" type="color" value="#0046ad" /></label>
-            <label class="color-control"><span>Акцент</span><input id="projectAccent" type="color" value="#f7c600" /></label>
-            <button id="autoProjectColors" class="secondary-button color-auto-button" type="button">Подобрать автоматически</button>
-          </div>
-        </div>
-
-        <label class="field field-wide"><span>Описание</span><textarea id="projectDescription" rows="4" maxlength="300"></textarea></label>
-        <label class="field field-wide"><span>Следующий шаг</span><input id="projectNextStep" type="text" maxlength="160" placeholder="Что нужно сделать дальше" /></label>
-        <label class="field field-wide"><span>Сайт / рабочая версия</span><input id="projectUrl" type="url" placeholder="https://..." /></label>
-        <label class="field field-wide"><span>GitHub</span><input id="projectGithubUrl" type="url" placeholder="https://github.com/..." /></label>
-        <label class="field"><span>Ответственный</span><input id="projectOwner" type="text" maxlength="60" value="Иван Корытник" /></label>
-        <label class="field"><span>Дата обновления</span><input id="projectUpdated" type="date" /></label>
-      </div>
-
-      <div class="dialog-actions">
-        <button id="cancelDialogButton" class="secondary-button" type="button">Отмена</button>
-        <button class="primary-button" type="submit">Сохранить</button>
-      </div>
-    </form>
-  </div>
-
+  <div id="projectDialog" class="project-dialog hidden" role="dialog" aria-modal="true" aria-hidden="true"><form id="projectForm"><div class="dialog-header"><div><p class="eyebrow">Карточка проекта</p><h2 id="dialogTitle">Новый проект</h2></div><button id="closeDialogButton" class="dialog-close" type="button" aria-label="Закрыть">×</button></div><input id="projectId" type="hidden" /><div class="form-grid"><label class="field field-wide"><span>Название проекта</span><input id="projectTitle" type="text" required maxlength="90" /></label><label class="field"><span>Тип проекта</span><select id="projectType" required><option value="business">Бизнес</option><option value="work">Рабочий</option><option value="personal">Личный</option></select></label><label class="field"><span>Категория</span><input id="projectCategory" type="text" required maxlength="50" placeholder="Например, AI / Сервис" /></label><label class="field"><span>Статус</span><select id="projectStatus" required><option value="idea">Идея</option><option value="active">В работе</option><option value="mvp">MVP</option><option value="live">Работает</option><option value="paused">Пауза</option><option value="archived">Архив</option></select></label><div class="field field-wide project-colors-field"><span>Цвета проекта</span><div class="project-color-controls"><label class="color-control"><span>Основной</span><input id="projectColor" type="color" value="#0046ad" /></label><label class="color-control"><span>Акцент</span><input id="projectAccent" type="color" value="#f7c600" /></label><button id="autoProjectColors" class="secondary-button color-auto-button" type="button">Подобрать автоматически</button></div></div><label class="field field-wide"><span>Описание</span><textarea id="projectDescription" rows="4" maxlength="300"></textarea></label><label class="field field-wide"><span>Следующий шаг</span><input id="projectNextStep" type="text" maxlength="160" placeholder="Что нужно сделать дальше" /></label><label class="field field-wide"><span>Сайт / рабочая версия</span><input id="projectUrl" type="url" placeholder="https://..." /></label><label class="field field-wide"><span>GitHub</span><input id="projectGithubUrl" type="url" placeholder="https://github.com/..." /></label><label class="field"><span>Ответственный</span><input id="projectOwner" type="text" maxlength="60" value="Иван Корытник" /></label><label class="field"><span>Дата обновления</span><input id="projectUpdated" type="date" /></label></div><div class="dialog-actions"><button id="cancelDialogButton" class="secondary-button" type="button">Отмена</button><button class="primary-button" type="submit">Сохранить</button></div></form></div>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="app.js?v=1.5.2"></script>
   <script src="ai-card.js?v=1.4.7"></script>
@@ -212,6 +56,7 @@
   <script src="td-secure-project.js?v=1.0.0"></script>
   <script src="photo-mail-project.js?v=1.0.0"></script>
   <script src="alice-project.js?v=1.0.0"></script>
+  <script src="versions.js?v=1.0.0"></script>
   <script src="theme-fix.js?v=1.4.4"></script>
   <script src="documents.js?v=1.5.0"></script>
   <script src="personal-gate.js?v=1.0.3"></script>
