@@ -26,7 +26,7 @@ jobs:
           SITE_URL: https://korytnikhub.pro/
           SYNC_URL: https://ytdacypygsfalkixhemj.supabase.co/functions/v1/hub-projects-sync
         run: |
-          cat > /tmp/verify-order.mjs <<'JS'
+          cat > verify-order.mjs <<'JS'
           import { chromium } from 'playwright';
 
           const site = process.env.SITE_URL;
@@ -129,4 +129,4 @@ jobs:
             if (browser) await browser.close();
           }
           JS
-          node /tmp/verify-order.mjs
+          node verify-order.mjs
