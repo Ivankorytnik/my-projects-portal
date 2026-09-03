@@ -1,0 +1,100 @@
+/* KORYTNIK HUB: slightly larger typography for cards and navigation */
+
+/* Sidebar navigation */
+.nav-item {
+  font-size: 15px !important;
+  line-height: 1.25 !important;
+}
+
+.status-filter {
+  font-size: 14px !important;
+  line-height: 1.25 !important;
+}
+
+.status-nav__title {
+  font-size: 11px !important;
+}
+
+.documents-nav {
+  font-size: 14px !important;
+}
+
+.sidebar-footer .text-button,
+.sidebar-footer .file-label,
+.app-version {
+  font-size: 12px !important;
+}
+
+/* Project cards */
+.project-card h3 {
+  font-size: 19px !important;
+  line-height: 1.25 !important;
+}
+
+.project-card > p {
+  font-size: 14px !important;
+  line-height: 1.55 !important;
+}
+
+.project-card .project-type,
+.project-card .category,
+.project-card .status {
+  font-size: 11px !important;
+}
+
+.project-card .card-meta {
+  font-size: 11px !important;
+}
+
+.project-card .open-link,
+.project-card .github-link,
+.project-card .card-button {
+  font-size: 11px !important;
+}
+
+/* List view */
+.projects-grid.view-list .project-card h3 {
+  font-size: 18px !important;
+}
+
+.projects-grid.view-list .project-card > p {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.projects-grid.view-list .project-type,
+.projects-grid.view-list .category,
+.projects-grid.view-list .status {
+  font-size: 11px !important;
+}
+
+.projects-grid.view-list .card-meta {
+  font-size: 11px !important;
+}
+
+.projects-grid.view-list .open-link,
+.projects-grid.view-list .github-link,
+.projects-grid.view-list .card-button {
+  font-size: 11px !important;
+}
+
+@media (max-width: 640px) {
+  .nav-item {
+    font-size: 14px !important;
+  }
+
+  .status-filter,
+  .documents-nav {
+    font-size: 13px !important;
+  }
+
+  .project-card h3,
+  .projects-grid.view-list .project-card h3 {
+    font-size: 18px !important;
+  }
+
+  .project-card > p,
+  .projects-grid.view-list .project-card > p {
+    font-size: 14px !important;
+  }
+}
