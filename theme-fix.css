@@ -721,3 +721,9 @@ textarea:focus {
     border-radius: 14px;
   }
 }
+
+/* v1.4.3 manual project ordering */
+.project-card[draggable="true"] { cursor: grab; }
+.project-card[draggable="true"]:active { cursor: grabbing; }
+.project-card.dragging { opacity: .48; transform: scale(.985); }
+.project-card.drag-over { outline: 2px dashed var(--project-color); outline-offset: 5px; }

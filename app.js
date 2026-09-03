@@ -1,5 +1,6 @@
-const APP_VERSION = "1.4.0";
+const APP_VERSION = "1.4.3";
 const STORAGE_KEY = "ivan-projects-portal-v1";
+const DELETED_KEY = "ivan-projects-portal-deleted-v1";
 
 const initialProjects = [
   {
@@ -273,24 +274,31 @@ function normalizeProject(project) {
   };
 }
 
+function getDeletedProjectIds() {
+  try {
+    const value = JSON.parse(localStorage.getItem(DELETED_KEY) || "[]");
+    return Array.isArray(value) ? value : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveDeletedProjectIds(ids) {
+  localStorage.setItem(DELETED_KEY, JSON.stringify([...new Set(ids)]));
+}
+
 function mergeWithCatalog(savedProjects) {
-  const catalog = initialProjects.map(normalizeProject);
+  const deleted = new Set(getDeletedProjectIds());
+  const catalog = initialProjects.map(normalizeProject).filter(project => !deleted.has(project.id));
   const saved = Array.isArray(savedProjects) ? savedProjects.map(normalizeProject) : [];
-  const result = [...saved];
+  const result = saved.filter(project => !deleted.has(project.id));
   const byId = new Map(result.map((project, index) => [project.id, index]));
 
   catalog.forEach(catalogProject => {
     if (byId.has(catalogProject.id)) {
       const index = byId.get(catalogProject.id);
-      const old = result[index];
-      result[index] = normalizeProject({
-        ...catalogProject,
-        ...old,
-        githubUrl: old.githubUrl || catalogProject.githubUrl,
-        url: old.url || catalogProject.url,
-        nextStep: old.nextStep || catalogProject.nextStep,
-        status: old.status === "archived" && catalogProject.status === "live" ? catalogProject.status : old.status
-      });
+      const savedProject = result[index];
+      result[index] = normalizeProject({ ...catalogProject, ...savedProject });
     } else {
       result.push(catalogProject);
     }
@@ -378,8 +386,7 @@ function getFilteredProjects() {
       if (!query) return true;
       return [project.title, project.category, project.description, project.nextStep, project.owner]
         .some(value => String(value || "").toLowerCase().includes(query));
-    })
-    .sort((a, b) => String(b.updated || "").localeCompare(String(a.updated || "")) || a.title.localeCompare(b.title, "ru"));
+    });
 }
 
 function renderStats() {
@@ -419,7 +426,7 @@ function renderProjects() {
     const hasUrl = Boolean(project.url);
     const hasGithub = Boolean(project.githubUrl);
     return `
-      <article class="project-card" style="${projectStyle(project)}">
+      <article class="project-card" draggable="true" data-project-id="${escapeHtml(project.id)}" style="${projectStyle(project)}">
         <div class="card-top">
           <div class="card-labels">
             <span class="project-type project-type-${escapeHtml(project.type)}">${typeLabels[project.type] || "Проект"}</span>
@@ -581,9 +588,59 @@ elements.projectsGrid.addEventListener("click", event => {
     const confirmed = window.confirm(`Удалить проект «${project.title}»?`);
     if (!confirmed) return;
     state.projects = state.projects.filter(item => item.id !== project.id);
+    const deleted = getDeletedProjectIds();
+    if (!deleted.includes(project.id)) deleted.push(project.id);
+    saveDeletedProjectIds(deleted);
     saveProjects();
     render();
   }
+});
+
+
+let draggedProjectId = null;
+
+function moveProjectBefore(sourceId, targetId) {
+  if (!sourceId || !targetId || sourceId === targetId) return;
+  const sourceIndex = state.projects.findIndex(project => project.id === sourceId);
+  const targetIndex = state.projects.findIndex(project => project.id === targetId);
+  if (sourceIndex < 0 || targetIndex < 0) return;
+  const [source] = state.projects.splice(sourceIndex, 1);
+  const newTargetIndex = state.projects.findIndex(project => project.id === targetId);
+  state.projects.splice(newTargetIndex, 0, source);
+  saveProjects();
+  renderProjects();
+}
+
+elements.projectsGrid.addEventListener("dragstart", event => {
+  const card = event.target.closest(".project-card[data-project-id]");
+  if (!card) return;
+  draggedProjectId = card.dataset.projectId;
+  card.classList.add("dragging");
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", draggedProjectId);
+  }
+});
+
+elements.projectsGrid.addEventListener("dragend", event => {
+  event.target.closest(".project-card")?.classList.remove("dragging");
+  elements.projectsGrid.querySelectorAll(".drag-over").forEach(card => card.classList.remove("drag-over"));
+  draggedProjectId = null;
+});
+
+elements.projectsGrid.addEventListener("dragover", event => {
+  const card = event.target.closest(".project-card[data-project-id]");
+  if (!card || !draggedProjectId || card.dataset.projectId === draggedProjectId) return;
+  event.preventDefault();
+  elements.projectsGrid.querySelectorAll(".drag-over").forEach(item => item.classList.remove("drag-over"));
+  card.classList.add("drag-over");
+});
+
+elements.projectsGrid.addEventListener("drop", event => {
+  const card = event.target.closest(".project-card[data-project-id]");
+  if (!card || !draggedProjectId) return;
+  event.preventDefault();
+  moveProjectBefore(draggedProjectId, card.dataset.projectId);
 });
 
 elements.exportButton.addEventListener("click", () => {
