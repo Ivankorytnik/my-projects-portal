@@ -77,13 +77,6 @@
       card.dataset.projectId = edit.dataset.id;
       card.draggable = true;
 
-      if (!card.querySelector(".drag-hint")) {
-        const hint = document.createElement("div");
-        hint.className = "drag-hint";
-        hint.textContent = "↕ Перетащить";
-        card.prepend(hint);
-      }
-
       if (!card.querySelector(".mobile-order-controls")) {
         const controls = document.createElement("div");
         controls.className = "mobile-order-controls";
