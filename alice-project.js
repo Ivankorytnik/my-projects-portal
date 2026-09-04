@@ -15,12 +15,29 @@
     accent: "#c4a7ff"
   };
 
+  function isDeleted() {
+    try {
+      if (window.HubDeletedProjects?.getDeletedIds) {
+        return window.HubDeletedProjects.getDeletedIds().has(PROJECT.id);
+      }
+      const deleted = JSON.parse(localStorage.getItem("ivan-projects-portal-deleted-v1") || "[]");
+      return Array.isArray(deleted) && deleted.includes(PROJECT.id);
+    } catch {
+      return false;
+    }
+  }
+
   function registerProject() {
     if (typeof state === "undefined" || !Array.isArray(state.projects) || typeof saveProjects !== "function") return false;
+
     const index = state.projects.findIndex(project => project.id === PROJECT.id);
+
+    // Облачный/локальный список HUB является источником истины.
+    // Если карточка удалена или ее уже нет в списке, этот файл не должен создавать ее заново.
+    if (isDeleted() || index < 0) return true;
+
     const normalized = typeof normalizeProject === "function" ? normalizeProject(PROJECT) : PROJECT;
-    if (index >= 0) state.projects[index] = { ...state.projects[index], ...normalized };
-    else state.projects.unshift(normalized);
+    state.projects[index] = { ...state.projects[index], ...normalized };
     saveProjects();
     if (typeof render === "function") render();
     return true;
