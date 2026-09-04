@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#151e32" />
   <title>Воспоминания | KORYTNIK HUB</title>
   <link rel="stylesheet" href="style.css?v=1.0.0" />
+  <link rel="stylesheet" href="literary.css?v=1.1.0" />
 </head>
 <body>
   <section id="gate" class="gate">
@@ -67,6 +68,11 @@
             <input id="audioInput" class="hidden" type="file" accept="audio/*,video/*" />
           </div>
 
+          <label class="dictionary-row" for="dictionary">
+            <span>Имена и названия для точного распознавания</span>
+            <input id="dictionary" type="text" placeholder="Например: Корытник, Конаково, Донховка" />
+          </label>
+
           <div class="audio-wrap">
             <audio id="audio" controls preload="metadata"></audio>
           </div>
@@ -88,6 +94,6 @@
   </div>
 
   <div id="busy" class="busy-banner hidden">Обрабатываю выбранную главу…</div>
-  <script src="app.js?v=1.0.0"></script>
+  <script src="app.js?v=1.1.0"></script>
 </body>
 </html>
