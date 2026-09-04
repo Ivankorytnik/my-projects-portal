@@ -1,0 +1,23 @@
+.dictionary-row {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 14px;
+  color: #596273;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.dictionary-row input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 10px 12px;
+  color: var(--ink);
+  outline: none;
+}
+
+.dictionary-row input:focus {
+  border-color: #6d9cc8;
+  box-shadow: 0 0 0 3px rgba(91, 143, 192, 0.12);
+}
