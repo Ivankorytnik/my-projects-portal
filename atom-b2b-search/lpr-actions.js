@@ -51,8 +51,8 @@
  const eq=(a,b)=>String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();
  const now=()=>new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date()).replace(',','');
  function baseRecord(name){const n=norm(name);const k=Object.keys(base).find(x=>{const nx=norm(x);return nx===n||nx.includes(n)||n.includes(nx)});if(!k)return null;const [lpr,role,grade,phone,email]=base[k];return {lpr,role,grade,phone,email};}
- function cacheKey(name){return 'atomB2BFullContact:'+norm(name)}
- function historyKey(name){return 'atomB2BContactHistory:'+norm(name)}
+ const cacheKey=name=>'atomB2BFullContact:'+norm(name);
+ const historyKey=name=>'atomB2BContactHistory:'+norm(name);
  function readCache(name){try{return JSON.parse(localStorage.getItem(cacheKey(name))||'null')}catch(e){return null}}
  function writeCache(name,v){localStorage.setItem(cacheKey(name),JSON.stringify(v));}
  function readHistory(name){try{return JSON.parse(localStorage.getItem(historyKey(name))||'[]')}catch(e){return []}}
@@ -61,25 +61,42 @@
  window.getCompanyLpr=c=>current(c);
  function apply(c,x){c.lpr=x.lpr;c.lprRole=x.role;c.lprGrade=x.grade;c.phone=x.phone||'';c.email=x.email||'';c.contactType=x.contactType||'';c.contactSource=x.contactSource||'';c.contactNote=x.contactNote||'';c.checkedAt=x.checkedAt||'';}
  function patchData(){if(typeof allCompanies!=='function')return;allCompanies().forEach(c=>apply(c,current(c)));}
- function notify(text,kind='ok'){
-  let n=document.getElementById('lprRefreshNotice');if(!n){n=document.createElement('div');n.id='lprRefreshNotice';n.style.cssText='position:fixed;right:20px;bottom:20px;z-index:9999;max-width:420px;padding:14px 16px;border-radius:10px;background:#111;color:#fff;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.25)';document.body.appendChild(n);}n.textContent=text;n.style.background=kind==='error'?'#8b1e1e':kind==='same'?'#444':'#111';clearTimeout(window.__lprNoticeTimer);window.__lprNoticeTimer=setTimeout(()=>n.remove(),4200);
- }
- function contactHtml(c){return `<div class="contact-cell"><div>${c.phone||'<span class="muted">телефон —</span>'}</div><div>${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'<span class="muted">e-mail —</span>'}</div>${c.checkedAt?`<div class="meta">проверено ${c.checkedAt}</div>`:''}<button class="mini-btn contact-search-btn" data-company="${String(c.name).replaceAll('"','&quot;')}">${c.phone||c.email?'Обновить контакты':'Найти контакты ЛПР'}</button></div>`;}
- async function refresh(name,btn){
-  const c=allCompanies().find(x=>x.name===name);if(!c)return;const old=current(c);const oldText=btn.textContent;btn.disabled=true;btn.textContent='Проверяю ЛПР и контакты…';
+ function notify(text,kind='ok',ttl=5000){let n=document.getElementById('lprRefreshNotice');if(!n){n=document.createElement('div');n.id='lprRefreshNotice';n.style.cssText='position:fixed;right:20px;bottom:20px;z-index:9999;max-width:460px;padding:14px 16px;border-radius:10px;background:#111;color:#fff;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.25)';document.body.appendChild(n);}n.textContent=text;n.style.background=kind==='error'?'#8b1e1e':kind==='same'?'#444':'#111';clearTimeout(window.__lprNoticeTimer);window.__lprNoticeTimer=setTimeout(()=>n.remove(),ttl);}
+ function contactHtml(c){return `<div class="contact-cell"><div>${c.phone||'<span class="muted">телефон —</span>'}</div><div>${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'<span class="muted">e-mail —</span>'}</div>${c.checkedAt?`<div class="meta">проверено ${c.checkedAt}</div>`:''}<button class="mini-btn contact-search-btn" data-company="${String(c.name).replaceAll('"','&quot;')}">${c.phone||c.email?'Обновить из интернета':'Найти в интернете'}</button></div>`;}
+ async function refresh(name,btn=null,opts={}){
+  const c=allCompanies().find(x=>x.name===name);if(!c)return {status:'error'};
+  const old=current(c), oldText=btn?.textContent||'';
+  if(btn){btn.disabled=true;btn.textContent='Ищу в интернете…';}
   try{
-   const r=await fetch(CONTACT_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({company:c.name,lprName:old.lpr,lprRole:old.role,phone:old.phone,email:old.email})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'refresh_failed');
+   const r=await fetch(CONTACT_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({company:c.name,lprName:old.lpr,lprRole:old.role,phone:old.phone,email:old.email,sourceMode:'internet_only'})});
+   const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'refresh_failed');
    const fresh={lpr:d.lpr?.name||old.lpr,role:d.lpr?.role||old.role,grade:d.lpr?.confidence||old.grade,phone:d.contact?.phone||'',email:d.contact?.email||'',contactType:d.contact?.contactType||'',contactSource:d.lpr?.source||d.contact?.sourceGeneral||d.contact?.sourcePhone||d.contact?.sourceEmail||'',contactNote:d.contact?.note||'',checkedAt:now()};
    const changes=[];[['ЛПР','lpr'],['должность','role'],['достоверность','grade'],['телефон','phone'],['e-mail','email']].forEach(([label,key])=>{if(!eq(old[key],fresh[key]))changes.push(`${label}: ${old[key]||'—'} → ${fresh[key]||'—'}`);});
-   if(!changes.length){fresh.phone=old.phone;fresh.email=old.email;fresh.contactType=old.contactType;fresh.contactSource=d.lpr?.source||old.contactSource;fresh.contactNote=d.contact?.note||old.contactNote;writeCache(c.name,fresh);apply(c,fresh);notify(`Данные не изменились. ЛПР и контакты ${c.name} актуальны. Проверено ${fresh.checkedAt}.`,'same');}
-   else{addHistory(c.name,{at:fresh.checkedAt,before:old,after:fresh,changes});writeCache(c.name,fresh);apply(c,fresh);notify(`Обновлено: ${c.name}. ${changes.join(' | ')}`,'ok');}
+   let status='same';
+   if(!changes.length){fresh.phone=old.phone;fresh.email=old.email;fresh.contactType=old.contactType;fresh.contactSource=d.lpr?.source||old.contactSource;fresh.contactNote=d.contact?.note||old.contactNote;writeCache(c.name,fresh);apply(c,fresh);if(!opts.silent)notify(`Интернет-проверка: данные ${c.name} не изменились. Проверено ${fresh.checkedAt}.`,'same');}
+   else{status='changed';addHistory(c.name,{at:fresh.checkedAt,source:'internet',before:old,after:fresh,changes});writeCache(c.name,fresh);apply(c,fresh);if(!opts.silent)notify(`Интернет-проверка обновила ${c.name}: ${changes.join(' | ')}`,'ok',7000);}
    try{localStorage.setItem('atomB2BContactCache:'+norm(c.name),JSON.stringify({phone:c.phone,email:c.email,contactType:c.contactType,contactSource:c.contactSource,contactNote:c.contactNote}));}catch(e){}
-   renderSearch();
-  }catch(e){console.error(e);notify('Не удалось обновить ЛПР и контакты. Попробуйте ещё раз.','error');btn.disabled=false;btn.textContent=oldText;}
+   if(!opts.noRender&&typeof renderSearch==='function')renderSearch();
+   return {status,changes};
+  }catch(e){console.error(e);if(!opts.silent)notify(`Не удалось проверить ${c.name} в интернете.`,'error');if(btn){btn.disabled=false;btn.textContent=oldText;}return {status:'error'};}
  }
- function bind(){document.querySelectorAll('.contact-search-btn').forEach(b=>b.onclick=()=>refresh(b.dataset.company,b));}
+ async function refreshAll(){
+  const btn=document.getElementById('refreshAllContactsButton');if(!btn||btn.disabled)return;
+  const data=allCompanies();if(!data.length)return;
+  const original=btn.textContent;btn.disabled=true;
+  let idx=0,done=0,changed=0,same=0,errors=0;
+  const update=()=>{btn.textContent=`Обновление из интернета ${done}/${data.length}`;};update();
+  async function worker(){while(true){const i=idx++;if(i>=data.length)break;const res=await refresh(data[i].name,null,{silent:true,noRender:true});done++;if(res.status==='changed')changed++;else if(res.status==='same')same++;else errors++;update();}}
+  await Promise.all([worker(),worker(),worker()]);
+  localStorage.setItem('atomB2BLastContactsRefresh',now());
+  if(typeof renderSearch==='function')renderSearch();
+  btn.disabled=false;btn.textContent=original;
+  notify(`Интернет-проверка завершена. Проверено: ${done}. Изменилось: ${changed}. Без изменений: ${same}. Ошибок: ${errors}.`,'ok',9000);
+ }
+ window.refreshAllAtomContacts=refreshAll;
+ function bind(){document.querySelectorAll('.contact-search-btn').forEach(b=>b.onclick=()=>refresh(b.dataset.company,b));const all=document.getElementById('refreshAllContactsButton');if(all)all.onclick=refreshAll;}
  function patchSearch(){window.renderSearch=function(){patchData();const data=filtered();document.getElementById('resultCount').textContent='Найдено: '+data.length;document.getElementById('companiesTable').innerHTML=`<div class="company-row header lpr-grid"><div>Компания</div><div>ЛПР</div><div>Телефон / e-mail</div><div>Отрасль</div><div>Скоринг</div><div>Прогноз АТОМ</div><div></div></div>`+(data.length?data.map(c=>`<div class="company-row lpr-grid"><div><div class="company-name">${c.name}</div><div class="meta">${c.region||'—'}</div></div><div><div class="lpr-name">${c.lpr}</div><div class="meta">${c.lprRole||'—'} · ${c.lprGrade||'C'}</div></div><div>${contactHtml(c)}</div><div>${c.sector||'—'}</div><div><b>${c.score}</b> · ${priority(c.score)}</div><div>${fmt(c.atomMin)}–${fmt(c.atomMax)}</div><div class="company-actions"><button class="mini-btn" onclick='openCompany(${JSON.stringify(c.name)})'>Открыть</button><button class="mini-btn ${state.saved.includes(c.name)?'saved':''}" onclick='toggleSaved(${JSON.stringify(c.name)})'>★</button></div></div>`).join(''):'<div class="empty">Подходящие компании не найдены.</div>');bind();};}
- function patchModal(){const oldOpen=window.openCompany;window.openCompany=function(name){oldOpen(name);const c=allCompanies().find(x=>x.name===name);if(!c)return;apply(c,current(c));const box=document.getElementById('companyDetails');if(!box)return;const history=readHistory(c.name);const s=document.createElement('div');s.className='detail-section';s.innerHTML=`<h3>ЛПР и контакты</h3><p><strong>${c.lpr}</strong><br>${c.lprRole} · достоверность ${c.lprGrade}</p><p><strong>Телефон:</strong> ${c.phone||'не найден'}<br><strong>E-mail:</strong> ${c.email||'не найден'}</p>${c.checkedAt?`<p class="meta">Последняя проверка: ${c.checkedAt}</p>`:''}${c.contactNote?`<p>${c.contactNote}</p>`:''}<button class="secondary modal-refresh-lpr" data-company="${String(c.name).replaceAll('"','&quot;')}">Обновить ЛПР и контакты</button>${history.length?`<details style="margin-top:12px"><summary>История изменений (${history.length})</summary>${history.slice(0,5).map(h=>`<div class="meta" style="margin-top:8px">${h.at}: ${h.changes.join('; ')}</div>`).join('')}</details>`:''}`;box.insertBefore(s,box.firstChild);const b=s.querySelector('.modal-refresh-lpr');b.onclick=async()=>{await refresh(c.name,b);window.closeCompany();window.openCompany(c.name);};};}
+ function patchModal(){const oldOpen=window.openCompany;window.openCompany=function(name){oldOpen(name);const c=allCompanies().find(x=>x.name===name);if(!c)return;apply(c,current(c));const box=document.getElementById('companyDetails');if(!box)return;const history=readHistory(c.name);const s=document.createElement('div');s.className='detail-section';s.innerHTML=`<h3>ЛПР и контакты</h3><p><strong>${c.lpr}</strong><br>${c.lprRole} · достоверность ${c.lprGrade}</p><p><strong>Телефон:</strong> ${c.phone||'не найден'}<br><strong>E-mail:</strong> ${c.email||'не найден'}</p>${c.checkedAt?`<p class="meta">Последняя интернет-проверка: ${c.checkedAt}</p>`:''}${c.contactSource?`<p><a href="${c.contactSource}" target="_blank" rel="noopener">Источник в интернете</a></p>`:''}${c.contactNote?`<p>${c.contactNote}</p>`:''}<button class="secondary modal-refresh-lpr" data-company="${String(c.name).replaceAll('"','&quot;')}">Обновить ЛПР и контакты из интернета</button>${history.length?`<details style="margin-top:12px"><summary>История изменений (${history.length})</summary>${history.slice(0,5).map(h=>`<div class="meta" style="margin-top:8px">${h.at}: ${h.changes.join('; ')}</div>`).join('')}</details>`:''}`;box.insertBefore(s,box.firstChild);const b=s.querySelector('.modal-refresh-lpr');b.onclick=async()=>{await refresh(c.name,b);window.closeCompany();window.openCompany(c.name);};};}
  const st=document.createElement('style');st.textContent='.company-row.lpr-grid{grid-template-columns:1.15fr 1.05fr 1.15fr .72fr .48fr .62fr .48fr}.lpr-name{font-weight:700;font-size:12px}.contact-cell{font-size:12px;line-height:1.35}.contact-cell .muted{color:#9aa0a6}.contact-search-btn{margin-top:6px;white-space:nowrap}@media(max-width:1200px){.company-row.lpr-grid{grid-template-columns:1.2fr 1.05fr 1.15fr .55fr .6fr}.company-row.lpr-grid>:nth-child(4),.company-row.lpr-grid>:nth-child(7){display:none}}';document.head.append(st);
- patchData();patchSearch();patchModal();if(typeof setView==='function')setView('search');if(typeof renderSearch==='function')renderSearch();
+ patchData();patchSearch();patchModal();bind();if(typeof setView==='function')setView('search');if(typeof renderSearch==='function')renderSearch();
 })();
