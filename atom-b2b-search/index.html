@@ -16,14 +16,14 @@
       <a class="brand" href="/">KH<span>.</span></a>
       <div class="product-mark">АТОМ B2B SEARCH</div>
       <nav>
-        <button class="nav-btn active" data-view="dashboard">Обзор</button>
-        <button class="nav-btn" data-view="search">Поиск компаний</button>
+        <button class="nav-btn active" data-view="search">Поиск компаний</button>
+        <button class="nav-btn" data-view="dashboard">Обзор</button>
         <button class="nav-btn" data-view="saved">Сохранённые</button>
       </nav>
       <div class="sidebar-bottom">
         <div class="system-info">
           <div class="system-title">Система</div>
-          <div class="system-row"><span>Версия</span><strong>v1.1.1</strong></div>
+          <div class="system-row"><span>Версия</span><strong>v1.2.0</strong></div>
           <div class="system-row"><span>База</span><strong id="systemCompanies">200 компаний</strong></div>
           <div class="system-row"><span>Обновлено</span><strong>05.09.2026</strong></div>
         </div>
@@ -48,41 +48,22 @@
         </div>
       </header>
 
-      <section id="dashboardView" class="view active">
+      <section id="dashboardView" class="view">
         <div class="kpi-grid">
           <article class="kpi"><span>В базе</span><strong id="kpiCompanies">0</strong><small>целевых компаний</small></article>
           <article class="kpi"><span>Приоритет A</span><strong id="kpiA">0</strong><small>скоринг 90+</small></article>
           <article class="kpi"><span>Потенциал</span><strong id="kpiPotential">0</strong><small>ATOM max, 12–24 мес.</small></article>
           <article class="kpi"><span>Сохранено</span><strong id="kpiSaved">0</strong><small>в мой shortlist</small></article>
         </div>
-
-        <section class="panel hero-panel">
-          <div class="panel-head">
-            <div><p class="eyebrow">TOP TARGETS</p><h2>Куда идти в первую очередь</h2></div>
-            <button class="text-btn" data-open-search>Открыть весь поиск →</button>
-          </div>
-          <div id="topTargets" class="target-grid"></div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head"><div><p class="eyebrow">ЛОГИКА</p><h2>Что делает компанию подходящей</h2></div></div>
-          <div class="logic-grid">
-            <article><strong>01</strong><h3>Корпоративный парк</h3><p>Есть собственные служебные автомобили и регулярные городские маршруты.</p></article>
-            <article><strong>02</strong><h3>Масштаб</h3><p>Федеральная или крупная региональная сеть позволяет масштабировать пилот.</p></article>
-            <article><strong>03</strong><h3>Зарядка</h3><p>Есть офисы, базы, паркинги или энергетическая инфраструктура для ЭЗС.</p></article>
-            <article><strong>04</strong><h3>Экономика</h3><p>Можно доказать TCO: стоимость километра, простои, зарядка и эксплуатация.</p></article>
-          </div>
-        </section>
+        <section class="panel hero-panel"><div class="panel-head"><div><p class="eyebrow">TOP TARGETS</p><h2>Куда идти в первую очередь</h2></div><button class="text-btn" data-open-search>Открыть весь поиск →</button></div><div id="topTargets" class="target-grid"></div></section>
+        <section class="panel"><div class="panel-head"><div><p class="eyebrow">ЛОГИКА</p><h2>Что делает компанию подходящей</h2></div></div><div class="logic-grid"><article><strong>01</strong><h3>Корпоративный парк</h3><p>Есть собственные служебные автомобили и регулярные городские маршруты.</p></article><article><strong>02</strong><h3>Масштаб</h3><p>Федеральная или крупная региональная сеть позволяет масштабировать пилот.</p></article><article><strong>03</strong><h3>Зарядка</h3><p>Есть офисы, базы, паркинги или энергетическая инфраструктура для ЭЗС.</p></article><article><strong>04</strong><h3>Экономика</h3><p>Можно доказать TCO: стоимость километра, простои, зарядка и эксплуатация.</p></article></div></section>
       </section>
 
-      <section id="searchView" class="view">
+      <section id="searchView" class="view active">
         <section class="panel search-panel">
-          <div class="panel-head wrap-head">
-            <div><p class="eyebrow">COMPANY FINDER</p><h2>Подбор компаний</h2></div>
-            <button id="resetFilters" class="secondary">Сбросить</button>
-          </div>
+          <div class="panel-head wrap-head"><div><p class="eyebrow">COMPANY FINDER</p><h2>Подбор компаний</h2></div><button id="resetFilters" class="secondary">Сбросить</button></div>
           <div class="filters-grid">
-            <label class="field field-wide"><span>Поиск</span><input id="companySearch" type="search" placeholder="Компания, отрасль, сценарий использования..." /></label>
+            <label class="field field-wide"><span>Поиск</span><input id="companySearch" type="search" placeholder="Компания, отрасль, ЛПР, сценарий использования..." /></label>
             <label class="field"><span>Отрасль</span><select id="sectorFilter"><option value="all">Все отрасли</option></select></label>
             <label class="field"><span>Минимальный скоринг</span><select id="scoreFilter"><option value="0">Любой</option><option value="90">90+</option><option value="85" selected>85+</option><option value="80">80+</option><option value="70">70+</option></select></label>
             <label class="field"><span>Мин. прогноз закупки, шт.</span><select id="volumeFilter"><option value="0">Любой</option><option value="50">50+</option><option value="100">100+</option><option value="200">200+</option><option value="400">400+</option></select></label>
@@ -94,43 +75,17 @@
         </section>
       </section>
 
-      <section id="savedView" class="view">
-        <section class="panel">
-          <div class="panel-head"><div><p class="eyebrow">SHORTLIST</p><h2>Сохранённые компании</h2></div><button id="exportSavedButton" class="secondary">Экспорт CSV</button></div>
-          <div id="savedCompanies" class="saved-grid"></div>
-        </section>
-      </section>
+      <section id="savedView" class="view"><section class="panel"><div class="panel-head"><div><p class="eyebrow">SHORTLIST</p><h2>Сохранённые компании</h2></div><button id="exportSavedButton" class="secondary">Экспорт CSV</button></div><div id="savedCompanies" class="saved-grid"></div></section></section>
     </main>
   </div>
 
-  <div id="companyModal" class="modal hidden" aria-hidden="true">
-    <div class="modal-card modal-large">
-      <div class="modal-head"><div><p class="eyebrow">КАРТОЧКА КОМПАНИИ</p><h2 id="modalCompanyName">—</h2></div><button id="closeCompanyModal" class="icon-btn">×</button></div>
-      <div id="companyDetails"></div>
-    </div>
-  </div>
-
-  <div id="candidateModal" class="modal hidden" aria-hidden="true">
-    <form id="candidateForm" class="modal-card">
-      <div class="modal-head"><div><p class="eyebrow">НОВАЯ КОМПАНИЯ</p><h2>Оценить B2B-потенциал</h2></div><button type="button" id="closeCandidateModal" class="icon-btn">×</button></div>
-      <label class="field"><span>Компания</span><input id="candidateName" required maxlength="100" placeholder="Название компании" /></label>
-      <label class="field"><span>Отрасль</span><select id="candidateSector" required></select></label>
-      <div class="form-row">
-        <label class="field"><span>Адресуемый парк, шт.</span><input id="candidateFleet" type="number" min="0" value="300" required /></label>
-        <label class="field"><span>Федеральная сеть</span><select id="candidateFederal"><option value="1">Да</option><option value="0">Нет</option></select></label>
-      </div>
-      <div class="form-row">
-        <label class="field"><span>Собственные парковки / базы</span><select id="candidateParking"><option value="1">Да</option><option value="0">Нет</option></select></label>
-        <label class="field"><span>Регулярные городские маршруты</span><select id="candidateRoutes"><option value="1">Да</option><option value="0">Нет</option></select></label>
-      </div>
-      <div id="candidateScorePreview" class="score-preview">Предварительный скоринг: —</div>
-      <div class="modal-actions"><button type="button" class="secondary" id="cancelCandidate">Отмена</button><button type="submit" class="primary">Сохранить в shortlist</button></div>
-    </form>
-  </div>
+  <div id="companyModal" class="modal hidden" aria-hidden="true"><div class="modal-card modal-large"><div class="modal-head"><div><p class="eyebrow">КАРТОЧКА КОМПАНИИ</p><h2 id="modalCompanyName">—</h2></div><button id="closeCompanyModal" class="icon-btn">×</button></div><div id="companyDetails"></div></div></div>
+  <div id="candidateModal" class="modal hidden" aria-hidden="true"><form id="candidateForm" class="modal-card"><div class="modal-head"><div><p class="eyebrow">НОВАЯ КОМПАНИЯ</p><h2>Оценить B2B-потенциал</h2></div><button type="button" id="closeCandidateModal" class="icon-btn">×</button></div><label class="field"><span>Компания</span><input id="candidateName" required maxlength="100" placeholder="Название компании" /></label><label class="field"><span>Отрасль</span><select id="candidateSector" required></select></label><div class="form-row"><label class="field"><span>Адресуемый парк, шт.</span><input id="candidateFleet" type="number" min="0" value="300" required /></label><label class="field"><span>Федеральная сеть</span><select id="candidateFederal"><option value="1">Да</option><option value="0">Нет</option></select></label></div><div class="form-row"><label class="field"><span>Собственные парковки / базы</span><select id="candidateParking"><option value="1">Да</option><option value="0">Нет</option></select></label><label class="field"><span>Регулярные городские маршруты</span><select id="candidateRoutes"><option value="1">Да</option><option value="0">Нет</option></select></label></div><div id="candidateScorePreview" class="score-preview">Предварительный скоринг: —</div><div class="modal-actions"><button type="button" class="secondary" id="cancelCandidate">Отмена</button><button type="submit" class="primary">Сохранить в shortlist</button></div></form></div>
 
   <script src="companies.js?v=1.0.0"></script>
   <script src="app.js?v=1.1.0"></script>
+  <script src="lpr-actions.js?v=1.0.0"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="excel-actions.js?v=1.0.0"></script>
+  <script src="excel-actions.js?v=1.1.0"></script>
 </body>
 </html>
