@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#101214" />
   <meta name="description" content="АТОМ B2B — управление выставками, форумами, рекомендациями и напоминаниями" />
   <title>АТОМ B2B | Календарь активностей</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.1.1" />
-  <link rel="shortcut icon" href="favicon.svg?v=1.1.1" />
-  <link rel="stylesheet" href="style.css?v=1.1.1" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.2.0" />
+  <link rel="shortcut icon" href="favicon.svg?v=1.2.0" />
+  <link rel="stylesheet" href="style.css?v=1.2.0" />
 </head>
 <body>
   <div class="app-shell">
@@ -23,10 +23,15 @@
       <div class="sidebar-bottom">
         <div class="system-info">
           <div class="system-title">Система</div>
-          <div class="system-row"><span>Версия программы</span><strong>v1.1.1</strong></div>
-          <div class="system-row"><span>Обновление программы</span><strong>05.09.2026</strong></div>
-          <div class="system-row"><span>Данные по активностям</span><strong>05.09.2026</strong></div>
-          <div class="system-row"><span>Google Sheets</span><strong class="system-warning">не синхронизировано</strong></div>
+          <table class="system-table">
+            <tbody>
+              <tr><td>Версия программы</td><td><strong>v1.2.0</strong></td></tr>
+              <tr><td>Обновление программы</td><td><strong>05.09.2026</strong></td></tr>
+              <tr><td>Данные по активностям</td><td><strong id="systemActivitiesUpdated">05.09.2026</strong></td></tr>
+              <tr><td>Google Sheets</td><td><strong id="systemSheetsSync" class="system-warning">не синхронизировано</strong></td></tr>
+            </tbody>
+          </table>
+          <button id="syncSheetsButton" class="sync-button" type="button">Синхронизировать</button>
         </div>
         <a class="ghost-link" href="https://docs.google.com/spreadsheets/d/1Y-50RQGjUb7sQkJpLLx46MEUfQoAANYEEdyUW1RoA3U/edit" target="_blank" rel="noopener">Google-таблица</a>
         <a class="ghost-link" href="/">← Korytnik Hub</a>
@@ -62,6 +67,11 @@
           <div id="recommendations" class="recommendations"></div>
         </section>
 
+        <section class="panel">
+          <div class="panel-head"><div><p class="eyebrow">СКОРИНГ</p><h2>Как рассчитывается оценка 0–100</h2></div></div>
+          <div id="scoringMethod"></div>
+        </section>
+
         <div class="two-col">
           <section class="panel">
             <div class="panel-head"><div><p class="eyebrow">БЛИЖАЙШИЕ</p><h2>Следующие мероприятия</h2></div></div>
@@ -83,24 +93,9 @@
               <select id="regionFilter"><option value="all">Все регионы</option></select>
               <select id="cityFilter"><option value="all">Все города</option></select>
               <select id="yearFilter"><option value="all">Все годы</option></select>
-              <select id="scoreFilter">
-                <option value="all">Любой скоринг</option>
-                <option value="95">95+</option>
-                <option value="90">90+</option>
-                <option value="85">85+</option>
-              </select>
+              <select id="scoreFilter"><option value="all">Любой скоринг</option><option value="95">95+</option><option value="90">90+</option><option value="85">85+</option></select>
               <select id="priorityFilter"><option value="all">Все приоритеты</option><option value="A">A</option><option value="B">B</option></select>
-              <select id="statusFilter">
-                <option value="all">Все этапы</option>
-                <option value="new">Не начато</option>
-                <option value="management_review">Согласовать с руководством</option>
-                <option value="approved">Одобрено</option>
-                <option value="rejected">Не одобрено</option>
-                <option value="event_approval">Есть согласование мероприятия</option>
-                <option value="preparation">Начата подготовка</option>
-                <option value="event_done">Мероприятие прошло</option>
-                <option value="summary_uploaded">Загружено резюме мероприятия</option>
-              </select>
+              <select id="statusFilter"><option value="all">Все этапы</option><option value="new">Не начато</option><option value="management_review">Согласовать с руководством</option><option value="approved">Одобрено</option><option value="rejected">Не одобрено</option><option value="event_approval">Есть согласование мероприятия</option><option value="preparation">Начата подготовка</option><option value="event_done">Мероприятие прошло</option><option value="summary_uploaded">Загружено резюме мероприятия</option></select>
               <button id="resetFilters" class="secondary filter-reset" type="button">Сбросить</button>
             </div>
           </div>
@@ -111,10 +106,7 @@
 
       <section id="remindersView" class="view">
         <section class="panel">
-          <div class="panel-head wrap-head">
-            <div><p class="eyebrow">REMINDERS</p><h2>Управление напоминаниями</h2></div>
-            <button id="addReminderButton" class="primary">+ Добавить</button>
-          </div>
+          <div class="panel-head wrap-head"><div><p class="eyebrow">REMINDERS</p><h2>Управление напоминаниями</h2></div><button id="addReminderButton" class="primary">+ Добавить</button></div>
           <div id="remindersList" class="reminders-list"></div>
         </section>
       </section>
@@ -127,16 +119,15 @@
       <input id="reminderId" type="hidden" />
       <label>Название<input id="reminderTitle" required maxlength="120" placeholder="Например: Согласовать участие в CeMAT" /></label>
       <label>Мероприятие<select id="reminderEvent"><option value="">Без привязки</option></select></label>
-      <div class="form-row">
-        <label>Дата<input id="reminderDate" type="date" required /></label>
-        <label>Время<input id="reminderTime" type="time" value="11:00" required /></label>
-      </div>
+      <div class="form-row"><label>Дата<input id="reminderDate" type="date" required /></label><label>Время<input id="reminderTime" type="time" value="11:00" required /></label></div>
       <label>Комментарий<textarea id="reminderNote" rows="3" maxlength="300" placeholder="Кому написать, что согласовать, ожидаемый результат"></textarea></label>
       <div class="modal-actions"><button type="button" class="secondary" id="cancelReminder">Отмена</button><button type="submit" class="primary">Сохранить</button></div>
     </form>
   </div>
 
-  <script src="app.js?v=1.1.1"></script>
-  <script src="recommendations-table.js?v=1.1.1"></script>
+  <script src="app.js?v=1.2.0"></script>
+  <script src="sheets-sync.js?v=1.2.0"></script>
+  <script src="recommendations-table.js?v=1.2.0"></script>
+  <script src="scoring.js?v=1.2.0"></script>
 </body>
 </html>
