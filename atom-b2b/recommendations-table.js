@@ -16,6 +16,7 @@
             <tr>
               <th class="col-num">№</th>
               <th>Мероприятие</th>
+              <th class="col-date">Дата</th>
               <th>Что делать сейчас</th>
               <th>Value</th>
               <th>Для АТОМ</th>
@@ -27,6 +28,7 @@
               <tr>
                 <td class="col-num">${i + 1}</td>
                 <td><strong>${e.name}</strong></td>
+                <td class="col-date"><strong>${e.dateLabel || fmtDate(e.date)}</strong></td>
                 <td>${STATUS_NEXT[statusOf(e.name)]}</td>
                 <td>${e.value}</td>
                 <td>${e.atom}</td>
