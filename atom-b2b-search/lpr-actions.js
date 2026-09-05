@@ -1,102 +1,385 @@
-(function(){
- const CONTACT_ENDPOINT='https://ytdacypygsfalkixhemj.supabase.co/functions/v1/atom-b2b-lpr-contact';
- const base={
-  'ПАО «Россети»':['Екатерина Григорьева','Директор по закупкам','A','',''],
-  'Ростелеком':['Татьяна Карасёва','Вице-президент, директор по закупкам','A','',''],
-  'МТС':['Юлия Трухчева','Директор по закупкам и трансформации','B','',''],
-  'МегаФон':['Алексей Крутицкий','Директор по закупкам и логистике','B','',''],
-  'билайн':['Нина Тер-Михайлова','Директор дирекции по закупкам и логистике','B','',''],
-  'T2':['Евгений Леонов','Руководитель центра компетенций закупок','B','',''],
-  'Россети Московский регион':['Алексей Фомин','Директор по логистике и материально-техническому обеспечению','A','84956624070;84953634070','client@rossetimr.ru'],
-  'Интер РАО':['Сергей Виноградов','Руководитель Центра снабжения / закупочного центра','A','84956648840','akkred@interrao.ru'],
-  'Т Плюс':['Руслан Хальфин','Директор по закупкам и логистике','C','',''],
-  'РусГидро':['Владимир Николашин','Директор департамента закупок, маркетинга и ценообразования','A','88003338000','office@rushydro.ru'],
-  'Газпром нефть':['Оксана Великан','Руководитель Центра закупок «Газпромнефть — Региональные продажи»','A','',''],
-  'X5 Group':['Марина Живоглазова','Руководитель некоммерческих закупок','A','84956628888','info.tender@x5.ru'],
-  'Магнит':['Руководитель некоммерческих закупок','Имя публично не подтверждено','C','88612109810','info@magnit.ru'],
-  'Лемана ПРО':['Елизавета Казанцева','Директор по непродуктовым / некоммерческим закупкам','A','',''],
-  'Ozon':['Елена Блиндяева','Директор по закупкам','A','',''],
-  'ВкусВилл':['Антон Чижов','Управляющий директор по качеству и закупкам','B','84956638602','info@vkusvill.ru'],
-  'Лента':['Директор по обеспечению бизнеса / непрямым закупкам','Имя публично не подтверждено','C','88123806131','dob@lenta.com'],
-  'М.Видео-Эльдорадо':['Руслан Аиткулов','Директор по закупкам','A','','tender@mvideo.ru'],
-  'ПИК':['Константин Яникович','Вице-президент по закупкам и логистике','A','84955059733','dz@pik.ru'],
-  'Самолет':['Артём Блинов','Директор по закупкам и тендерам','B','84959671313','info@samolet.ru'],
-  'ГК ФСК':['Александр Ткаченко','Вице-президент — директор департамента закупок','B','84956601555','tender@fsk.ru'],
-  'Донстрой':['Юрий Сухарь','Руководитель управления материально-технического снабжения','B','84959254747',''],
-  'Sminex':['Руководитель закупок оборудования/непрямых закупок','Имя публично не подтверждено','C','84956444010','tenders@sminex.com'],
-  'ГК А101':['Елена Леликова','Директор по закупкам','A','',''],
-  'Пулково / ВВСС':['Станислав Лученков','Директор дирекции по снабжению','A','88123243444',''],
-  'Внуково':['Павел Слободенюк','Директор по закупкам','A','',''],
-  'РЖД':['Ирина Митичкина','Начальник Центральной дирекции закупок и снабжения','B','',''],
-  'ВТБ':['Игорь Маринюк','Начальник управления закупок / руководитель категорийных закупок','A','84957397799','corp@vtb.ru'],
-  'Альфа-Банк':['Виктор Бояркин','Директор по закупкам','A','84957555858','mail@alfabank.ru'],
-  'Россельхозбанк':['Яна Лысова','Директор по закупкам','A','84953630553','zayavki@rshb.ru'],
-  'ДОМ.РФ':['Диляра Баширова','Директор по закупкам','B','',''],
-  'Московская биржа':['Анна Ермакова','Директор по закупкам','B','',''],
-  'Сбер':['Руководитель центра снабжения / непрямых закупок','Актуальное имя публично не подтверждено','C','',''],
-  'Ингосстрах':['Мария Маринина','Руководитель департамента закупок','A','',''],
-  'VK':['Ксения Масчан','Директор по закупкам и логистике','B','',''],
-  'Авито':['Наталья Бетяева','Директор департамента закупок','B','',''],
-  'BIOCAD':['Юрий Невоструев','Руководитель закупочного направления','A','',''],
-  'Биннофарм Групп':['Валерий Оратовский','Руководитель тендерного и закупочного обеспечения','B','',''],
-  'Северсталь':['Вячеслав Греков','Руководитель направления закупок','A','',''],
-  'Уралкалий':['Алексей Чернышев','Заместитель директора по закупкам','A','',''],
-  'Уралхим':['Евгений Дацко','Заместитель директора по закупкам','A','',''],
-  'ЦЕМРОС':['Денис Назаров','Директор по закупкам и логистике','A','',''],
-  'АЛРОСА':['Максим Бульший','Директор Центра закупок','A','',''],
-  'ММК':['Алексей Кузьмин','Коммерческий директор','B','',''],
-  'Росатом':['Роман Зимонас','Директор по закупкам / МТО / качеству — требуется верификация','C','','']
- };
- const norm=v=>String(v||'').toLowerCase().replace(/ё/g,'е').replace(/[«»"'()\-–—]/g,' ').replace(/\b(пао|ао|ооо|гк|группа|компания)\b/g,' ').replace(/\s+/g,' ').trim();
- const eq=(a,b)=>String(a||'').trim().toLowerCase()===String(b||'').trim().toLowerCase();
- const now=()=>new Intl.DateTimeFormat('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date()).replace(',','');
- function baseRecord(name){const n=norm(name);const k=Object.keys(base).find(x=>{const nx=norm(x);return nx===n||nx.includes(n)||n.includes(nx)});if(!k)return null;const [lpr,role,grade,phone,email]=base[k];return {lpr,role,grade,phone,email};}
- const cacheKey=name=>'atomB2BFullContact:'+norm(name);
- const historyKey=name=>'atomB2BContactHistory:'+norm(name);
- function readCache(name){try{return JSON.parse(localStorage.getItem(cacheKey(name))||'null')}catch(e){return null}}
- function writeCache(name,v){localStorage.setItem(cacheKey(name),JSON.stringify(v));}
- function readHistory(name){try{return JSON.parse(localStorage.getItem(historyKey(name))||'[]')}catch(e){return []}}
- function addHistory(name,item){const h=readHistory(name);h.unshift(item);localStorage.setItem(historyKey(name),JSON.stringify(h.slice(0,20)));}
- function current(c){const cached=readCache(c.name);if(cached)return cached;const b=baseRecord(c.name);if(b)return {...b,contactType:'',contactSource:'',contactNote:'',checkedAt:''};return {lpr:c.lpr||c.lprName||'ЛПР уточняется',role:c.lprRole||c.role||'Fleet / Transport / Administrative / Procurement',grade:c.lprGrade||c.lprConfidence||'C',phone:c.phone||'',email:c.email||'',contactType:c.contactType||'',contactSource:c.contactSource||'',contactNote:c.contactNote||'',checkedAt:c.checkedAt||''};}
- window.getCompanyLpr=c=>current(c);
- function apply(c,x){c.lpr=x.lpr;c.lprRole=x.role;c.lprGrade=x.grade;c.phone=x.phone||'';c.email=x.email||'';c.contactType=x.contactType||'';c.contactSource=x.contactSource||'';c.contactNote=x.contactNote||'';c.checkedAt=x.checkedAt||'';}
- function patchData(){if(typeof allCompanies!=='function')return;allCompanies().forEach(c=>apply(c,current(c)));}
- function notify(text,kind='ok',ttl=5000){let n=document.getElementById('lprRefreshNotice');if(!n){n=document.createElement('div');n.id='lprRefreshNotice';n.style.cssText='position:fixed;right:20px;bottom:20px;z-index:9999;max-width:460px;padding:14px 16px;border-radius:10px;background:#111;color:#fff;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.25)';document.body.appendChild(n);}n.textContent=text;n.style.background=kind==='error'?'#8b1e1e':kind==='same'?'#444':'#111';clearTimeout(window.__lprNoticeTimer);window.__lprNoticeTimer=setTimeout(()=>n.remove(),ttl);}
- function contactHtml(c){return `<div class="contact-cell"><div>${c.phone||'<span class="muted">телефон —</span>'}</div><div>${c.email?`<a href="mailto:${c.email}">${c.email}</a>`:'<span class="muted">e-mail —</span>'}</div>${c.checkedAt?`<div class="meta">проверено ${c.checkedAt}</div>`:''}<button class="mini-btn contact-search-btn" data-company="${String(c.name).replaceAll('"','&quot;')}">${c.phone||c.email?'Обновить из интернета':'Найти в интернете'}</button></div>`;}
- async function refresh(name,btn=null,opts={}){
-  const c=allCompanies().find(x=>x.name===name);if(!c)return {status:'error'};
-  const old=current(c), oldText=btn?.textContent||'';
-  if(btn){btn.disabled=true;btn.textContent='Ищу в интернете…';}
-  try{
-   const r=await fetch(CONTACT_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({company:c.name,lprName:old.lpr,lprRole:old.role,phone:old.phone,email:old.email,sourceMode:'internet_only'})});
-   const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'refresh_failed');
-   const fresh={lpr:d.lpr?.name||old.lpr,role:d.lpr?.role||old.role,grade:d.lpr?.confidence||old.grade,phone:d.contact?.phone||'',email:d.contact?.email||'',contactType:d.contact?.contactType||'',contactSource:d.lpr?.source||d.contact?.sourceGeneral||d.contact?.sourcePhone||d.contact?.sourceEmail||'',contactNote:d.contact?.note||'',checkedAt:now()};
-   const changes=[];[['ЛПР','lpr'],['должность','role'],['достоверность','grade'],['телефон','phone'],['e-mail','email']].forEach(([label,key])=>{if(!eq(old[key],fresh[key]))changes.push(`${label}: ${old[key]||'—'} → ${fresh[key]||'—'}`);});
-   let status='same';
-   if(!changes.length){fresh.phone=old.phone;fresh.email=old.email;fresh.contactType=old.contactType;fresh.contactSource=d.lpr?.source||old.contactSource;fresh.contactNote=d.contact?.note||old.contactNote;writeCache(c.name,fresh);apply(c,fresh);if(!opts.silent)notify(`Интернет-проверка: данные ${c.name} не изменились. Проверено ${fresh.checkedAt}.`,'same');}
-   else{status='changed';addHistory(c.name,{at:fresh.checkedAt,source:'internet',before:old,after:fresh,changes});writeCache(c.name,fresh);apply(c,fresh);if(!opts.silent)notify(`Интернет-проверка обновила ${c.name}: ${changes.join(' | ')}`,'ok',7000);}
-   try{localStorage.setItem('atomB2BContactCache:'+norm(c.name),JSON.stringify({phone:c.phone,email:c.email,contactType:c.contactType,contactSource:c.contactSource,contactNote:c.contactNote}));}catch(e){}
-   if(!opts.noRender&&typeof renderSearch==='function')renderSearch();
-   return {status,changes};
-  }catch(e){console.error(e);if(!opts.silent)notify(`Не удалось проверить ${c.name} в интернете.`,'error');if(btn){btn.disabled=false;btn.textContent=oldText;}return {status:'error'};}
- }
- async function refreshAll(){
-  const btn=document.getElementById('refreshAllContactsButton');if(!btn||btn.disabled)return;
-  const data=allCompanies();if(!data.length)return;
-  const original=btn.textContent;btn.disabled=true;
-  let idx=0,done=0,changed=0,same=0,errors=0;
-  const update=()=>{btn.textContent=`Обновление из интернета ${done}/${data.length}`;};update();
-  async function worker(){while(true){const i=idx++;if(i>=data.length)break;const res=await refresh(data[i].name,null,{silent:true,noRender:true});done++;if(res.status==='changed')changed++;else if(res.status==='same')same++;else errors++;update();}}
-  await Promise.all([worker(),worker(),worker()]);
-  localStorage.setItem('atomB2BLastContactsRefresh',now());
-  if(typeof renderSearch==='function')renderSearch();
-  btn.disabled=false;btn.textContent=original;
-  notify(`Интернет-проверка завершена. Проверено: ${done}. Изменилось: ${changed}. Без изменений: ${same}. Ошибок: ${errors}.`,'ok',9000);
- }
- window.refreshAllAtomContacts=refreshAll;
- function bind(){document.querySelectorAll('.contact-search-btn').forEach(b=>b.onclick=()=>refresh(b.dataset.company,b));const all=document.getElementById('refreshAllContactsButton');if(all)all.onclick=refreshAll;}
- function patchSearch(){window.renderSearch=function(){patchData();const data=filtered();document.getElementById('resultCount').textContent='Найдено: '+data.length;document.getElementById('companiesTable').innerHTML=`<div class="company-row header lpr-grid"><div>Компания</div><div>ЛПР</div><div>Телефон / e-mail</div><div>Отрасль</div><div>Скоринг</div><div>Прогноз АТОМ</div><div></div></div>`+(data.length?data.map(c=>`<div class="company-row lpr-grid"><div><div class="company-name">${c.name}</div><div class="meta">${c.region||'—'}</div></div><div><div class="lpr-name">${c.lpr}</div><div class="meta">${c.lprRole||'—'} · ${c.lprGrade||'C'}</div></div><div>${contactHtml(c)}</div><div>${c.sector||'—'}</div><div><b>${c.score}</b> · ${priority(c.score)}</div><div>${fmt(c.atomMin)}–${fmt(c.atomMax)}</div><div class="company-actions"><button class="mini-btn" onclick='openCompany(${JSON.stringify(c.name)})'>Открыть</button><button class="mini-btn ${state.saved.includes(c.name)?'saved':''}" onclick='toggleSaved(${JSON.stringify(c.name)})'>★</button></div></div>`).join(''):'<div class="empty">Подходящие компании не найдены.</div>');bind();};}
- function patchModal(){const oldOpen=window.openCompany;window.openCompany=function(name){oldOpen(name);const c=allCompanies().find(x=>x.name===name);if(!c)return;apply(c,current(c));const box=document.getElementById('companyDetails');if(!box)return;const history=readHistory(c.name);const s=document.createElement('div');s.className='detail-section';s.innerHTML=`<h3>ЛПР и контакты</h3><p><strong>${c.lpr}</strong><br>${c.lprRole} · достоверность ${c.lprGrade}</p><p><strong>Телефон:</strong> ${c.phone||'не найден'}<br><strong>E-mail:</strong> ${c.email||'не найден'}</p>${c.checkedAt?`<p class="meta">Последняя интернет-проверка: ${c.checkedAt}</p>`:''}${c.contactSource?`<p><a href="${c.contactSource}" target="_blank" rel="noopener">Источник в интернете</a></p>`:''}${c.contactNote?`<p>${c.contactNote}</p>`:''}<button class="secondary modal-refresh-lpr" data-company="${String(c.name).replaceAll('"','&quot;')}">Обновить ЛПР и контакты из интернета</button>${history.length?`<details style="margin-top:12px"><summary>История изменений (${history.length})</summary>${history.slice(0,5).map(h=>`<div class="meta" style="margin-top:8px">${h.at}: ${h.changes.join('; ')}</div>`).join('')}</details>`:''}`;box.insertBefore(s,box.firstChild);const b=s.querySelector('.modal-refresh-lpr');b.onclick=async()=>{await refresh(c.name,b);window.closeCompany();window.openCompany(c.name);};};}
- const st=document.createElement('style');st.textContent='.company-row.lpr-grid{grid-template-columns:1.15fr 1.05fr 1.15fr .72fr .48fr .62fr .48fr}.lpr-name{font-weight:700;font-size:12px}.contact-cell{font-size:12px;line-height:1.35}.contact-cell .muted{color:#9aa0a6}.contact-search-btn{margin-top:6px;white-space:nowrap}@media(max-width:1200px){.company-row.lpr-grid{grid-template-columns:1.2fr 1.05fr 1.15fr .55fr .6fr}.company-row.lpr-grid>:nth-child(4),.company-row.lpr-grid>:nth-child(7){display:none}}';document.head.append(st);
- patchData();patchSearch();patchModal();bind();if(typeof setView==='function')setView('search');if(typeof renderSearch==='function')renderSearch();
+(function atomGoogleSheetContacts(){
+  'use strict';
+
+  const SPREADSHEET_ID = '1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g';
+  const SHEET_NAME = 'TOP-50';
+  const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g/edit#gid=978672615';
+  const DASH = '—';
+  let records = [];
+
+  const norm = value => String(value || '')
+    .toLowerCase()
+    .replace(/ё/g, 'е')
+    .replace(/[«»"'()\-–—/\\]/g, ' ')
+    .replace(/\b(пао|ао|ооо|гк|группа|компания)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const clean = value => {
+    const text = String(value == null ? '' : value).trim();
+    return /^(—|-|–)$/.test(text) ? '' : text;
+  };
+
+  const esc = value => String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+  const stamp = () => new Intl.DateTimeFormat('ru-RU', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(new Date()).replace(',', '');
+
+  function normalizeRecords(items){
+    const seen = new Set();
+    const out = [];
+    (Array.isArray(items) ? items : []).forEach(raw => {
+      const company = clean(raw.company);
+      const key = norm(company);
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      out.push({
+        company,
+        lpr: clean(raw.lpr),
+        role: clean(raw.role),
+        grade: clean(raw.grade),
+        phone: clean(raw.phone),
+        email: clean(raw.email),
+        social: clean(raw.social),
+        procurement: clean(raw.procurement),
+        outreach: clean(raw.outreach),
+        pilot: clean(raw.pilot),
+        why: clean(raw.why),
+        next: clean(raw.next),
+        source1: clean(raw.source1),
+        source2: clean(raw.source2),
+        checked: clean(raw.checked),
+        comment: clean(raw.comment),
+        added: clean(raw.added)
+      });
+    });
+    return out;
+  }
+
+  function findRecord(companyName){
+    const key = norm(companyName);
+    if (!key) return null;
+    const exact = records.find(row => norm(row.company) === key);
+    if (exact) return exact;
+    if (key.length < 3) return null;
+    return records.find(row => {
+      const rowKey = norm(row.company);
+      return rowKey.length >= 3 && (rowKey.includes(key) || key.includes(rowKey));
+    }) || null;
+  }
+
+  function current(company){
+    const row = findRecord(company.name);
+    if (!row) {
+      return {
+        found: false,
+        lpr: 'Нет данных в Google Таблице',
+        role: DASH,
+        grade: DASH,
+        phone: '',
+        email: '',
+        checkedAt: '',
+        sheetCompany: ''
+      };
+    }
+    return {
+      found: true,
+      lpr: row.lpr || 'ЛПР не указан',
+      role: row.role || DASH,
+      grade: row.grade || DASH,
+      phone: row.phone,
+      email: row.email,
+      checkedAt: row.checked || row.added || '',
+      sheetCompany: row.company,
+      social: row.social,
+      procurement: row.procurement,
+      outreach: row.outreach,
+      pilot: row.pilot,
+      why: row.why,
+      next: row.next,
+      comment: row.comment
+    };
+  }
+
+  window.getCompanyLpr = company => current(company);
+
+  function apply(company, contact){
+    company.lpr = contact.lpr;
+    company.lprRole = contact.role;
+    company.lprGrade = contact.grade;
+    company.phone = contact.phone || '';
+    company.email = contact.email || '';
+    company.checkedAt = contact.checkedAt || '';
+    company.contactSource = SHEET_URL;
+    company.contactSourceMode = 'google_sheet';
+    company.sheetCompany = contact.sheetCompany || '';
+  }
+
+  function patchData(){
+    if (typeof allCompanies !== 'function') return;
+    allCompanies().forEach(company => apply(company, current(company)));
+  }
+
+  function notify(message, kind = 'ok', ttl = 5200){
+    let node = document.getElementById('lprRefreshNotice');
+    if (!node) {
+      node = document.createElement('div');
+      node.id = 'lprRefreshNotice';
+      node.style.cssText = 'position:fixed;right:20px;bottom:20px;z-index:9999;max-width:480px;padding:14px 16px;border-radius:10px;background:#111;color:#fff;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.25)';
+      document.body.appendChild(node);
+    }
+    node.textContent = message;
+    node.style.background = kind === 'error' ? '#8b1e1e' : kind === 'same' ? '#444' : '#111';
+    clearTimeout(window.__lprNoticeTimer);
+    window.__lprNoticeTimer = setTimeout(() => node.remove(), ttl);
+  }
+
+  function ensureSourceStatus(){
+    const meta = document.querySelector('.integration-meta');
+    if (!meta) return;
+    const existing = document.getElementById('sheetContactsStatus');
+    if (existing) return;
+    const first = meta.querySelector('strong');
+    if (first) {
+      first.id = 'sheetContactsStatus';
+      return;
+    }
+    const span = document.createElement('span');
+    span.innerHTML = 'Контакты: <strong id="sheetContactsStatus">Google Таблица TOP-50</strong>';
+    meta.appendChild(span);
+  }
+
+  function setSourceStatus(text){
+    ensureSourceStatus();
+    const node = document.getElementById('sheetContactsStatus');
+    if (node) node.textContent = text;
+  }
+
+  function displayEmail(email){
+    if (!email) return '<span class="muted">e-mail —</span>';
+    const safe = esc(email);
+    if (/^[^\s;,@]+@[^\s;,@]+\.[^\s;,@]+$/.test(email)) {
+      return `<a href="mailto:${encodeURIComponent(email)}">${safe}</a>`;
+    }
+    return safe;
+  }
+
+  function contactHtml(company){
+    const contact = current(company);
+    const phone = contact.phone ? esc(contact.phone) : '<span class="muted">телефон —</span>';
+    const email = displayEmail(contact.email);
+    const checked = contact.checkedAt ? `<div class="meta">проверено в таблице: ${esc(contact.checkedAt)}</div>` : '';
+    const label = contact.found ? 'Обновить из Google Таблицы' : 'Проверить Google Таблицу';
+    return `<div class="contact-cell"><div>${phone}</div><div>${email}</div>${checked}<button class="mini-btn contact-sheet-btn" data-company="${esc(company.name)}">${label}</button></div>`;
+  }
+
+  function recordFromValues(row){
+    return {
+      company: clean(row[1]),
+      lpr: clean(row[8]),
+      role: clean(row[9]),
+      grade: clean(row[10]),
+      phone: clean(row[11]),
+      email: clean(row[12]),
+      social: clean(row[13]),
+      procurement: clean(row[14]),
+      outreach: clean(row[15]),
+      pilot: clean(row[16]),
+      why: clean(row[17]),
+      next: clean(row[18]),
+      source1: clean(row[19]),
+      source2: clean(row[20]),
+      checked: clean(row[21]),
+      comment: clean(row[22]),
+      added: clean(row[23])
+    };
+  }
+
+  function parseGviz(payload){
+    if (!payload || payload.status === 'error' || !payload.table || !Array.isArray(payload.table.rows)) {
+      throw new Error('invalid_google_sheet_response');
+    }
+    const parsed = payload.table.rows.map(row => {
+      const values = (row.c || []).map(cell => {
+        if (!cell) return '';
+        if (cell.f != null) return cell.f;
+        return cell.v == null ? '' : cell.v;
+      });
+      return recordFromValues(values);
+    });
+    return normalizeRecords(parsed);
+  }
+
+  function loadLiveSheet(){
+    return new Promise((resolve, reject) => {
+      const callback = `__atomSheet_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+      const script = document.createElement('script');
+      let finished = false;
+      let timer = null;
+      const cleanup = () => {
+        if (finished) return;
+        finished = true;
+        if (timer) clearTimeout(timer);
+        try { delete window[callback]; } catch (error) { window[callback] = undefined; }
+        script.remove();
+      };
+      const fail = error => {
+        cleanup();
+        reject(error instanceof Error ? error : new Error(String(error || 'google_sheet_load_failed')));
+      };
+      window[callback] = payload => {
+        try {
+          const next = parseGviz(payload);
+          if (!next.length) throw new Error('empty_google_sheet');
+          cleanup();
+          resolve(next);
+        } catch (error) {
+          fail(error);
+        }
+      };
+      script.async = true;
+      script.onerror = () => fail(new Error('google_sheet_network_error'));
+      const params = new URLSearchParams({
+        sheet: SHEET_NAME,
+        range: 'A1:X',
+        headers: '1',
+        tqx: `out:json;responseHandler:${callback}`
+      });
+      script.src = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?${params.toString()}`;
+      timer = setTimeout(() => fail(new Error('google_sheet_timeout')), 12000);
+      document.head.appendChild(script);
+    });
+  }
+
+  function setLoading(active, clickedButton){
+    const top = document.getElementById('refreshAllContactsButton');
+    const buttons = [top, clickedButton].filter((button, index, list) => button && list.indexOf(button) === index);
+    buttons.forEach(button => {
+      if (active) {
+        if (!button.dataset.sheetLabel) button.dataset.sheetLabel = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Загружаю из Google Таблицы…';
+      } else {
+        button.disabled = false;
+        button.textContent = button.dataset.sheetLabel || (button === top ? 'Загрузить контакты из Google Таблицы' : 'Обновить из Google Таблицы');
+      }
+    });
+  }
+
+  async function syncFromGoogleSheet(options = {}){
+    if (window.__atomSheetSyncPromise) return window.__atomSheetSyncPromise;
+    const clickedButton = options.button || null;
+    setLoading(true, clickedButton);
+    window.__atomSheetSyncPromise = (async () => {
+      try {
+        const next = await loadLiveSheet();
+        records = next;
+        const syncedAt = stamp();
+        localStorage.setItem('atomB2BLastContactsRefresh', syncedAt);
+        patchData();
+        if (typeof renderSearch === 'function') renderSearch();
+        if (typeof renderDashboard === 'function') renderDashboard();
+        setSourceStatus(`Google Таблица · ${records.length} строк · ${syncedAt}`);
+        if (!options.silent) notify(`Контакты загружены из Google Таблицы: ${records.length} строк.`);
+        return {status: 'live', count: records.length};
+      } catch (error) {
+        console.warn('Google Sheet contacts', error);
+        records = [];
+        patchData();
+        if (typeof renderSearch === 'function') renderSearch();
+        setSourceStatus('Google Таблица недоступна');
+        if (!options.silent) notify('Не удалось загрузить Google Таблицу. Контактные данные не подменялись другими источниками.', 'error', 7000);
+        return {status: 'error', count: 0};
+      } finally {
+        setLoading(false, clickedButton);
+        window.__atomSheetSyncPromise = null;
+      }
+    })();
+    return window.__atomSheetSyncPromise;
+  }
+
+  async function refreshCompany(name, button){
+    const result = await syncFromGoogleSheet({silent: true, button});
+    const company = typeof allCompanies === 'function' ? allCompanies().find(item => item.name === name) : null;
+    const contact = company ? current(company) : null;
+    if (result.status === 'error') {
+      notify('Не удалось загрузить Google Таблицу. Контакты оставлены пустыми.', 'error');
+    } else if (contact && contact.found) {
+      notify(`${name}: данные обновлены из Google Таблицы.`);
+    } else {
+      notify(`${name}: строка не найдена в Google Таблице TOP-50.`, 'same');
+    }
+  }
+
+  window.syncFromGoogleSheet = syncFromGoogleSheet;
+  window.refreshAllAtomContacts = () => syncFromGoogleSheet({silent: false});
+
+  function bind(){
+    document.querySelectorAll('.contact-sheet-btn').forEach(button => {
+      button.onclick = () => refreshCompany(button.dataset.company, button);
+    });
+    const all = document.getElementById('refreshAllContactsButton');
+    if (all) all.onclick = window.refreshAllAtomContacts;
+  }
+
+  function patchSearch(){
+    window.renderSearch = function(){
+      patchData();
+      const data = filtered();
+      document.getElementById('resultCount').textContent = 'Найдено: ' + data.length;
+      document.getElementById('companiesTable').innerHTML =
+        '<div class="company-row header lpr-grid"><div>Компания</div><div>ЛПР</div><div>Телефон / e-mail</div><div>Отрасль</div><div>Скоринг</div><div>Прогноз АТОМ</div><div></div></div>' +
+        (data.length ? data.map(company =>
+          `<div class="company-row lpr-grid"><div><div class="company-name">${esc(company.name)}</div><div class="meta">${esc(company.region || DASH)}</div></div><div><div class="lpr-name">${esc(company.lpr)}</div><div class="meta">${esc(company.lprRole || DASH)} · ${esc(company.lprGrade || DASH)}</div></div><div>${contactHtml(company)}</div><div>${esc(company.sector || DASH)}</div><div><b>${esc(company.score)}</b> · ${esc(priority(company.score))}</div><div>${esc(fmt(company.atomMin))}–${esc(fmt(company.atomMax))}</div><div class="company-actions"><button class="mini-btn" onclick='openCompany(${JSON.stringify(company.name)})'>Открыть</button><button class="mini-btn ${state.saved.includes(company.name) ? 'saved' : ''}" onclick='toggleSaved(${JSON.stringify(company.name)})'>★</button></div></div>`
+        ).join('') : '<div class="empty">Подходящие компании не найдены.</div>');
+      bind();
+    };
+  }
+
+  function patchModal(){
+    const originalOpen = window.openCompany;
+    window.openCompany = function(name){
+      const company = typeof allCompanies === 'function' ? allCompanies().find(item => item.name === name) : null;
+      if (company) apply(company, current(company));
+      originalOpen(name);
+      if (!company) return;
+      const contact = current(company);
+      const box = document.getElementById('companyDetails');
+      if (!box) return;
+      const section = document.createElement('div');
+      section.className = 'detail-section';
+      section.innerHTML = `<h3>ЛПР и контакты</h3><p><strong>${esc(contact.lpr)}</strong><br>${esc(contact.role)} · достоверность ${esc(contact.grade)}</p><p><strong>Телефон:</strong> ${esc(contact.phone || 'не указан')}<br><strong>E-mail:</strong> ${esc(contact.email || 'не указан')}</p>${contact.checkedAt ? `<p class="meta">Проверено в Google Таблице: ${esc(contact.checkedAt)}</p>` : ''}<p><a href="${SHEET_URL}" target="_blank" rel="noopener">Открыть Google Таблицу TOP-50</a></p>${contact.comment ? `<p>${esc(contact.comment)}</p>` : ''}<button class="secondary modal-refresh-sheet" data-company="${esc(company.name)}">Обновить из Google Таблицы</button>`;
+      box.insertBefore(section, box.firstChild);
+      const button = section.querySelector('.modal-refresh-sheet');
+      button.onclick = async () => {
+        await refreshCompany(company.name, button);
+        window.closeCompany();
+        window.openCompany(company.name);
+      };
+    };
+  }
+
+  const style = document.createElement('style');
+  style.textContent = '.company-row.lpr-grid{grid-template-columns:1.15fr 1.05fr 1.15fr .72fr .48fr .62fr .48fr}.lpr-name{font-weight:700;font-size:12px}.contact-cell{font-size:12px;line-height:1.35}.contact-cell .muted{color:#9aa0a6}.contact-sheet-btn{margin-top:6px;white-space:nowrap}@media(max-width:1200px){.company-row.lpr-grid{grid-template-columns:1.2fr 1.05fr 1.15fr .55fr .6fr}.company-row.lpr-grid>:nth-child(4),.company-row.lpr-grid>:nth-child(7){display:none}}';
+  document.head.appendChild(style);
+
+  patchData();
+  patchSearch();
+  patchModal();
+  ensureSourceStatus();
+  setSourceStatus('Загрузка Google Таблицы…');
+  bind();
+  if (typeof setView === 'function') setView('search');
+  if (typeof renderSearch === 'function') renderSearch();
+  syncFromGoogleSheet({silent: true});
 })();
