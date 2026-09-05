@@ -6,9 +6,9 @@
   <meta name="theme-color" content="#101214" />
   <meta name="description" content="АТОМ B2B — управление выставками, форумами, рекомендациями и напоминаниями" />
   <title>АТОМ B2B | Календарь активностей</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.2.3" />
-  <link rel="shortcut icon" href="favicon.svg?v=1.2.3" />
-  <link rel="stylesheet" href="style.css?v=1.2.3" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.2.4" />
+  <link rel="shortcut icon" href="favicon.svg?v=1.2.4" />
+  <link rel="stylesheet" href="style.css?v=1.2.4" />
 </head>
 <body>
   <div class="app-shell">
@@ -25,7 +25,7 @@
           <div class="system-title">Система</div>
           <table class="system-table">
             <tbody>
-              <tr><td>Версия программы</td><td><strong>v1.2.3</strong></td></tr>
+              <tr><td>Версия программы</td><td><strong>v1.2.4</strong></td></tr>
               <tr><td>Обновление программы</td><td><strong>05.09.2026</strong></td></tr>
               <tr><td>Данные по активностям</td><td><strong id="systemActivitiesUpdated">05.09.2026</strong></td></tr>
               <tr><td>Google Sheets</td><td><strong id="systemSheetsSync" class="system-warning">не синхронизировано</strong></td></tr>
@@ -51,6 +51,7 @@
           </div>
         </div>
         <div class="top-actions">
+          <button id="forceSearchButton" class="secondary">Запустить поиск сейчас</button>
           <button id="notifyButton" class="secondary">Включить уведомления</button>
           <button id="addReminderTop" class="primary">+ Напоминание</button>
         </div>
@@ -131,12 +132,13 @@
     </form>
   </div>
 
-  <script src="app.js?v=1.2.3"></script>
-  <script src="sheets-sync.js?v=1.2.3"></script>
-  <script src="recommendations-table.js?v=1.2.3"></script>
-  <script src="scoring.js?v=1.2.3"></script>
-  <script src="events-sort.js?v=1.2.3"></script>
-  <script src="activity-status.js?v=1.2.3"></script>
-  <script src="search-result.js?v=1.2.3"></script>
+  <script src="app.js?v=1.2.4"></script>
+  <script src="sheets-sync.js?v=1.2.4"></script>
+  <script src="recommendations-table.js?v=1.2.4"></script>
+  <script src="scoring.js?v=1.2.4"></script>
+  <script src="events-sort.js?v=1.2.4"></script>
+  <script src="activity-status.js?v=1.2.4"></script>
+  <script src="search-result.js?v=1.2.4"></script>
+  <script src="force-search.js?v=1.2.4"></script>
 </body>
 </html>
