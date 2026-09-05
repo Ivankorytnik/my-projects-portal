@@ -6,7 +6,7 @@
   <meta name="robots" content="noindex,nofollow" />
   <meta name="theme-color" content="#151e32" />
   <title>Воспоминания | KORYTNIK HUB</title>
-  <link rel="stylesheet" href="style.css?v=1.0.0" />
+  <link rel="stylesheet" href="style.css?v=1.2.0" />
   <link rel="stylesheet" href="literary.css?v=1.1.0" />
 </head>
 <body>
@@ -30,7 +30,7 @@
     <header class="topbar">
       <div class="brand">
         <div class="brand-icon">▣</div>
-        <div><strong>Воспоминания</strong><small>Семейные воспоминания Ивана Корытника</small></div>
+        <div><strong>Воспоминания</strong><small>AI-агент семейной книги Ивана Корытника</small></div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <a class="legacy-link" href="https://korytnikhub.pro/">← KORYTNIK HUB</a>
@@ -40,7 +40,8 @@
 
     <main class="layout">
       <aside class="sidebar">
-        <div class="side-head"><strong>Мои главы</strong><span id="chapterCount" class="chapter-count">0</span></div>
+        <div class="side-head"><strong>Книга</strong><span id="chapterCount" class="chapter-count">0</span></div>
+        <div class="book-path">Детство → училище → армия → семья → работа → Яндекс → Gett → проекты → настоящее</div>
         <button id="newBtn" class="new-btn" type="button">+ Новое воспоминание</button>
         <div id="chapterList" class="chapter-list"></div>
       </aside>
@@ -52,6 +53,7 @@
             <span id="chapterDate" class="date"></span>
           </div>
           <div class="actions">
+            <button id="agentBtn" class="btn" type="button">✦ Обработать агентом</button>
             <button id="retranscribe" class="btn" type="button">↻ Распознать заново</button>
             <button id="download" class="btn" type="button">⇩ Скачать</button>
             <button id="save" class="btn primary" type="button">▣ Сохранить</button>
@@ -60,6 +62,20 @@
 
         <div class="content">
           <input id="chapterTitle" class="title-input" type="text" placeholder="Название главы" />
+
+          <div class="agent-summary">
+            <div><span class="agent-label">Период</span><strong id="periodValue">Не определено</strong></div>
+            <div><span class="agent-label">Люди</span><span id="peopleValue">—</span></div>
+            <div><span class="agent-label">Места</span><span id="placesValue">—</span></div>
+            <div><span class="agent-label">Даты</span><span id="datesValue">—</span></div>
+          </div>
+
+          <section id="questionCard" class="question-card hidden">
+            <div class="question-kicker">ОДИН УТОЧНЯЮЩИЙ ВОПРОС</div>
+            <div id="questionText" class="question-text"></div>
+            <textarea id="questionAnswer" class="question-answer" placeholder="Ответьте своими словами. Агент аккуратно добавит ответ в главу."></textarea>
+            <button id="applyAnswer" class="btn primary" type="button">Добавить ответ в главу</button>
+          </section>
 
           <div class="audio-tools">
             <button id="uploadAudio" class="small-btn" type="button">+ Аудиофайл</button>
@@ -94,6 +110,6 @@
   </div>
 
   <div id="busy" class="busy-banner hidden">Обрабатываю выбранную главу…</div>
-  <script src="app.js?v=1.1.0"></script>
+  <script src="app.js?v=1.2.0"></script>
 </body>
 </html>
