@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#101214" />
   <meta name="description" content="АТОМ B2B — управление выставками, форумами, рекомендациями и напоминаниями" />
   <title>АТОМ B2B | Календарь активностей</title>
-  <link rel="stylesheet" href="style.css?v=1.0.1" />
+  <link rel="stylesheet" href="style.css?v=1.0.2" />
 </head>
 <body>
   <div class="app-shell">
@@ -70,7 +70,16 @@
           <div class="panel-head wrap-head">
             <div><p class="eyebrow">PIPELINE</p><h2>Мероприятия</h2></div>
             <div class="filters">
-              <input id="eventSearch" type="search" placeholder="Поиск по названию, городу, аудитории..." />
+              <input id="eventSearch" type="search" placeholder="Поиск по названию, аудитории..." />
+              <select id="regionFilter"><option value="all">Все регионы</option></select>
+              <select id="cityFilter"><option value="all">Все города</option></select>
+              <select id="yearFilter"><option value="all">Все годы</option></select>
+              <select id="scoreFilter">
+                <option value="all">Любой скоринг</option>
+                <option value="95">95+</option>
+                <option value="90">90+</option>
+                <option value="85">85+</option>
+              </select>
               <select id="priorityFilter"><option value="all">Все приоритеты</option><option value="A">A</option><option value="B">B</option></select>
               <select id="statusFilter">
                 <option value="all">Все этапы</option>
@@ -83,8 +92,10 @@
                 <option value="event_done">Мероприятие прошло</option>
                 <option value="summary_uploaded">Загружено резюме мероприятия</option>
               </select>
+              <button id="resetFilters" class="secondary filter-reset" type="button">Сбросить</button>
             </div>
           </div>
+          <div id="filterResultCount" class="filter-result-count"></div>
           <div id="eventsTable" class="events-table"></div>
         </section>
       </section>
@@ -116,6 +127,6 @@
     </form>
   </div>
 
-  <script src="app.js?v=1.0.1"></script>
+  <script src="app.js?v=1.0.2"></script>
 </body>
 </html>
