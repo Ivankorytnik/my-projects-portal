@@ -5,9 +5,14 @@
    try{
      if(typeof XLSX==='undefined')throw new Error('XLSX library unavailable');
      const data=typeof allCompanies==='function'?allCompanies():[];
-     const rows=data.map((c,i)=>({
+     const rows=data.map((c,i)=>{
+       const l=typeof getCompanyLpr==='function'?getCompanyLpr(c):{lpr:c.lpr||c.lprName||'',role:c.lprRole||c.role||'',grade:c.lprGrade||''};
+       return {
        '№':i+1,
        'Компания':c.name||'',
+       'ЛПР':l.lpr||'',
+       'Должность ЛПР':l.role||'',
+       'Достоверность ЛПР':l.grade||'',
        'Отрасль':c.sector||'',
        'Регион':c.region||'',
        'Парк min, шт.':Number(c.fleetMin)||0,
@@ -21,9 +26,9 @@
        'Следующий шаг':c.next||'',
        'Источник':c.source||'',
        'Добавлено':c.addedAt||''
-     }));
+     }});
      const ws=XLSX.utils.json_to_sheet(rows);
-     ws['!cols']=[{wch:6},{wch:30},{wch:20},{wch:22},{wch:14},{wch:14},{wch:20},{wch:20},{wch:14},{wch:42},{wch:48},{wch:48},{wch:48},{wch:34},{wch:20}];
+     ws['!cols']=[{wch:6},{wch:30},{wch:26},{wch:34},{wch:16},{wch:20},{wch:22},{wch:14},{wch:14},{wch:20},{wch:20},{wch:14},{wch:42},{wch:48},{wch:48},{wch:48},{wch:34},{wch:20}];
      const wb=XLSX.utils.book_new();
      XLSX.utils.book_append_sheet(wb,ws,'Компании');
      const date=new Date();
