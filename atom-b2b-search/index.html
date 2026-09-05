@@ -4,14 +4,15 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#101214" />
-  <meta name="description" content="АТОМ B2B Search — поиск и скоринг компаний для корпоративных закупок электромобилей АТОМ" />
+  <meta name="description" content="АТОМ B2B Search — поиск, скоринг и синхронизация компаний для корпоративных продаж" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>АТОМ B2B | Поиск компаний</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260905-9" />
-  <link rel="shortcut icon" href="favicon.svg?v=20260905-9" />
-  <link rel="stylesheet" href="style.css?v=20260905-9" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=20260905-17" />
+  <link rel="shortcut icon" href="favicon.svg?v=20260905-17" />
+  <link rel="stylesheet" href="style.css?v=20260905-17" />
+  <link rel="stylesheet" href="workflow.css?v=20260905-17" />
 </head>
 <body>
   <div class="app-shell">
@@ -26,31 +27,43 @@
       <div class="sidebar-bottom">
         <div class="system-info">
           <div class="system-title">Система</div>
-          <div class="system-row"><span>Версия</span><strong>v1.6.0</strong></div>
+          <div class="system-row"><span>Версия</span><strong>v1.7.0</strong></div>
           <div class="system-row"><span>База</span><strong id="systemCompanies">200 компаний</strong></div>
-          <div class="system-row"><span>Обновлено</span><strong>05.09.2026</strong></div>
+          <div class="system-row"><span>Последний поиск</span><strong id="systemLastSearchAt">—</strong></div>
+          <div class="system-row"><span>Результат</span><strong id="systemLastSearchResult">—</strong></div>
+          <div class="system-row"><span>Google sync</span><strong id="systemLastSyncAt">—</strong></div>
         </div>
-        <a class="ghost-link" href="https://docs.google.com/spreadsheets/d/1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g/edit" target="_blank" rel="noopener">Google-таблица TOP-50</a>
+        <a class="ghost-link" href="https://docs.google.com/spreadsheets/d/1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g/edit" target="_blank" rel="noopener">Google-таблица</a>
         <a class="ghost-link" href="/atom-b2b/">B2B активности</a>
         <a class="ghost-link" href="/">← Korytnik Hub</a>
       </div>
     </aside>
 
     <main class="main">
-      <header class="topbar">
-        <div>
+      <header class="topbar clean-topbar">
+        <div class="topbar-copy">
           <p class="eyebrow">АТОМ / B2B SALES</p>
           <h1>Поиск корпоративных клиентов</h1>
-          <p class="subtitle">Компании, которым потенциально подходит АТОМ для собственного корпоративного использования. Такси и каршеринг исключены.</p>
+          <p class="subtitle">Поиск компаний для собственного корпоративного использования АТОМ. Такси и каршеринг исключены. Новые записи можно добавлять в Google Таблицу без изменения старых строк.</p>
         </div>
-        <div class="top-actions">
-          <button id="refreshAllContactsButton" class="primary">Загрузить контакты из Google Таблицы</button>
-          <button id="downloadExcelButton" class="secondary">Скачать Excel</button>
-          <a id="openGoogleSheetButton" class="secondary" href="https://docs.google.com/spreadsheets/d/1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g/edit" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:inline-flex;align-items:center">Перейти в Google Таблицу</a>
-          <button id="openSearchButton" class="secondary">Подобрать компании</button>
-          <button id="openCandidateButton" class="secondary">+ Оценить компанию</button>
+        <div class="top-actions workflow-actions">
+          <button id="findMoreButton" class="primary action-main">Найти ещё 50</button>
+          <button id="syncGoogleButton" class="secondary action-sync">Синхронизировать</button>
+          <button id="refreshAllContactsButton" class="secondary">Обновить контакты</button>
+          <button id="downloadExcelButton" class="secondary">Excel</button>
+          <a id="openGoogleSheetButton" class="secondary link-button" href="https://docs.google.com/spreadsheets/d/1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g/edit" target="_blank" rel="noopener">Google Таблица</a>
+          <button id="openCandidateButton" class="secondary">+ Добавить вручную</button>
+          <button id="openSearchButton" class="secondary" hidden>Подобрать компании</button>
         </div>
       </header>
+
+      <section class="ops-strip" aria-label="Статус поиска и синхронизации">
+        <div class="ops-item"><span>Последний поиск</span><strong id="lastSearchAt">—</strong></div>
+        <div class="ops-item"><span>Результат</span><strong id="lastSearchResult">—</strong></div>
+        <div class="ops-item"><span>Последняя синхронизация</span><strong id="lastSyncAt">—</strong></div>
+        <div class="ops-item"><span>Google Таблица</span><strong id="lastSyncResult">append-only · без дублей</strong></div>
+        <div class="ops-item ops-state"><span>Состояние</span><strong id="workflowState" data-kind="idle">Готово к работе</strong></div>
+      </section>
 
       <section id="dashboardView" class="view">
         <div class="kpi-grid">
@@ -65,7 +78,10 @@
 
       <section id="searchView" class="view active">
         <section class="panel search-panel">
-          <div class="panel-head wrap-head"><div><p class="eyebrow">COMPANY FINDER</p><h2>Подбор компаний</h2></div><button id="resetFilters" class="secondary">Сбросить</button></div>
+          <div class="panel-head wrap-head">
+            <div><p class="eyebrow">COMPANY FINDER</p><h2>Рабочая база компаний</h2><p class="panel-note">Сначала отфильтруйте базу. Для расширения нажмите «Найти ещё 50», затем «Синхронизировать».</p></div>
+            <button id="resetFilters" class="secondary">Сбросить фильтры</button>
+          </div>
           <div class="filters-grid">
             <label class="field field-wide"><span>Поиск</span><input id="companySearch" type="search" placeholder="Компания, отрасль, ЛПР, сценарий использования..." /></label>
             <label class="field"><span>Отрасль</span><select id="sectorFilter"><option value="all">Все отрасли</option></select></label>
@@ -86,12 +102,13 @@
   <div id="companyModal" class="modal hidden" aria-hidden="true"><div class="modal-card modal-large"><div class="modal-head"><div><p class="eyebrow">КАРТОЧКА КОМПАНИИ</p><h2 id="modalCompanyName">—</h2></div><button id="closeCompanyModal" class="icon-btn">×</button></div><div id="companyDetails"></div></div></div>
   <div id="candidateModal" class="modal hidden" aria-hidden="true"><form id="candidateForm" class="modal-card"><div class="modal-head"><div><p class="eyebrow">НОВАЯ КОМПАНИЯ</p><h2>Оценить B2B-потенциал</h2></div><button type="button" id="closeCandidateModal" class="icon-btn">×</button></div><label class="field"><span>Компания</span><input id="candidateName" required maxlength="100" placeholder="Название компании" /></label><label class="field"><span>Отрасль</span><select id="candidateSector" required></select></label><div class="form-row"><label class="field"><span>Адресуемый парк, шт.</span><input id="candidateFleet" type="number" min="0" value="300" required /></label><label class="field"><span>Федеральная сеть</span><select id="candidateFederal"><option value="1">Да</option><option value="0">Нет</option></select></label></div><div class="form-row"><label class="field"><span>Собственные парковки / базы</span><select id="candidateParking"><option value="1">Да</option><option value="0">Нет</option></select></label><label class="field"><span>Регулярные городские маршруты</span><select id="candidateRoutes"><option value="1">Да</option><option value="0">Нет</option></select></label></div><div id="candidateScorePreview" class="score-preview">Предварительный скоринг: —</div><div class="modal-actions"><button type="button" class="secondary" id="cancelCandidate">Отмена</button><button type="submit" class="primary">Сохранить в shortlist</button></div></form></div>
 
-  <script src="companies.js?v=20260905-9"></script>
-  <script src="app.js?v=20260905-11"></script>
-  <script src="lpr-actions.js?v=20260905-13"></script>
+  <script src="companies.js?v=20260905-17"></script>
+  <script src="app.js?v=20260905-17"></script>
+  <script src="lpr-actions.js?v=20260905-17"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="excel-actions.js?v=20260905-9"></script>
-  <script src="phone-format.js?v=20260905-9"></script>
-  <script src="ui-methodology.js?v=20260905-9"></script>
+  <script src="excel-actions.js?v=20260905-17"></script>
+  <script src="phone-format.js?v=20260905-17"></script>
+  <script src="ui-methodology.js?v=20260905-17"></script>
+  <script src="workflow.js?v=20260905-17"></script>
 </body>
 </html>
