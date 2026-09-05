@@ -15,14 +15,33 @@ const EVENTS=[
 {date:'2027-08-24',dateLabel:'24–27.08.2027',name:'MIMS Automobility Москва 2027',city:'Москва',audience:'Дилеры, сервис, компоненты, автобизнес',score:87,priority:'A',next:'Использовать для каналов продаж и сервиса'}
 ];
 
-const STATUS_LABELS={new:'Не начато',contacted:'Контакт',negotiation:'Переговоры',booked:'Участие подтверждено',done:'Завершено'};
+const STATUS_LABELS={
+ new:'Не начато',
+ management_review:'Согласовать с руководством',
+ approved:'Одобрено',
+ rejected:'Не одобрено',
+ event_approval:'Есть согласование мероприятия',
+ preparation:'Начата подготовка',
+ event_done:'Мероприятие прошло',
+ summary_uploaded:'Загружено резюме мероприятия'
+};
+const STATUS_NEXT={
+ new:'Передать мероприятие на согласование руководству',
+ management_review:'Получить решение: одобрено или не одобрено',
+ approved:'Получить подтверждение/согласование участия в самом мероприятии',
+ rejected:'Зафиксировать причину отказа и не запускать подготовку',
+ event_approval:'Запустить подготовку: формат участия, бюджет, логистика, материалы, встречи',
+ preparation:'Проверить готовность автомобиля, стенда, команды, встреч и материалов',
+ event_done:'Подготовить и загрузить резюме мероприятия: лиды, встречи, договоренности, follow-up',
+ summary_uploaded:'Проверить follow-up по ЛПР и закрыть результаты мероприятия'
+};
 const eventStatus=JSON.parse(localStorage.getItem('atomEventStatus')||'{}');
 let reminders=JSON.parse(localStorage.getItem('atomReminders')||'[]');
-const today=()=>new Date();
 const byDate=(a,b)=>new Date(a.date)-new Date(b.date);
 function fmtDate(v){const d=new Date(v+'T00:00:00');return d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});}
 function daysUntil(v){return Math.ceil((new Date(v+'T00:00:00')-new Date(new Date().toDateString()))/86400000);}
 function save(){localStorage.setItem('atomEventStatus',JSON.stringify(eventStatus));localStorage.setItem('atomReminders',JSON.stringify(reminders));}
+function statusOf(name){return eventStatus[name]||'new';}
 
 function setView(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById(name+'View').classList.add('active');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===name));if(name==='events')renderEvents();if(name==='reminders')renderReminders();}
 document.querySelectorAll('.nav-btn').forEach(b=>b.onclick=()=>setView(b.dataset.view));document.querySelectorAll('[data-open-reminders]').forEach(b=>b.onclick=()=>setView('reminders'));
@@ -34,18 +53,18 @@ function renderDashboard(){
  document.getElementById('kpiNext').textContent=next?Math.max(0,daysUntil(next.date))+' дн.':'—';
  document.getElementById('kpiNextName').textContent=next?next.name:'Нет ближайших';
  document.getElementById('kpiReminders').textContent=reminders.filter(r=>!r.done).length;
- const recs=future.slice(0,5).sort((a,b)=>b.score-a.score).slice(0,4);
- document.getElementById('recommendations').innerHTML=recs.map((e,i)=>`<div class="rec-card"><div><strong>${i+1}. ${e.name}</strong><small>${e.next}</small></div><span class="score">${e.score}/100</span></div>`).join('');
- document.getElementById('upcomingList').innerHTML=future.slice(0,6).map(e=>`<div class="compact-item"><div><strong>${e.name}</strong><div class="reminder-meta">${e.dateLabel} · ${e.city}</div></div><span class="badge ${e.priority==='A'?'a':''}">${e.priority}</span></div>`).join('');
+ const recs=future.filter(e=>statusOf(e.name)!=='rejected'&&statusOf(e.name)!=='summary_uploaded').sort((a,b)=>b.score-a.score).slice(0,5);
+ document.getElementById('recommendations').innerHTML=recs.map((e,i)=>{const st=statusOf(e.name);return `<div class="rec-card"><div><strong>${i+1}. ${e.name}</strong><small><b>${STATUS_LABELS[st]}</b> · ${STATUS_NEXT[st]}</small></div><span class="score">${e.score}/100</span></div>`}).join('');
+ document.getElementById('upcomingList').innerHTML=future.slice(0,6).map(e=>`<div class="compact-item"><div><strong>${e.name}</strong><div class="reminder-meta">${e.dateLabel} · ${e.city} · ${STATUS_LABELS[statusOf(e.name)]}</div></div><span class="badge ${e.priority==='A'?'a':''}">${e.priority}</span></div>`).join('');
  const active=reminders.filter(r=>!r.done).sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time)).slice(0,5);
  document.getElementById('dashboardReminders').innerHTML=active.length?active.map(r=>`<div class="compact-item"><div><strong>${r.title}</strong><div class="reminder-meta">${fmtDate(r.date)} · ${r.time}</div></div></div>`).join(''):'<div class="reminder-meta">Нет активных напоминаний.</div>';
 }
 
 function renderEvents(){
  const q=document.getElementById('eventSearch').value.toLowerCase(); const p=document.getElementById('priorityFilter').value; const s=document.getElementById('statusFilter').value;
- const rows=EVENTS.filter(e=>(p==='all'||e.priority===p)&&(s==='all'||(eventStatus[e.name]||'new')===s)&&(`${e.name} ${e.city} ${e.audience}`.toLowerCase().includes(q))).sort(byDate);
- document.getElementById('eventsTable').innerHTML=`<div class="event-row header"><div>Мероприятие</div><div>Дата</div><div>Скоринг</div><div>Приоритет</div><div>Статус</div><div>Действия</div></div>`+rows.map(e=>`<div class="event-row"><div><strong>${e.name}</strong><div class="reminder-meta">${e.city} · ${e.audience}</div></div><div>${e.dateLabel}</div><div>${e.score}/100</div><div><span class="badge ${e.priority==='A'?'a':''}">${e.priority}</span></div><div><select data-status="${encodeURIComponent(e.name)}">${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}" ${(eventStatus[e.name]||'new')===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="event-actions"><button data-remind="${encodeURIComponent(e.name)}">Напомнить</button></div></div>`).join('');
- document.querySelectorAll('[data-status]').forEach(el=>el.onchange=()=>{const n=decodeURIComponent(el.dataset.status);eventStatus[n]=el.value;save();renderDashboard();});
+ const rows=EVENTS.filter(e=>(p==='all'||e.priority===p)&&(s==='all'||statusOf(e.name)===s)&&(`${e.name} ${e.city} ${e.audience}`.toLowerCase().includes(q))).sort(byDate);
+ document.getElementById('eventsTable').innerHTML=`<div class="event-row header"><div>Мероприятие</div><div>Дата</div><div>Скоринг</div><div>Приоритет</div><div>Этап</div><div>Действия</div></div>`+rows.map(e=>`<div class="event-row"><div><strong>${e.name}</strong><div class="reminder-meta">${e.city} · ${e.audience}</div><div class="next-action">Следующий шаг: ${STATUS_NEXT[statusOf(e.name)]}</div></div><div>${e.dateLabel}</div><div>${e.score}/100</div><div><span class="badge ${e.priority==='A'?'a':''}">${e.priority}</span></div><div><select data-status="${encodeURIComponent(e.name)}">${Object.entries(STATUS_LABELS).map(([k,v])=>`<option value="${k}" ${statusOf(e.name)===k?'selected':''}>${v}</option>`).join('')}</select></div><div class="event-actions"><button data-remind="${encodeURIComponent(e.name)}">Напомнить</button></div></div>`).join('');
+ document.querySelectorAll('[data-status]').forEach(el=>el.onchange=()=>{const n=decodeURIComponent(el.dataset.status);eventStatus[n]=el.value;save();renderDashboard();renderEvents();});
  document.querySelectorAll('[data-remind]').forEach(el=>el.onclick=()=>openReminder(decodeURIComponent(el.dataset.remind)));
 }
 ['eventSearch','priorityFilter','statusFilter'].forEach(id=>document.getElementById(id).addEventListener('input',renderEvents));
@@ -61,7 +80,8 @@ function renderReminders(){
 
 const modal=document.getElementById('reminderModal');
 function openReminder(eventName='',id=''){
- const r=id?reminders.find(x=>x.id===id):null; document.getElementById('reminderId').value=r?.id||''; document.getElementById('reminderTitle').value=r?.title||(eventName?`Отработать ${eventName}`:''); document.getElementById('reminderEvent').value=r?.event||eventName||''; document.getElementById('reminderDate').value=r?.date||(eventName?(EVENTS.find(e=>e.name===eventName)?.date||''):''); document.getElementById('reminderTime').value=r?.time||'11:00'; document.getElementById('reminderNote').value=r?.note||''; modal.classList.remove('hidden');modal.setAttribute('aria-hidden','false');
+ const r=id?reminders.find(x=>x.id===id):null; const ev=eventName?EVENTS.find(e=>e.name===eventName):null; const defaultTitle=eventName?STATUS_NEXT[statusOf(eventName)]:'';
+ document.getElementById('reminderId').value=r?.id||''; document.getElementById('reminderTitle').value=r?.title||defaultTitle; document.getElementById('reminderEvent').value=r?.event||eventName||''; document.getElementById('reminderDate').value=r?.date||(ev?.date||''); document.getElementById('reminderTime').value=r?.time||'11:00'; document.getElementById('reminderNote').value=r?.note||''; modal.classList.remove('hidden');modal.setAttribute('aria-hidden','false');
 }
 function closeReminder(){modal.classList.add('hidden');modal.setAttribute('aria-hidden','true');}
 document.getElementById('addReminderTop').onclick=()=>openReminder();document.getElementById('addReminderButton').onclick=()=>openReminder();document.getElementById('closeReminderModal').onclick=closeReminder;document.getElementById('cancelReminder').onclick=closeReminder;
