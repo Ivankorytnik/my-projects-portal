@@ -5,7 +5,7 @@
   const SHEET_NAME = 'TOP-50';
   const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1v0DiMltTOFb_3SSkigH6RPXOZdEVFpIKG5XBatTCz2g/edit#gid=978672615';
   const DASH = '—';
-  let records = normalizeRecords(SNAPSHOT.records);
+  let records = [];
   let sourceMode = 'snapshot';
 
   const norm = value => String(value || '')
@@ -55,6 +55,8 @@
     });
     return out;
   }
+
+  records = normalizeRecords(SNAPSHOT.records);
 
   function findRecord(companyName){
     const key = norm(companyName);
