@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#101214" />
   <meta name="description" content="АТОМ B2B — управление выставками, форумами, рекомендациями и напоминаниями" />
   <title>АТОМ B2B | Календарь активностей</title>
-  <link rel="stylesheet" href="style.css?v=1.0.0" />
+  <link rel="stylesheet" href="style.css?v=1.0.1" />
 </head>
 <body>
   <div class="app-shell">
@@ -29,7 +29,7 @@
         <div>
           <p class="eyebrow">АТОМ / B2B SALES</p>
           <h1>Календарь активностей</h1>
-          <p class="subtitle">Выставки, форумы, ЛПР, рекомендации и контроль следующих действий.</p>
+          <p class="subtitle">Согласование, подготовка, проведение, резюме мероприятия и контроль следующих действий.</p>
         </div>
         <div class="top-actions">
           <button id="notifyButton" class="secondary">Включить уведомления</button>
@@ -48,7 +48,7 @@
         <section class="panel hero-panel">
           <div class="panel-head">
             <div><p class="eyebrow">РЕКОМЕНДАЦИИ</p><h2>Что делать сейчас</h2></div>
-            <span class="status-dot">обновляется автоматически</span>
+            <span class="status-dot">по текущему этапу мероприятия</span>
           </div>
           <div id="recommendations" class="recommendations"></div>
         </section>
@@ -72,7 +72,17 @@
             <div class="filters">
               <input id="eventSearch" type="search" placeholder="Поиск по названию, городу, аудитории..." />
               <select id="priorityFilter"><option value="all">Все приоритеты</option><option value="A">A</option><option value="B">B</option></select>
-              <select id="statusFilter"><option value="all">Все статусы</option><option value="new">Не начато</option><option value="contacted">Контакт</option><option value="negotiation">Переговоры</option><option value="booked">Участие подтверждено</option><option value="done">Завершено</option></select>
+              <select id="statusFilter">
+                <option value="all">Все этапы</option>
+                <option value="new">Не начато</option>
+                <option value="management_review">Согласовать с руководством</option>
+                <option value="approved">Одобрено</option>
+                <option value="rejected">Не одобрено</option>
+                <option value="event_approval">Есть согласование мероприятия</option>
+                <option value="preparation">Начата подготовка</option>
+                <option value="event_done">Мероприятие прошло</option>
+                <option value="summary_uploaded">Загружено резюме мероприятия</option>
+              </select>
             </div>
           </div>
           <div id="eventsTable" class="events-table"></div>
@@ -95,17 +105,17 @@
     <form id="reminderForm" class="modal-card">
       <div class="modal-head"><div><p class="eyebrow">НОВОЕ НАПОМИНАНИЕ</p><h2>Контроль действия</h2></div><button type="button" id="closeReminderModal" class="icon-btn">×</button></div>
       <input id="reminderId" type="hidden" />
-      <label>Название<input id="reminderTitle" required maxlength="120" placeholder="Например: Позвонить организатору CeMAT" /></label>
+      <label>Название<input id="reminderTitle" required maxlength="120" placeholder="Например: Согласовать участие в CeMAT" /></label>
       <label>Мероприятие<select id="reminderEvent"><option value="">Без привязки</option></select></label>
       <div class="form-row">
         <label>Дата<input id="reminderDate" type="date" required /></label>
         <label>Время<input id="reminderTime" type="time" value="11:00" required /></label>
       </div>
-      <label>Комментарий<textarea id="reminderNote" rows="3" maxlength="300" placeholder="Контакт, цель, ожидаемый результат"></textarea></label>
+      <label>Комментарий<textarea id="reminderNote" rows="3" maxlength="300" placeholder="Кому написать, что согласовать, ожидаемый результат"></textarea></label>
       <div class="modal-actions"><button type="button" class="secondary" id="cancelReminder">Отмена</button><button type="submit" class="primary">Сохранить</button></div>
     </form>
   </div>
 
-  <script src="app.js?v=1.0.0"></script>
+  <script src="app.js?v=1.0.1"></script>
 </body>
 </html>
