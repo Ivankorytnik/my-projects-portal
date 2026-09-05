@@ -13,6 +13,10 @@
        'ЛПР':l.lpr||'',
        'Должность ЛПР':l.role||'',
        'Достоверность ЛПР':l.grade||'',
+       'Телефон':c.phone||'',
+       'E-mail':c.email||'',
+       'Тип контакта':c.contactType||'',
+       'Источник контакта':c.contactSource||'',
        'Отрасль':c.sector||'',
        'Регион':c.region||'',
        'Парк min, шт.':Number(c.fleetMin)||0,
@@ -28,7 +32,7 @@
        'Добавлено':c.addedAt||''
      }});
      const ws=XLSX.utils.json_to_sheet(rows);
-     ws['!cols']=[{wch:6},{wch:30},{wch:26},{wch:34},{wch:16},{wch:20},{wch:22},{wch:14},{wch:14},{wch:20},{wch:20},{wch:14},{wch:42},{wch:48},{wch:48},{wch:48},{wch:34},{wch:20}];
+     ws['!cols']=[{wch:6},{wch:30},{wch:26},{wch:34},{wch:16},{wch:20},{wch:30},{wch:18},{wch:34},{wch:20},{wch:22},{wch:14},{wch:14},{wch:20},{wch:20},{wch:14},{wch:42},{wch:48},{wch:48},{wch:48},{wch:34},{wch:20}];
      const wb=XLSX.utils.book_new();
      XLSX.utils.book_append_sheet(wb,ws,'Компании');
      const date=new Date();
