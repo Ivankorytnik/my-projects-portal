@@ -1,6 +1,3 @@
-const SUPABASE_BASE='https://ytdacypygsfalkixhemj.supabase.co/functions/v1';
-const SEARCH_ENDPOINT=SUPABASE_BASE+'/atom-b2b-search';
-const SHEETS_SYNC_ENDPOINT=SUPABASE_BASE+'/atom-b2b-sheets-sync';
 const state={saved:JSON.parse(localStorage.getItem('atomB2BSearchSaved')||'[]'),custom:JSON.parse(localStorage.getItem('atomB2BSearchCustom')||'[]')};
 const $=id=>document.getElementById(id);
 const priority=s=>s>=90?'A':s>=80?'B':'C';
@@ -29,27 +26,14 @@ function preview(){const s=candidateScore();$('candidateScorePreview').textConte
 $('candidateForm').onsubmit=e=>{e.preventDefault();const name=$('candidateName').value.trim();if(!name)return;if(allCompanies().some(c=>normName(c.name)===normName(name))){alert('Такая компания уже есть в базе.');return;}const score=candidateScore(),fleet=+$('candidateFleet').value;const item={name,sector:$('candidateSector').value,fleetMin:Math.round(fleet*.7),fleetMax:fleet,atomMin:Math.max(5,Math.round(fleet*.06)),atomMax:Math.max(10,Math.round(fleet*.12)),score,region:+$('candidateFederal').value?'Федеральный':'Региональный',use:+$('candidateRoutes').value?'Регулярные городские корпоративные маршруты':'Требуется уточнить сценарии использования',why:`Ручная оценка: парк ${fmt(fleet)}; ${+$('candidateParking').value?'есть собственная парковочная инфраструктура':'зарядную инфраструктуру нужно проверить'}.`,pilot:`Пилот ${score>=90?'15–20':score>=80?'10–15':'5–10'} АТОМ на 60–90 дней с расчётом TCO.`,next:'Найти конкретного владельца корпоративного автопарка и подтвердить размер адресуемого парка.',custom:true,addedAt:stamp()};state.custom.push(item);if(!state.saved.includes(name))state.saved.push(name);saveState();initFilters();renderDashboard();renderSearch();renderSaved();$('candidateModal').classList.add('hidden');e.target.reset();};
 
 function injectIntegrationUI(){
- document.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"]').forEach(l=>l.href='favicon.svg?v=1.1.0');
- const actions=document.querySelector('.top-actions');
- const find=document.createElement('button');find.id='findMoreButton';find.className='primary';find.textContent='Найти ещё 50';
- const sync=document.createElement('button');sync.id='syncSheetsButton';sync.className='secondary';sync.textContent='Синхронизация с Google Sheets';
- actions.prepend(sync);actions.prepend(find);
- const info=document.createElement('div');info.className='integration-meta';info.innerHTML=`<span>Последний поиск: <strong id="lastSearchAt">—</strong></span><span>Google Sheets: <strong id="lastSyncAt">не синхронизировано</strong></span><span id="integrationStatus"></span>`;
+ document.querySelectorAll('link[rel="icon"],link[rel="shortcut icon"]').forEach(l=>l.href='favicon.svg?v=1.6.0');
+ const info=document.createElement('div');info.className='integration-meta';info.innerHTML='<span>Контакты: <strong>Google Таблица TOP-50</strong></span>';
  document.querySelector('.subtitle').after(info);
  const sys=document.querySelector('.system-info');
- const rows=sys.querySelectorAll('.system-row');if(rows[0])rows[0].querySelector('strong').textContent='v1.1.0';
- const r1=document.createElement('div');r1.className='system-row';r1.innerHTML='<span>Последний поиск</span><strong id="systemLastSearch">—</strong>';
- const r2=document.createElement('div');r2.className='system-row';r2.innerHTML='<span>Google Sheets</span><strong id="systemLastSync">не было</strong>';
- sys.append(r1,r2);
- const style=document.createElement('style');style.textContent='.integration-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:11px;font-size:12px;color:#6a6f76}.integration-meta strong{color:#15171a}.integration-meta .ok{color:#198754}.integration-meta .warn{color:#a56a00}.integration-meta .error{color:#b42318}.top-actions{flex-wrap:wrap}.primary:disabled,.secondary:disabled{opacity:.55;cursor:wait}.search-new-row{background:#fbfff0}.system-row strong{text-align:right}.sync-note{font-size:11px;color:#7b8087;margin-top:6px}';document.head.append(style);
- $('findMoreButton').onclick=findMore50;$('syncSheetsButton').onclick=syncSheets;
- updateIntegrationStatus();
+ const rows=sys.querySelectorAll('.system-row');if(rows[0])rows[0].querySelector('strong').textContent='v1.6.0';
+ const source=document.createElement('div');source.className='system-row';source.innerHTML='<span>Источник контактов</span><strong>Google Таблица</strong>';
+ sys.append(source);
+ const style=document.createElement('style');style.textContent='.integration-meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:11px;font-size:12px;color:#6a6f76}.integration-meta strong{color:#15171a}.top-actions{flex-wrap:wrap}.primary:disabled,.secondary:disabled{opacity:.55;cursor:wait}.system-row strong{text-align:right}';document.head.append(style);
 }
-function setOpStatus(text,kind=''){$('integrationStatus').className=kind;$('integrationStatus').textContent=text;}
-function updateIntegrationStatus(){const ls=localStorage.getItem('atomB2BLastSearch')||'—',sy=localStorage.getItem('atomB2BLastSync')||'не синхронизировано';if($('lastSearchAt'))$('lastSearchAt').textContent=ls;if($('systemLastSearch'))$('systemLastSearch').textContent=ls;if($('lastSyncAt'))$('lastSyncAt').textContent=sy;if($('systemLastSync'))$('systemLastSync').textContent=sy;}
-async function loadServerLastSearch(){try{const r=await fetch(SEARCH_ENDPOINT,{method:'GET'});const d=await r.json();if(r.ok&&d?.latest?.searchedAt){localStorage.setItem('atomB2BLastSearch',d.latest.searchedAt);updateIntegrationStatus();}}catch(e){console.warn('last search status',e);}}
-async function findMore50(){const btn=$('findMoreButton');btn.disabled=true;const old=btn.textContent;btn.textContent='Идёт поиск…';setOpStatus('Ищу новые компании в интернете и проверяю дубли…','warn');try{const existingNames=allCompanies().map(c=>c.name);const r=await fetch(SEARCH_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({existingNames})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'search_failed');const existing=new Set(allCompanies().map(c=>normName(c.name))),now=d.searchedAt||stamp();let added=0;for(const raw of d.companies||[]){const n=normName(raw.name);if(!n||existing.has(n))continue;existing.add(n);state.custom.push({...raw,discovered:true,addedAt:now});added++;}saveState();localStorage.setItem('atomB2BLastSearch',now);updateIntegrationStatus();initFilters();renderDashboard();renderSearch();setView('search');setOpStatus(added?`Найдено и добавлено новых компаний: ${added}`:'Новых уникальных компаний не найдено','ok');}catch(e){console.error(e);setOpStatus('Ошибка поиска. База не изменена.','error');}finally{btn.disabled=false;btn.textContent=old;}}
-function unsyncedCompanies(){const initial=new Set(COMPANIES.map(c=>normName(c.name)));return state.custom.filter(c=>!c.syncedAt&&!initial.has(normName(c.name)));}
-async function syncSheets(){const btn=$('syncSheetsButton'),rows=unsyncedCompanies();if(!rows.length){setOpStatus('Новых записей для Google Sheets нет.','ok');return;}btn.disabled=true;const old=btn.textContent;btn.textContent='Синхронизация…';setOpStatus(`Проверяю дубли перед добавлением: ${rows.length} записей…`,'warn');try{const r=await fetch(SHEETS_SYNC_ENDPOINT,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({companies:rows})});const d=await r.json();if(!r.ok||!d.ok){if(d.error==='google_write_not_configured')throw new Error('GOOGLE_NOT_CONFIGURED');throw new Error(d.error||'sync_failed');}const now=stamp();const sent=new Set(rows.map(c=>normName(c.name)));state.custom.forEach(c=>{if(sent.has(normName(c.name)))c.syncedAt=now;});saveState();localStorage.setItem('atomB2BLastSync',now);updateIntegrationStatus();setOpStatus(`Google Sheets: добавлено ${d.added||0}, дублей пропущено ${d.skipped||0}`,'ok');}catch(e){console.error(e);if(String(e.message)==='GOOGLE_NOT_CONFIGURED')setOpStatus('Канал записи Google Sheets ещё не авторизован. Данные не изменены.','error');else setOpStatus('Синхронизация не выполнена. Старые данные не изменены.','error');}finally{btn.disabled=false;btn.textContent=old;}}
 
-initFilters();renderDashboard();renderSearch();renderSaved();injectIntegrationUI();loadServerLastSearch();
+initFilters();renderDashboard();renderSearch();renderSaved();injectIntegrationUI();
