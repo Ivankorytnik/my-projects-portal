@@ -4,19 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Охотник за находками | Korytnik Hub</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.6.1" />
-  <link rel="shortcut icon" href="favicon.svg?v=1.6.1" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.6.2" />
+  <link rel="shortcut icon" href="favicon.svg?v=1.6.2" />
   <meta name="theme-color" content="#111827" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.6.1" />
+  <link rel="stylesheet" href="style.css?v=1.6.2" />
+  <link rel="stylesheet" href="url-input.css?v=1.6.2" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
       <div><a class="back" href="/">← Korytnik Hub</a><p class="eyebrow">AI AVITO PARSER</p><h1>Охотник за находками</h1><p class="lead">Вставьте любую ссылку из Avito — поиск, категорию, город, выдачу с фильтрами или отдельное объявление. Парсер использует именно эту ссылку и автоматически оценивает найденные позиции.</p></div>
-      <div class="topbar-meta"><div class="version-chip">v1.6.1</div><div class="updated-chip"><span>Обновлено</span><strong>06.09.2026 · 18:07 МСК</strong></div><div class="status-pill" id="serviceStatus">Готов</div></div>
+      <div class="topbar-meta"><div class="version-chip">v1.6.2</div><div class="updated-chip"><span>Обновлено</span><strong>06.09.2026 · 18:12 МСК</strong></div><div class="status-pill" id="serviceStatus">Готов</div></div>
     </header>
 
     <section class="panel access" id="accessPanel">
@@ -28,8 +29,13 @@
     <section class="workspace hidden" id="workspace">
       <section class="panel run-panel">
         <label>
-          <span>Ссылка из Avito</span>
-          <input id="sourceUrl" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Вставьте любую ссылку: https://www.avito.ru/..." />
+          <span>Ссылка из поисковой строки Avito</span>
+          <div class="url-input-row">
+            <input id="sourceUrl" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Вставьте ссылку из адресной строки Avito" />
+            <button id="pasteUrlBtn" type="button" class="paste-url-btn">Вставить из буфера</button>
+          </div>
+          <small class="url-example">Можно вставлять: поиск, категорию, город, ссылку со всеми фильтрами или отдельное объявление. Поддерживается Ctrl+V и запуск по Enter.</small>
+          <div id="urlInputStatus" aria-live="polite"></div>
         </label>
         <div class="actions"><button id="parseBtn" class="primary">Парсить эту ссылку</button><button id="evaluateBtn" disabled>Переоценить AI</button><button id="historyBtn">История</button><button id="exportBtn" disabled>CSV</button></div>
         <p class="hint"><b>Поддерживается любая ссылка Avito:</b> поисковая выдача, категория, конкретный город, ссылка со всеми выбранными фильтрами и отдельное объявление. Просто скопируйте адрес из строки браузера и вставьте сюда. Если Avito ограничит прямой серверный запрос, используйте режим «Avito → Hub» ниже — CAPTCHA и антибот-защита не обходятся.</p>
@@ -60,6 +66,7 @@
       </section>
     </section>
   </main>
-  <script src="app.js?v=1.6.1"></script>
+  <script src="url-input.js?v=1.6.2"></script>
+  <script src="app.js?v=1.6.2"></script>
 </body>
 </html>
