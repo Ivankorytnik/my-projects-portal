@@ -29,34 +29,48 @@ function ensureEvaluationProgress() {
   return el;
 }
 
-function setEvaluationProgress(evaluated, total, pending = null, errors = [], model = "") {
+function fallbackCountFromItems() {
+  return state.items.filter(x => String(x.ai_reason || "").startsWith("Резервная оценка")).length;
+}
+
+function setEvaluationProgress(evaluated, total, pending = null, fallbackCount = 0, model = "") {
   const el = ensureEvaluationProgress();
   if (!el) return;
   const left = pending == null ? Math.max(0, Number(total || 0) - Number(evaluated || 0)) : Number(pending || 0);
-  const warning = errors && errors.length ? ` · проблем: ${errors.length}` : "";
+  const reserve = Number(fallbackCount || 0) > 0 ? ` · резервных: ${Number(fallbackCount)}` : "";
   const modelText = model ? ` · ${model}` : "";
-  el.textContent = `Оценено ${Number(evaluated || 0)} из ${Number(total || 0)} · осталось ${left}${warning}${modelText}`;
-  el.classList.toggle("partial", left > 0 || !!warning);
-  el.classList.toggle("complete", Number(total || 0) > 0 && left === 0 && !warning);
-  el.title = errors && errors.length ? errors.join("\n") : "";
+  el.textContent = `Оценено ${Number(evaluated || 0)} из ${Number(total || 0)} · осталось ${left}${reserve}${modelText}`;
+  el.classList.toggle("partial", left > 0 || Number(fallbackCount || 0) > 0);
+  el.classList.toggle("complete", Number(total || 0) > 0 && left === 0 && Number(fallbackCount || 0) === 0);
 }
 
 function refreshEvaluationProgressFromItems() {
   const total = state.items.length;
   const evaluated = state.items.filter(x => x.ai_score !== null && x.ai_score !== undefined).length;
-  setEvaluationProgress(evaluated, total, total - evaluated, []);
+  setEvaluationProgress(evaluated, total, total - evaluated, fallbackCountFromItems(), "");
+}
+
+function quotaMessage(data) {
+  const code = String(data?.error_code || "");
+  const msg = String(data?.error_message || "");
+  if (code === "credit_balance_exhausted" || /no credits remaining|insufficient_quota|credit balance/i.test(msg)) {
+    return "OpenAI API: закончились кредиты. Сейчас показана резервная оценка. После пополнения нажмите «Повторить AI-оценку».";
+  }
+  if (code === "rate_limit_exceeded" || /rate limit/i.test(msg)) {
+    return "OpenAI API временно достиг лимита запросов. Сейчас показана резервная оценка. Повторите AI-оценку позже.";
+  }
+  return msg ? `OpenAI временно недоступен: ${msg}` : "OpenAI временно недоступен. Показана резервная оценка.";
 }
 
 async function reliableEvaluate(options = {}) {
   if (!state.runId) return;
   const auto = options.auto === true;
+  const retryFallback = options.retryFallback === true;
   const btn = document.getElementById("evaluateBtn");
   if (btn) btn.disabled = true;
 
   let last = null;
   let pass = 0;
-  let previousPending = Infinity;
-  let stalledPasses = 0;
   const maxPasses = 30;
 
   try {
@@ -64,36 +78,43 @@ async function reliableEvaluate(options = {}) {
       pass++;
       setStatus(auto ? `AI-оценка · этап ${pass}` : `Оцениваю · этап ${pass}`, "busy");
 
-      const data = await aiEvalApi({ action: "evaluate", run_id: state.runId, only_pending: true });
+      const data = await aiEvalApi({
+        run_id: state.runId,
+        retry_fallback: retryFallback
+      });
       last = data;
       state.items = Array.isArray(data.items) ? data.items : state.items;
       applyFilter();
       updateStats();
-      setEvaluationProgress(data.evaluated_count, data.total_count, data.pending_count, data.errors || [], data.model || "");
+      setEvaluationProgress(data.evaluated_count, data.total_count, data.pending_count, data.fallback_count || 0, data.model || "");
+
+      if (data.used_fallback) {
+        setStatus("Резервная оценка", "bad");
+        const note = document.getElementById("resultNote");
+        if (note) note.textContent = quotaMessage(data);
+        if (btn) btn.textContent = "Повторить AI-оценку";
+        break;
+      }
 
       const pending = Number(data.pending_count || 0);
-      if (pending === 0) break;
-
-      if (pending >= previousPending) stalledPasses += 1;
-      else stalledPasses = 0;
-      previousPending = pending;
-
-      if (stalledPasses >= 4) break;
+      const fallback = Number(data.fallback_count || 0);
+      if (pending === 0 && (!retryFallback || fallback === 0)) break;
 
       setStatus(`Оценено ${Number(data.evaluated_count || 0)} из ${Number(data.total_count || 0)} · продолжаю`, "busy");
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 350));
     }
 
-    const pending = Number(last?.pending_count || 0);
-    if (pending === 0) {
-      setStatus("AI-оценка завершена", "ok");
-      const note = document.getElementById("resultNote");
-      if (note) note.textContent = `Оценка завершена для всех ${Number(last?.total_count || state.items.length)} объявлений.`;
-    } else if (last) {
-      setStatus(`Оценка частично · осталось ${pending}`, "bad");
-      const note = document.getElementById("resultNote");
-      const details = Array.isArray(last.errors) && last.errors.length ? ` Причина: ${last.errors[last.errors.length - 1]}` : "";
-      if (note) note.textContent = `Осталось ${pending} проблемных объявлений.${details}`;
+    if (last && !last.used_fallback) {
+      const pending = Number(last.pending_count || 0);
+      const fallback = Number(last.fallback_count || 0);
+      if (pending === 0 && fallback === 0) {
+        setStatus("AI-оценка завершена", "ok");
+        const note = document.getElementById("resultNote");
+        if (note) note.textContent = `AI-оценка завершена для всех ${Number(last.total_count || state.items.length)} объявлений.`;
+        if (btn) btn.textContent = "Переоценить резервные";
+      } else if (pending > 0) {
+        setStatus(`Оценка частично · осталось ${pending}`, "bad");
+      }
     }
 
     const exportBtn = document.getElementById("exportBtn");
@@ -101,7 +122,7 @@ async function reliableEvaluate(options = {}) {
   } catch (e) {
     setStatus("Ошибка AI-оценки", "bad");
     const note = document.getElementById("resultNote");
-    if (note) note.textContent = `Объявления сохранены. AI-оценка не завершена: ${e.message}. Уже готовые оценки не потеряны.`;
+    if (note) note.textContent = `Объявления сохранены. Ошибка AI: ${e.message}`;
     refreshEvaluationProgressFromItems();
   } finally {
     if (btn) btn.disabled = !state.runId || !state.items.length;
@@ -122,7 +143,7 @@ function replaceButtonWithoutOldListeners(id) {
   const evalBtn = replaceButtonWithoutOldListeners("evaluateBtn");
   if (evalBtn) {
     evalBtn.textContent = "Оценить неоценённые";
-    evalBtn.addEventListener("click", () => reliableEvaluate({ auto: false }));
+    evalBtn.addEventListener("click", () => reliableEvaluate({ auto: false, retryFallback: true }));
   }
 
   const parseBtn = replaceButtonWithoutOldListeners("parseBtn");
@@ -132,13 +153,16 @@ function replaceButtonWithoutOldListeners(id) {
       if (state.runId && state.items.length) {
         refreshEvaluationProgressFromItems();
         const pending = state.items.filter(x => x.ai_score === null || x.ai_score === undefined).length;
-        if (pending > 0) await reliableEvaluate({ auto: true });
+        if (pending > 0) await reliableEvaluate({ auto: true, retryFallback: false });
       }
     });
   }
 
   const historyList = document.getElementById("historyList");
-  if (historyList) historyList.addEventListener("click", () => setTimeout(refreshEvaluationProgressFromItems, 500));
+  if (historyList) historyList.addEventListener("click", () => setTimeout(() => {
+    refreshEvaluationProgressFromItems();
+    if (fallbackCountFromItems() > 0 && evalBtn) evalBtn.textContent = "Повторить AI-оценку";
+  }, 500));
 
   const originalRender = renderItems;
   renderItems = function(items = state.filtered) {
