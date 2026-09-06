@@ -4,22 +4,22 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Охотник за находками | Korytnik Hub</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.8.3" />
-  <link rel="shortcut icon" href="favicon.svg?v=1.8.3" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.8.4" />
+  <link rel="shortcut icon" href="favicon.svg?v=1.8.4" />
   <meta name="theme-color" content="#111827" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.8.3" />
-  <link rel="stylesheet" href="url-input.css?v=1.8.3" />
-  <link rel="stylesheet" href="reliable-eval.css?v=1.8.3" />
-  <link rel="stylesheet" href="layout-fix.css?v=1.8.3" />
+  <link rel="stylesheet" href="style.css?v=1.8.4" />
+  <link rel="stylesheet" href="url-input.css?v=1.8.4" />
+  <link rel="stylesheet" href="reliable-eval.css?v=1.8.4" />
+  <link rel="stylesheet" href="layout-fix.css?v=1.8.4" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
       <div><a class="back" href="/">← Korytnik Hub</a><p class="eyebrow">AI AVITO PARSER</p><h1>Охотник за находками</h1><p class="lead">Вставьте любую ссылку из Avito — поиск, категорию, город, выдачу с фильтрами или отдельное объявление. Парсер использует именно эту ссылку и автоматически оценивает найденные позиции.</p></div>
-      <div class="topbar-meta"><div class="version-chip">v1.8.3</div><div class="updated-chip"><span>Обновлено</span><strong>06.09.2026 · 19:31 МСК</strong></div><div class="status-pill" id="serviceStatus">Готов</div></div>
+      <div class="topbar-meta"><div class="version-chip">v1.8.4</div><div class="updated-chip"><span>Обновлено</span><strong>06.09.2026 · 19:42 МСК</strong></div><div class="status-pill" id="serviceStatus">Готов</div></div>
     </header>
 
     <section class="panel access" id="accessPanel">
@@ -40,11 +40,11 @@
           <div id="urlInputStatus" aria-live="polite"></div>
         </label>
         <div class="actions"><button id="parseBtn" class="primary">Парсить эту ссылку</button><button id="evaluateBtn" disabled>Оценить неоценённые</button><button id="historyBtn">История</button><button id="exportBtn" disabled>CSV</button></div>
-        <p class="hint"><b>AI-оценка v1.8.3:</b> оценивание идёт маленькими пакетами, использует строгий JSON-формат, при необходимости переключается на резервную модель и умеет оценивать по фото. Ошибочные названия вроде «Ещё 5 фото» автоматически восстанавливаются из ссылки объявления.</p>
+        <p class="hint"><b>AI-оценка v1.8.4:</b> система теперь отличает настоящую AI-оценку от резервной. Если OpenAI недоступен из-за лимита или отсутствия кредитов, объявления не остаются пустыми — показывается предварительная резервная оценка и точная причина. После восстановления API можно нажать «Повторить AI-оценку».</p>
       </section>
 
       <section class="panel browser-mode">
-        <div><p class="eyebrow">РЕЗЕРВНЫЙ РЕЖИМ</p><h2>Avito → Hub из обычной вкладки</h2><p>Если прямой запрос Avito заблокирован, откройте вставленную ссылку в браузере и используйте кнопку-закладку. Она соберёт объявления, уже видимые в вашей вкладке, и отправит их сюда на AI-оценку.</p></div>
+        <div><p class="eyebrow">РЕЗЕРВНЫЙ РЕЖИМ</p><h2>Avito → Hub из обычной вкладки</h2><p>Если прямой запрос Avito заблокирован, откройте вставленную ссылку в браузере и используйте кнопку-закладку. Она соберёт объявления, уже видимые в вашей вкладке, и отправит их сюда на оценку.</p></div>
         <div class="browser-actions"><button id="makeBookmarkletBtn">Создать кнопку Avito → Hub</button><a id="bookmarkletLink" class="bookmarklet hidden" href="#">Avito → Hub</a><button id="copyBookmarkletBtn" class="hidden">Скопировать кнопку</button></div>
         <div id="bookmarkletHelp" class="bookmarklet-help hidden"><b>Как пользоваться:</b> перетащите ссылку <b>Avito → Hub</b> на панель закладок браузера. Затем откройте нужную ссылку Avito, прокрутите страницу, чтобы объявления загрузились, и нажмите эту закладку. После отправки откройте «История» здесь — новый запуск появится автоматически.</div>
       </section>
@@ -68,8 +68,8 @@
       </section>
     </section>
   </main>
-  <script src="url-input.js?v=1.8.3"></script>
-  <script src="app.js?v=1.8.3"></script>
-  <script src="reliable-eval.js?v=1.8.3"></script>
+  <script src="url-input.js?v=1.8.4"></script>
+  <script src="app.js?v=1.8.4"></script>
+  <script src="reliable-eval.js?v=1.8.4"></script>
 </body>
 </html>
