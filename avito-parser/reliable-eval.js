@@ -29,14 +29,16 @@ function ensureEvaluationProgress() {
   return el;
 }
 
-function setEvaluationProgress(evaluated, total, pending = null, errors = []) {
+function setEvaluationProgress(evaluated, total, pending = null, errors = [], model = "") {
   const el = ensureEvaluationProgress();
   if (!el) return;
   const left = pending == null ? Math.max(0, Number(total || 0) - Number(evaluated || 0)) : Number(pending || 0);
-  const warning = errors && errors.length ? ` · проблемных: ${errors.length}` : "";
-  el.textContent = `Оценено ${Number(evaluated || 0)} из ${Number(total || 0)} · осталось ${left}${warning}`;
+  const warning = errors && errors.length ? ` · проблем: ${errors.length}` : "";
+  const modelText = model ? ` · ${model}` : "";
+  el.textContent = `Оценено ${Number(evaluated || 0)} из ${Number(total || 0)} · осталось ${left}${warning}${modelText}`;
   el.classList.toggle("partial", left > 0 || !!warning);
   el.classList.toggle("complete", Number(total || 0) > 0 && left === 0 && !warning);
+  el.title = errors && errors.length ? errors.join("\n") : "";
 }
 
 function refreshEvaluationProgressFromItems() {
@@ -55,7 +57,7 @@ async function reliableEvaluate(options = {}) {
   let pass = 0;
   let previousPending = Infinity;
   let stalledPasses = 0;
-  const maxPasses = 12;
+  const maxPasses = 30;
 
   try {
     while (pass < maxPasses) {
@@ -67,7 +69,7 @@ async function reliableEvaluate(options = {}) {
       state.items = Array.isArray(data.items) ? data.items : state.items;
       applyFilter();
       updateStats();
-      setEvaluationProgress(data.evaluated_count, data.total_count, data.pending_count, data.errors || []);
+      setEvaluationProgress(data.evaluated_count, data.total_count, data.pending_count, data.errors || [], data.model || "");
 
       const pending = Number(data.pending_count || 0);
       if (pending === 0) break;
@@ -76,22 +78,22 @@ async function reliableEvaluate(options = {}) {
       else stalledPasses = 0;
       previousPending = pending;
 
-      // Даже если один предмет упорно падает, новый evaluator сам дробит пакет
-      // вплоть до одиночного объявления. Останавливаемся только после нескольких
-      // проходов без прогресса, чтобы не зациклить браузер.
-      if (stalledPasses >= 3) break;
+      if (stalledPasses >= 4) break;
 
       setStatus(`Оценено ${Number(data.evaluated_count || 0)} из ${Number(data.total_count || 0)} · продолжаю`, "busy");
-      await new Promise(resolve => setTimeout(resolve, 450));
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
     const pending = Number(last?.pending_count || 0);
     if (pending === 0) {
       setStatus("AI-оценка завершена", "ok");
+      const note = document.getElementById("resultNote");
+      if (note) note.textContent = `Оценка завершена для всех ${Number(last?.total_count || state.items.length)} объявлений.`;
     } else if (last) {
       setStatus(`Оценка частично · осталось ${pending}`, "bad");
       const note = document.getElementById("resultNote");
-      if (note) note.textContent = `Основная оценка завершена. Осталось ${pending} проблемных объявлений — нажмите «Оценить неоценённые», чтобы повторить только их.`;
+      const details = Array.isArray(last.errors) && last.errors.length ? ` Причина: ${last.errors[last.errors.length - 1]}` : "";
+      if (note) note.textContent = `Осталось ${pending} проблемных объявлений.${details}`;
     }
 
     const exportBtn = document.getElementById("exportBtn");
@@ -99,7 +101,7 @@ async function reliableEvaluate(options = {}) {
   } catch (e) {
     setStatus("Ошибка AI-оценки", "bad");
     const note = document.getElementById("resultNote");
-    if (note) note.textContent = `Объявления сохранены. AI временно не закончил оценку: ${e.message}. Нажмите «Оценить неоценённые» — уже готовые оценки сохранятся.`;
+    if (note) note.textContent = `Объявления сохранены. AI-оценка не завершена: ${e.message}. Уже готовые оценки не потеряны.`;
     refreshEvaluationProgressFromItems();
   } finally {
     if (btn) btn.disabled = !state.runId || !state.items.length;
@@ -136,9 +138,7 @@ function replaceButtonWithoutOldListeners(id) {
   }
 
   const historyList = document.getElementById("historyList");
-  if (historyList) {
-    historyList.addEventListener("click", () => setTimeout(refreshEvaluationProgressFromItems, 500));
-  }
+  if (historyList) historyList.addEventListener("click", () => setTimeout(refreshEvaluationProgressFromItems, 500));
 
   const originalRender = renderItems;
   renderItems = function(items = state.filtered) {
