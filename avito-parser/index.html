@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Парсер Avito | Korytnik Hub</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css?v=1.0.0" />
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div><a class="back" href="/">← Korytnik Hub</a><p class="eyebrow">WEB SERVICE</p><h1>Парсер Avito</h1><p class="lead">Сбор доступных объявлений по ссылке Avito без установки программы на компьютер.</p></div>
+      <div class="status-pill" id="serviceStatus">Готов</div>
+    </header>
+
+    <section class="panel access" id="accessPanel">
+      <div><h2>Доступ</h2><p>Введите ключ Korytnik Hub. Он хранится только в текущей вкладке.</p></div>
+      <div class="row"><input id="accessKey" type="password" autocomplete="off" placeholder="Ключ доступа" /><button id="unlockBtn">Открыть сервис</button></div>
+      <div class="message" id="accessMessage"></div>
+    </section>
+
+    <section class="workspace hidden" id="workspace">
+      <section class="panel run-panel">
+        <label><span>Ссылка Avito</span><input id="sourceUrl" type="url" value="https://www.avito.ru/konakovo/kollektsionirovanie" /></label>
+        <div class="actions"><button id="parseBtn" class="primary">Запустить парсер</button><button id="historyBtn">История запусков</button><button id="exportBtn" disabled>CSV</button></div>
+        <p class="hint">Сервис использует только страницу, которую Avito отдаёт обычному серверному запросу. CAPTCHA и антибот-защита не обходятся.</p>
+      </section>
+
+      <section class="stats">
+        <article><span>Найдено</span><strong id="countStat">0</strong></article>
+        <article><span>С ценой</span><strong id="pricedStat">0</strong></article>
+        <article><span>Средняя цена</span><strong id="avgStat">—</strong></article>
+        <article><span>Последний запуск</span><strong id="lastStat">—</strong></article>
+      </section>
+
+      <section class="panel results-panel">
+        <div class="results-head"><div><h2>Результаты</h2><p id="resultNote">Запустите парсер.</p></div><input id="filterInput" type="search" placeholder="Фильтр по названию..." /></div>
+        <div class="table-wrap"><table><thead><tr><th>Объявление</th><th>Цена</th><th>Локация</th><th></th></tr></thead><tbody id="resultsBody"></tbody></table></div>
+        <div class="empty" id="emptyState">Пока нет данных</div>
+      </section>
+
+      <section class="panel history-panel hidden" id="historyPanel">
+        <div class="results-head"><div><h2>История запусков</h2><p>Последние 20 запусков</p></div><button id="closeHistoryBtn">Закрыть</button></div>
+        <div id="historyList" class="history-list"></div>
+      </section>
+    </section>
+  </main>
+  <script src="app.js?v=1.0.0"></script>
+</body>
+</html>
