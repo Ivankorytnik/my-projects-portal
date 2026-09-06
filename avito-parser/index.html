@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Парсер Avito | Korytnik Hub</title>
+  <title>Охотник за находками Конаково | Korytnik Hub</title>
   <link rel="icon" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.0.0" />
+  <link rel="stylesheet" href="style.css?v=1.1.0" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
-      <div><a class="back" href="/">← Korytnik Hub</a><p class="eyebrow">WEB SERVICE</p><h1>Парсер Avito</h1><p class="lead">Сбор доступных объявлений по ссылке Avito без установки программы на компьютер.</p></div>
+      <div><a class="back" href="/">← Korytnik Hub</a><p class="eyebrow">AI TREASURE HUNTER</p><h1>Охотник за находками Конаково</h1><p class="lead">Парсит объявления Avito и автоматически оценивает ценность, рыночную цену, вероятность находки и максимальную разумную цену покупки.</p></div>
       <div class="status-pill" id="serviceStatus">Готов</div>
     </header>
 
@@ -26,20 +26,20 @@
     <section class="workspace hidden" id="workspace">
       <section class="panel run-panel">
         <label><span>Ссылка Avito</span><input id="sourceUrl" type="url" value="https://www.avito.ru/konakovo/kollektsionirovanie" /></label>
-        <div class="actions"><button id="parseBtn" class="primary">Запустить парсер</button><button id="historyBtn">История запусков</button><button id="exportBtn" disabled>CSV</button></div>
-        <p class="hint">Сервис использует только страницу, которую Avito отдаёт обычному серверному запросу. CAPTCHA и антибот-защита не обходятся.</p>
+        <div class="actions"><button id="parseBtn" class="primary">Найти и оценить</button><button id="evaluateBtn" disabled>Переоценить AI</button><button id="historyBtn">История</button><button id="exportBtn" disabled>CSV</button></div>
+        <p class="hint">Оценка ориентировочная: сервис не подтверждает подлинность и происхождение вещи. Для сильных кандидатов он отдельно укажет, какие фото, клейма и детали нужно запросить.</p>
       </section>
 
       <section class="stats">
         <article><span>Найдено</span><strong id="countStat">0</strong></article>
-        <article><span>С ценой</span><strong id="pricedStat">0</strong></article>
+        <article><span>Лучший рейтинг</span><strong id="bestStat">—</strong></article>
+        <article><span>Стоит смотреть</span><strong id="tripStat">0</strong></article>
         <article><span>Средняя цена</span><strong id="avgStat">—</strong></article>
-        <article><span>Последний запуск</span><strong id="lastStat">—</strong></article>
       </section>
 
       <section class="panel results-panel">
-        <div class="results-head"><div><h2>Результаты</h2><p id="resultNote">Запустите парсер.</p></div><input id="filterInput" type="search" placeholder="Фильтр по названию..." /></div>
-        <div class="table-wrap"><table><thead><tr><th>Объявление</th><th>Цена</th><th>Локация</th><th></th></tr></thead><tbody id="resultsBody"></tbody></table></div>
+        <div class="results-head"><div><h2>Кандидаты</h2><p id="resultNote">Запустите поиск.</p></div><div class="filters"><select id="scoreFilter"><option value="0">Все оценки</option><option value="85">85+ срочно</option><option value="70">70+ интересно</option><option value="50">50+ проверить</option></select><input id="filterInput" type="search" placeholder="Фильтр по названию..." /></div></div>
+        <div class="cards" id="resultsBody"></div>
         <div class="empty" id="emptyState">Пока нет данных</div>
       </section>
 
@@ -49,6 +49,6 @@
       </section>
     </section>
   </main>
-  <script src="app.js?v=1.0.0"></script>
+  <script src="app.js?v=1.1.0"></script>
 </body>
 </html>
