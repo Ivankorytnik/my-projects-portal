@@ -1,170 +1,34 @@
 const API = "https://ytdacypygsfalkixhemj.supabase.co/functions/v1/avito-parser";
-
 const $ = id => document.getElementById(id);
 const state = { key: sessionStorage.getItem("hub-parser-key") || "", items: [], filtered: [], runId: null };
-
-function setStatus(text, kind = "") {
-  $("serviceStatus").textContent = text;
-  $("serviceStatus").className = `status-pill ${kind}`.trim();
-}
-
-function money(value) {
-  if (value == null || Number.isNaN(Number(value))) return "—";
-  return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(Number(value)) + " ₽";
-}
-
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-async function api(payload) {
-  const res = await fetch(API, {
-    method: "POST",
-    headers: { "content-type": "application/json", "x-hub-key": state.key },
-    body: JSON.stringify(payload)
-  });
-  let data = {};
-  try { data = await res.json(); } catch {}
-  if (!res.ok) {
-    const err = new Error(data.error || `HTTP ${res.status}`);
-    err.data = data;
-    throw err;
-  }
-  return data;
-}
-
-function updateStats() {
-  const priced = state.items.filter(x => x.price_value != null);
-  const avg = priced.length ? priced.reduce((s, x) => s + Number(x.price_value), 0) / priced.length : null;
-  $("countStat").textContent = state.items.length;
-  $("pricedStat").textContent = priced.length;
-  $("avgStat").textContent = avg == null ? "—" : money(avg);
-  $("lastStat").textContent = new Intl.DateTimeFormat("ru-RU", { hour: "2-digit", minute: "2-digit" }).format(new Date());
-}
-
-function renderItems(items = state.filtered) {
-  const body = $("resultsBody");
-  body.innerHTML = items.map(item => `
-    <tr>
-      <td><div class="item-cell">${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer" />` : `<div class="image-placeholder">A</div>`}<div><strong>${escapeHtml(item.title)}</strong>${item.description ? `<small>${escapeHtml(item.description.slice(0, 140))}</small>` : ""}</div></div></td>
-      <td>${escapeHtml(item.price_text || (item.price_value != null ? money(item.price_value) : "—"))}</td>
-      <td>${escapeHtml(item.location || "—")}</td>
-      <td><a href="${escapeHtml(item.item_url)}" target="_blank" rel="noopener noreferrer">Открыть ↗</a></td>
-    </tr>`).join("");
-  $("emptyState").classList.toggle("hidden", items.length > 0);
-  $("resultNote").textContent = items.length ? `Показано: ${items.length}` : "Объявления не найдены.";
-}
-
-function applyFilter() {
-  const q = $("filterInput").value.trim().toLowerCase();
-  state.filtered = !q ? [...state.items] : state.items.filter(x => [x.title, x.location, x.description].some(v => String(v || "").toLowerCase().includes(q)));
-  renderItems();
-}
-
-async function unlock() {
-  const key = $("accessKey").value.trim() || state.key;
-  if (!key) return;
-  state.key = key;
-  $("accessMessage").textContent = "Проверяю доступ…";
-  try {
-    await api({ action: "history" });
-    sessionStorage.setItem("hub-parser-key", key);
-    $("accessPanel").classList.add("hidden");
-    $("workspace").classList.remove("hidden");
-    $("accessMessage").textContent = "";
-    setStatus("Готов", "ok");
-  } catch (e) {
-    $("accessMessage").textContent = e.message;
-    setStatus("Нет доступа", "bad");
-  }
-}
-
-async function parse() {
-  const url = $("sourceUrl").value.trim();
-  if (!url) return;
-  $("parseBtn").disabled = true;
-  $("exportBtn").disabled = true;
-  setStatus("Сбор данных…", "busy");
-  $("resultNote").textContent = "Получаю страницу и извлекаю объявления…";
-  try {
-    const data = await api({ action: "parse", url });
-    state.items = Array.isArray(data.items) ? data.items : [];
-    state.filtered = [...state.items];
-    state.runId = data.run_id || null;
-    renderItems();
-    updateStats();
-    $("exportBtn").disabled = state.items.length === 0;
-    setStatus(`Готово · ${state.items.length}`, "ok");
-  } catch (e) {
-    state.items = [];
-    state.filtered = [];
-    renderItems();
-    $("resultNote").textContent = e.message;
-    setStatus(e.data?.blocked ? "Avito ограничил доступ" : "Ошибка", "bad");
-  } finally {
-    $("parseBtn").disabled = false;
-  }
-}
-
-async function showHistory() {
-  $("historyPanel").classList.remove("hidden");
-  $("historyList").innerHTML = "Загрузка…";
-  try {
-    const data = await api({ action: "history" });
-    const runs = data.runs || [];
-    $("historyList").innerHTML = runs.length ? runs.map(run => `
-      <button class="history-row" data-run="${escapeHtml(run.id)}">
-        <span><strong>${new Date(run.created_at).toLocaleString("ru-RU")}</strong><small>${escapeHtml(run.source_url)}</small></span>
-        <span class="history-status ${escapeHtml(run.status)}">${escapeHtml(run.status)} · ${run.item_count}</span>
-      </button>`).join("") : "Запусков пока нет.";
-  } catch (e) {
-    $("historyList").textContent = e.message;
-  }
-}
-
-async function loadRun(runId) {
-  setStatus("Загружаю историю…", "busy");
-  try {
-    const data = await api({ action: "items", run_id: runId });
-    state.items = data.items || [];
-    state.filtered = [...state.items];
-    state.runId = runId;
-    renderItems();
-    updateStats();
-    $("exportBtn").disabled = state.items.length === 0;
-    $("historyPanel").classList.add("hidden");
-    setStatus(`История · ${state.items.length}`, "ok");
-  } catch (e) { setStatus("Ошибка", "bad"); }
-}
-
-function exportCsv() {
-  if (!state.filtered.length) return;
-  const cols = ["title", "price_text", "price_value", "location", "item_url", "image_url", "description", "published_text"];
-  const esc = v => `"${String(v ?? "").replaceAll('"', '""')}"`;
-  const csv = "\uFEFF" + [cols.join(";"), ...state.filtered.map(x => cols.map(c => esc(x[c])).join(";"))].join("\r\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = `avito_${new Date().toISOString().slice(0, 19).replaceAll(":", "-")}.csv`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
-
-$("unlockBtn").addEventListener("click", unlock);
-$("accessKey").addEventListener("keydown", e => { if (e.key === "Enter") unlock(); });
-$("parseBtn").addEventListener("click", parse);
-$("historyBtn").addEventListener("click", showHistory);
-$("closeHistoryBtn").addEventListener("click", () => $("historyPanel").classList.add("hidden"));
-$("filterInput").addEventListener("input", applyFilter);
-$("exportBtn").addEventListener("click", exportCsv);
-$("historyList").addEventListener("click", e => { const row = e.target.closest("[data-run]"); if (row) loadRun(row.dataset.run); });
-
-if (state.key) {
-  $("accessKey").value = state.key;
-  unlock();
-}
+function setStatus(text, kind = "") { $("serviceStatus").textContent = text; $("serviceStatus").className = `status-pill ${kind}`.trim(); }
+function money(value) { if (value == null || Number.isNaN(Number(value))) return "—"; return new Intl.NumberFormat("ru-RU", { maximumFractionDigits: 0 }).format(Number(value)) + " ₽"; }
+function escapeHtml(value) { return String(value ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;"); }
+async function api(payload) { const res = await fetch(API,{method:"POST",headers:{"content-type":"application/json","x-hub-key":state.key},body:JSON.stringify(payload)}); let data={}; try{data=await res.json();}catch{} if(!res.ok){const err=new Error(data.error||`HTTP ${res.status}`);err.data=data;throw err;} return data; }
+function scoreClass(v){const n=Number(v)||0;return n>=85?"hot":n>=70?"good":n>=50?"mid":"low";}
+function updateStats(){const priced=state.items.filter(x=>x.price_value!=null);const avg=priced.length?priced.reduce((s,x)=>s+Number(x.price_value),0)/priced.length:null;const best=Math.max(0,...state.items.map(x=>Number(x.ai_score)||0));$("countStat").textContent=state.items.length;$("bestStat").textContent=best?`${best}/100`:"—";$("tripStat").textContent=state.items.filter(x=>x.worth_trip).length;$("avgStat").textContent=avg==null?"—":money(avg);}
+function renderItems(items=state.filtered){const body=$("resultsBody");body.innerHTML=items.map(item=>{
+  const score=item.ai_score==null?"—":item.ai_score;
+  const market=(item.market_price_low!=null||item.market_price_high!=null)?`${money(item.market_price_low)} — ${money(item.market_price_high)}`:"Неясно";
+  return `<article class="hunter-card ${scoreClass(score)}">
+    <div class="hunter-main">
+      ${item.image_url?`<img class="hunter-img" src="${escapeHtml(item.image_url)}" alt="" loading="lazy" referrerpolicy="no-referrer" />`:`<div class="hunter-img placeholder">A</div>`}
+      <div class="hunter-copy"><div class="hunter-title-row"><div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.location||"")}</p></div><div class="score"><strong>${score}</strong><span>/100</span></div></div>
+      <div class="price-line"><span>Цена продавца <b>${escapeHtml(item.price_text||(item.price_value!=null?money(item.price_value):"—"))}</b></span><span>Рынок <b>${escapeHtml(market)}</b></span><span>Макс. покупка <b>${money(item.recommended_buy_price)}</b></span></div>
+      <div class="badges"><span>${escapeHtml(item.value_label||"Неясно")}</span><span>Находка ${item.find_probability==null?"—":item.find_probability+"%"}</span><span>Уверенность ${item.ai_confidence==null?"—":item.ai_confidence+"%"}</span></div>
+      <div class="decision ${item.worth_trip?"yes":""}">${escapeHtml(item.decision||"Без решения")}</div>
+      ${item.ai_reason?`<p class="reason"><b>Почему:</b> ${escapeHtml(item.ai_reason)}</p>`:""}
+      ${item.ai_risks?`<p class="risks"><b>Что проверить:</b> ${escapeHtml(item.ai_risks)}</p>`:""}
+      ${item.description?`<details><summary>Описание объявления</summary><p>${escapeHtml(item.description)}</p></details>`:""}
+      <div class="hunter-actions"><a href="${escapeHtml(item.item_url)}" target="_blank" rel="noopener noreferrer">Открыть Avito ↗</a></div></div>
+    </div>
+  </article>`;}).join("");$("emptyState").classList.toggle("hidden",items.length>0);$("resultNote").textContent=items.length?`Показано: ${items.length}. Сортировка — от лучших кандидатов.`:"Объявления не найдены.";}
+function applyFilter(){const q=$("filterInput").value.trim().toLowerCase();const min=Number($("scoreFilter").value||0);state.filtered=state.items.filter(x=>(Number(x.ai_score)||0)>=min).filter(x=>!q||[x.title,x.location,x.description,x.ai_reason,x.ai_risks].some(v=>String(v||"").toLowerCase().includes(q))).sort((a,b)=>(Number(b.ai_score)||0)-(Number(a.ai_score)||0));renderItems();}
+async function unlock(){const key=$("accessKey").value.trim()||state.key;if(!key)return;state.key=key;$("accessMessage").textContent="Проверяю доступ…";try{await api({action:"history"});sessionStorage.setItem("hub-parser-key",key);$("accessPanel").classList.add("hidden");$("workspace").classList.remove("hidden");$("accessMessage").textContent="";setStatus("Готов","ok");}catch(e){$("accessMessage").textContent=e.message;setStatus("Нет доступа","bad");}}
+async function parse(){const url=$("sourceUrl").value.trim();if(!url)return;$("parseBtn").disabled=true;$("evaluateBtn").disabled=true;$("exportBtn").disabled=true;setStatus("Ищу и оцениваю…","busy");$("resultNote").textContent="Получаю объявления и запускаю AI-оценку…";try{const data=await api({action:"parse",url});state.items=Array.isArray(data.items)?data.items:[];state.runId=data.run_id||null;applyFilter();updateStats();$("evaluateBtn").disabled=!state.runId||!state.items.length;$("exportBtn").disabled=!state.items.length;setStatus(data.evaluation_error?"Собрано · оценка частично":"Готово","ok");if(data.evaluation_error)$("resultNote").textContent=`Объявления собраны, но AI-оценка завершилась с ошибкой: ${data.evaluation_error}`;}catch(e){state.items=[];state.filtered=[];renderItems();$("resultNote").textContent=e.message;setStatus(e.data?.blocked?"Avito ограничил доступ":"Ошибка","bad");}finally{$("parseBtn").disabled=false;}}
+async function evaluate(){if(!state.runId)return;$("evaluateBtn").disabled=true;setStatus("Переоцениваю…","busy");try{const data=await api({action:"evaluate",run_id:state.runId});state.items=data.items||[];applyFilter();updateStats();setStatus("Переоценено","ok");}catch(e){setStatus("Ошибка оценки","bad");$("resultNote").textContent=e.message;}finally{$("evaluateBtn").disabled=false;}}
+async function showHistory(){$("historyPanel").classList.remove("hidden");$("historyList").innerHTML="Загрузка…";try{const data=await api({action:"history"});const runs=data.runs||[];$("historyList").innerHTML=runs.length?runs.map(run=>`<button class="history-row" data-run="${escapeHtml(run.id)}"><span><strong>${new Date(run.created_at).toLocaleString("ru-RU")}</strong><small>${escapeHtml(run.source_url)}</small></span><span class="history-status ${escapeHtml(run.status)}">${escapeHtml(run.status)} · ${run.item_count} · best ${run.best_score??"—"}</span></button>`).join(""):"Запусков пока нет.";}catch(e){$("historyList").textContent=e.message;}}
+async function loadRun(runId){setStatus("Загружаю историю…","busy");try{const data=await api({action:"items",run_id:runId});state.items=data.items||[];state.runId=runId;applyFilter();updateStats();$("evaluateBtn").disabled=!state.items.length;$("exportBtn").disabled=!state.items.length;$("historyPanel").classList.add("hidden");setStatus(`История · ${state.items.length}`,"ok");}catch(e){setStatus("Ошибка","bad");}}
+function exportCsv(){if(!state.filtered.length)return;const cols=["title","price_text","price_value","ai_score","value_label","market_price_low","market_price_high","recommended_buy_price","find_probability","worth_trip","decision","ai_confidence","ai_reason","ai_risks","location","item_url","image_url","description","published_text"];const esc=v=>`"${String(v??"").replaceAll('"','""')}"`;const csv="\uFEFF"+[cols.join(";"),...state.filtered.map(x=>cols.map(c=>esc(x[c])).join(";"))].join("\r\n");const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`konakovo_hunter_${new Date().toISOString().slice(0,19).replaceAll(":","-")}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+$("unlockBtn").addEventListener("click",unlock);$("accessKey").addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});$("parseBtn").addEventListener("click",parse);$("evaluateBtn").addEventListener("click",evaluate);$("historyBtn").addEventListener("click",showHistory);$("closeHistoryBtn").addEventListener("click",()=>$("historyPanel").classList.add("hidden"));$("filterInput").addEventListener("input",applyFilter);$("scoreFilter").addEventListener("change",applyFilter);$("exportBtn").addEventListener("click",exportCsv);$("historyList").addEventListener("click",e=>{const row=e.target.closest("[data-run]");if(row)loadRun(row.dataset.run);});
+if(state.key){$("accessKey").value=state.key;unlock();}
