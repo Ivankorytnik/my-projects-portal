@@ -4,20 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Охотник за находками Конаково | Korytnik Hub</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.5.0" />
-  <link rel="shortcut icon" href="favicon.svg?v=1.5.0" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.4.0" />
+  <link rel="shortcut icon" href="favicon.svg?v=1.4.0" />
   <meta name="theme-color" content="#111827" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css?v=1.5.0" />
-  <link rel="stylesheet" href="extension.css?v=1.5.0" />
+  <link rel="stylesheet" href="style.css?v=1.4.0" />
 </head>
 <body>
   <main class="shell">
     <header class="topbar">
       <div><a class="back" href="/">← Korytnik Hub</a><p class="eyebrow">AI TREASURE HUNTER</p><h1>Охотник за находками Конаково</h1><p class="lead">Парсит объявления Avito и автоматически оценивает ценность, рыночную цену, вероятность находки и максимальную разумную цену покупки.</p></div>
-      <div class="topbar-meta"><div class="version-chip">v1.5.0</div><div class="updated-chip"><span>Обновлено</span><strong>06.09.2026 · 17:35 МСК</strong></div><div class="status-pill" id="serviceStatus">Готов</div></div>
+      <div class="topbar-meta"><div class="version-chip">v1.4.0</div><div class="updated-chip"><span>Обновлено</span><strong>06.09.2026 · 17:35 МСК</strong></div><div class="status-pill" id="serviceStatus">Готов</div></div>
     </header>
 
     <section class="panel access" id="accessPanel">
@@ -27,16 +26,16 @@
     </section>
 
     <section class="workspace hidden" id="workspace">
-      <section class="panel extension-mode">
-        <div><p class="eyebrow">ОСНОВНОЙ РЕЖИМ</p><h2>Расширение Chrome «Охотник Конаково»</h2><p>Откройте Avito → нажмите расширение → <b>«Отправить в Hub»</b>. Никаких закладок и перетаскивания кнопок.</p></div>
-        <div class="extension-actions"><a class="download-extension" href="konakovo-hunter-extension.zip" download>Скачать расширение Chrome</a></div>
-        <div class="extension-help"><b>Установка один раз:</b> скачайте ZIP → распакуйте → откройте <code>chrome://extensions</code> → включите «Режим разработчика» → «Загрузить распакованное расширение» → выберите папку <b>konakovo-hunter-extension</b>. Затем закрепите значок расширения в Chrome. При первом запуске расширение попросит ключ Hub.</div>
+      <section class="panel browser-mode">
+        <div><p class="eyebrow">РЕКОМЕНДУЕМЫЙ РЕЖИМ</p><h2>Avito → Hub из обычной вкладки</h2><p>Avito блокирует серверные запросы. Поэтому откройте Avito как обычно в браузере и нажмите специальную кнопку-закладку. Она соберёт только объявления, уже видимые в вашей вкладке, и отправит их сюда на AI-оценку.</p></div>
+        <div class="browser-actions"><button id="makeBookmarkletBtn" class="primary">Создать кнопку Avito → Hub</button><a id="bookmarkletLink" class="bookmarklet hidden" href="#">Avito → Hub</a><button id="copyBookmarkletBtn" class="hidden">Скопировать кнопку</button></div>
+        <div id="bookmarkletHelp" class="bookmarklet-help hidden"><b>Как пользоваться:</b> перетащите ссылку <b>Avito → Hub</b> на панель закладок браузера. Затем откройте нужный раздел Avito, прокрутите страницу, чтобы объявления загрузились, и нажмите эту закладку. После отправки откройте «История» здесь — новый запуск появится автоматически.</div>
       </section>
 
       <section class="panel run-panel">
         <label><span>Прямой запрос к Avito</span><input id="sourceUrl" type="url" value="https://www.avito.ru/konakovo/kollektsionirovanie" /></label>
         <div class="actions"><button id="parseBtn">Попробовать напрямую</button><button id="evaluateBtn" disabled>Переоценить AI</button><button id="historyBtn">История</button><button id="exportBtn" disabled>CSV</button></div>
-        <p class="hint">Прямой запрос часто блокируется Avito. Основной режим теперь — расширение Chrome. CAPTCHA и антибот-защита не обходятся.</p>
+        <p class="hint">Прямой запрос часто блокируется Avito. Он сохранён как резервный режим; CAPTCHA и антибот-защита не обходятся.</p>
       </section>
 
       <section class="stats">
@@ -47,7 +46,7 @@
       </section>
 
       <section class="panel results-panel">
-        <div class="results-head"><div><h2>Кандидаты</h2><p id="resultNote">Отправьте объявления через расширение Chrome или откройте запуск из истории.</p></div><div class="filters"><select id="scoreFilter"><option value="0">Все оценки</option><option value="urgent">🔥 Явные находки</option><option value="85">85+ срочно</option><option value="70">70+ интересно</option><option value="50">50+ проверить</option></select><input id="filterInput" type="search" placeholder="Фильтр по названию..." /></div></div>
+        <div class="results-head"><div><h2>Кандидаты</h2><p id="resultNote">Импортируйте объявления из Avito или откройте запуск из истории.</p></div><div class="filters"><select id="scoreFilter"><option value="0">Все оценки</option><option value="urgent">🔥 Явные находки</option><option value="85">85+ срочно</option><option value="70">70+ интересно</option><option value="50">50+ проверить</option></select><input id="filterInput" type="search" placeholder="Фильтр по названию..." /></div></div>
         <div class="cards" id="resultsBody"></div>
         <div class="empty" id="emptyState">Пока нет данных</div>
       </section>
@@ -56,10 +55,8 @@
         <div class="results-head"><div><h2>История запусков</h2><p>Последние 20 запусков</p></div><button id="closeHistoryBtn">Закрыть</button></div>
         <div id="historyList" class="history-list"></div>
       </section>
-
-      <div class="hidden" aria-hidden="true"><button id="makeBookmarkletBtn"></button><a id="bookmarkletLink" href="#"></a><button id="copyBookmarkletBtn"></button><div id="bookmarkletHelp"></div></div>
     </section>
   </main>
-  <script src="app.js?v=1.5.0"></script>
+  <script src="app.js?v=1.4.0"></script>
 </body>
 </html>
