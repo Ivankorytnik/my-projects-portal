@@ -6,9 +6,10 @@
   <meta name="theme-color" content="#101214" />
   <meta name="description" content="АТОМ B2B — управление выставками, форумами, рекомендациями и напоминаниями" />
   <title>АТОМ B2B | Календарь активностей</title>
-  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.2.4" />
-  <link rel="shortcut icon" href="favicon.svg?v=1.2.4" />
-  <link rel="stylesheet" href="style.css?v=1.2.4" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg?v=1.2.5" />
+  <link rel="shortcut icon" href="favicon.svg?v=1.2.5" />
+  <link rel="stylesheet" href="style.css?v=1.2.5" />
+  <link rel="stylesheet" href="manual-activity.css?v=1.2.5" />
 </head>
 <body>
   <div class="app-shell">
@@ -25,8 +26,8 @@
           <div class="system-title">Система</div>
           <table class="system-table">
             <tbody>
-              <tr><td>Версия программы</td><td><strong>v1.2.4</strong></td></tr>
-              <tr><td>Обновление программы</td><td><strong>05.09.2026</strong></td></tr>
+              <tr><td>Версия программы</td><td><strong>v1.2.5</strong></td></tr>
+              <tr><td>Обновление программы</td><td><strong>07.09.2026</strong></td></tr>
               <tr><td>Данные по активностям</td><td><strong id="systemActivitiesUpdated">05.09.2026</strong></td></tr>
               <tr><td>Google Sheets</td><td><strong id="systemSheetsSync" class="system-warning">не синхронизировано</strong></td></tr>
             </tbody>
@@ -49,8 +50,10 @@
             <span>Результат поиска: <strong id="lastSearchResult">Новых мероприятий не найдено</strong></span>
             <span>Google Sheets: <strong id="headerSheetsSync">данные синхронизированы · 05.09.2026 12:57</strong></span>
           </div>
+          <div id="searchDiagnostic" class="search-diagnostic hidden" role="status" aria-live="polite"></div>
         </div>
         <div class="top-actions">
+          <button id="addActivityTop" class="primary">+ Добавить активность</button>
           <button id="forceSearchButton" class="secondary">Запустить поиск сейчас</button>
           <button id="notifyButton" class="secondary">Включить уведомления</button>
           <button id="addReminderTop" class="primary">+ Напоминание</button>
@@ -120,6 +123,21 @@
     </main>
   </div>
 
+  <div id="activityModal" class="modal hidden" aria-hidden="true">
+    <form id="activityForm" class="modal-card activity-modal-card">
+      <div class="modal-head"><div><p class="eyebrow">НОВАЯ АКТИВНОСТЬ</p><h2>Добавить мероприятие вручную</h2></div><button type="button" id="closeActivityModal" class="icon-btn">×</button></div>
+      <label>Название мероприятия<input id="activityName" required maxlength="160" placeholder="Например: Форум корпоративной мобильности" /></label>
+      <div class="form-row"><label>Дата<input id="activityDate" type="date" required /></label><label>Город<input id="activityCity" required maxlength="80" placeholder="Москва" /></label></div>
+      <div class="form-row"><label>Регион<input id="activityRegion" required maxlength="100" placeholder="Москва" /></label><label>Аудитория<input id="activityAudience" maxlength="220" placeholder="ЛПР, отрасли, компании" /></label></div>
+      <div class="form-row"><label>Скоринг 0–100<input id="activityScore" type="number" min="0" max="100" value="80" required /></label><label>Приоритет<select id="activityPriority"><option value="A">A</option><option value="B">B</option></select></label></div>
+      <label>Следующий шаг<input id="activityNext" maxlength="220" placeholder="Что нужно сделать дальше" /></label>
+      <label>Ценность мероприятия<textarea id="activityValue" rows="2" maxlength="350" placeholder="Почему это мероприятие важно"></textarea></label>
+      <label>Практический результат<textarea id="activityAtom" rows="2" maxlength="350" placeholder="Какой результат хотим получить"></textarea></label>
+      <div class="manual-save-note">Мероприятие сохранится в этом браузере и сразу появится в календаре. Google Sheets при этом не изменяется.</div>
+      <div class="modal-actions"><button type="button" class="secondary" id="cancelActivity">Отмена</button><button type="submit" class="primary">Добавить активность</button></div>
+    </form>
+  </div>
+
   <div id="reminderModal" class="modal hidden" aria-hidden="true">
     <form id="reminderForm" class="modal-card">
       <div class="modal-head"><div><p class="eyebrow">НОВОЕ НАПОМИНАНИЕ</p><h2>Контроль действия</h2></div><button type="button" id="closeReminderModal" class="icon-btn">×</button></div>
@@ -132,13 +150,14 @@
     </form>
   </div>
 
-  <script src="app.js?v=1.2.4"></script>
-  <script src="sheets-sync.js?v=1.2.4"></script>
-  <script src="recommendations-table.js?v=1.2.4"></script>
-  <script src="scoring.js?v=1.2.4"></script>
-  <script src="events-sort.js?v=1.2.4"></script>
-  <script src="activity-status.js?v=1.2.4"></script>
-  <script src="search-result.js?v=1.2.4"></script>
-  <script src="force-search.js?v=1.2.4"></script>
+  <script src="app.js?v=1.2.5"></script>
+  <script src="manual-activity.js?v=1.2.5"></script>
+  <script src="sheets-sync.js?v=1.2.5"></script>
+  <script src="recommendations-table.js?v=1.2.5"></script>
+  <script src="scoring.js?v=1.2.5"></script>
+  <script src="events-sort.js?v=1.2.5"></script>
+  <script src="activity-status.js?v=1.2.5"></script>
+  <script src="search-result.js?v=1.2.5"></script>
+  <script src="force-search.js?v=1.2.5"></script>
 </body>
 </html>
