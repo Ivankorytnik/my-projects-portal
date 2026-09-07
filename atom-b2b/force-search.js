@@ -20,6 +20,23 @@
     }
   }
 
+  function renderError(data, status) {
+    if (!result) return;
+    if (data?.error === 'api_credits_exhausted' || /credits|quota|баланс|кредит/i.test(data?.message || '')) {
+      result.textContent = 'Поиск недоступен: закончились API-кредиты OpenAI.';
+      return;
+    }
+    if (data?.message) {
+      result.textContent = data.message;
+      return;
+    }
+    if (status === 503) {
+      result.textContent = 'Сервис поиска временно недоступен. Повторите позже.';
+      return;
+    }
+    result.textContent = 'Не удалось выполнить поиск.';
+  }
+
   async function runSearch() {
     const original = btn.textContent;
     btn.disabled = true;
@@ -41,7 +58,10 @@
       });
 
       const data = await response.json().catch(() => ({}));
-      if (!response.ok || !data.ok) throw new Error(data.error || `HTTP ${response.status}`);
+      if (!response.ok || !data.ok) {
+        renderError(data, response.status);
+        return;
+      }
 
       if (lastSearch && data.searchedAt) lastSearch.textContent = data.searchedAt;
       renderResult(data.newEvents || []);
@@ -51,7 +71,7 @@
       }));
     } catch (error) {
       console.error('ATOM forced search failed:', error);
-      if (result) result.textContent = 'Ошибка поиска. Попробуйте еще раз.';
+      if (result) result.textContent = 'Не удалось связаться с сервисом поиска.';
     } finally {
       btn.disabled = false;
       btn.textContent = original;
