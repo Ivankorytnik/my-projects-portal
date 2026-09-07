@@ -9,7 +9,7 @@
     "fishing-day": "35",
     "sound": "v1.6.0",
     "kp-auto": "v4.4",
-    "projects-portal": "v1.7.0",
+    "projects-portal": "v1.7.1",
     "atom-lead-hub": "v1.0.0",
     "cross-analytics": "v1.0.0",
     "b2b-company-registry": "v1.0.0",
@@ -19,6 +19,9 @@
     "photo-mail": "v1.0.2",
     "alice-ai": "v0.1.0"
   };
+
+  const PORTAL_VERSION = "v1.7.1";
+  const PORTAL_UPDATED_AT = "07.09.2026 11:17 МСК";
 
   function readVersionStore() {
     try {
@@ -119,7 +122,58 @@
     else formGrid.appendChild(label);
   }
 
+  function renderPortalVersionInfo() {
+    const badge = document.querySelector(".version-badge");
+    if (!badge) return;
+
+    badge.innerHTML = `<strong>${PORTAL_VERSION}</strong><span class="version-updated-at">${PORTAL_UPDATED_AT}</span>`;
+    badge.setAttribute("aria-label", `Версия портала ${PORTAL_VERSION}. Обновлено ${PORTAL_UPDATED_AT}`);
+
+    if (!document.getElementById("versionBadgeUpdateStyles")) {
+      const style = document.createElement("style");
+      style.id = "versionBadgeUpdateStyles";
+      style.textContent = `
+        .version-badge {
+          display: flex !important;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+          min-width: 112px;
+          min-height: 44px;
+          padding: 6px 10px !important;
+          line-height: 1.1;
+          white-space: nowrap;
+        }
+        .version-badge strong {
+          font-size: 11px;
+          font-weight: 800;
+        }
+        .version-badge .version-updated-at {
+          font-size: 8px;
+          font-weight: 600;
+          opacity: .68;
+          letter-spacing: 0;
+        }
+        @media (max-width: 640px) {
+          .version-badge {
+            min-width: 104px;
+          }
+          .version-badge .version-updated-at {
+            font-size: 7px;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.querySelectorAll(".app-version strong").forEach(node => {
+      node.textContent = PORTAL_VERSION;
+    });
+  }
+
   ensureVersionField();
+  renderPortalVersionInfo();
 
   if (typeof openProjectDialog === "function") {
     const originalOpenProjectDialog = openProjectDialog;
@@ -161,4 +215,5 @@
   syncVersionsFromState();
   if (typeof saveProjects === "function") saveProjects();
   if (typeof render === "function") render();
+  renderPortalVersionInfo();
 })();
