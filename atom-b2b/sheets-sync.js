@@ -16,13 +16,10 @@
     const text = String(label).trim();
     const full = text.match(/(\d{1,2})[.](\d{1,2})(?:[.]|[^\d]*)(\d{4})/);
     if (full) return `${full[3]}-${String(full[2]).padStart(2,'0')}-${String(full[1]).padStart(2,'0')}`;
-
     const shortWithYear = text.match(/^(\d{1,2})[.](\d{1,2}).*?(\d{4})$/);
     if (shortWithYear) return `${shortWithYear[3]}-${String(shortWithYear[2]).padStart(2,'0')}-${String(shortWithYear[1]).padStart(2,'0')}`;
-
     const rangeYear = text.match(/^(\d{1,2})[.](\d{1,2}).*?(\d{4})$/);
     if (rangeYear) return `${rangeYear[3]}-${String(rangeYear[2]).padStart(2,'0')}-${String(rangeYear[1]).padStart(2,'0')}`;
-
     const months = {январь:'01',февраль:'02',март:'03',апрель:'04',май:'05',июнь:'06',июль:'07',август:'08',сентябрь:'09',октябрь:'10',ноябрь:'11',декабрь:'12'};
     const monthYear = text.toLowerCase().match(/(январь|февраль|март|апрель|май|июнь|июль|август|сентябрь|октябрь|ноябрь|декабрь)\s+(\d{4})/);
     if (monthYear) return `${monthYear[2]}-${months[monthYear[1]]}-01`;
@@ -88,12 +85,14 @@
 
   function setSyncUI(status, stamp) {
     const syncValue = document.getElementById('systemSheetsSync');
+    const headerValue = document.getElementById('headerSheetsSync');
     const activityValue = document.getElementById('systemActivitiesUpdated');
     const btn = document.getElementById('syncSheetsButton');
     if (syncValue) {
       syncValue.textContent = status === 'ok' ? stamp : status === 'loading' ? 'синхронизация…' : 'ошибка доступа';
       syncValue.classList.toggle('system-warning', status !== 'ok');
     }
+    if (headerValue) headerValue.textContent = status === 'ok' ? `данные синхронизированы · ${stamp}` : status === 'loading' ? 'синхронизация…' : 'ошибка доступа';
     if (activityValue && status === 'ok') activityValue.textContent = stamp;
     if (btn) {
       btn.disabled = status === 'loading';
@@ -132,7 +131,7 @@
     if (old) old.remove();
     const script = document.createElement('script');
     script.id = 'atomSheetsSyncScript';
-    script.src = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=responseHandler:atomSheetsSyncCallback`;
+    script.src = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&tqx=responseHandler:atomSheetsSyncCallback&_=${Date.now()}`;
     script.onerror = () => setSyncUI('error');
     document.head.appendChild(script);
   }
@@ -147,4 +146,5 @@
   if (btn) btn.addEventListener('click', sync);
 
   window.syncAtomGoogleSheets = sync;
+  setTimeout(sync, 100);
 })();
