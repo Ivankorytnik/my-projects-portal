@@ -5,11 +5,25 @@
   const btn = document.getElementById('forceSearchButton');
   const lastSearch = document.getElementById('lastActivitySearch');
   const result = document.getElementById('lastSearchResult');
+  const diagnostic = document.getElementById('searchDiagnostic');
   if (!btn) return;
+
+  function showDiagnostic(kind, title, details) {
+    if (!diagnostic) return;
+    diagnostic.className = `search-diagnostic ${kind}`;
+    diagnostic.innerHTML = `<strong>${title}</strong>${details ? `<div>${details}</div>` : ''}`;
+  }
+
+  function clearDiagnostic() {
+    if (!diagnostic) return;
+    diagnostic.className = 'search-diagnostic hidden';
+    diagnostic.textContent = '';
+  }
 
   function renderResult(events) {
     if (!Array.isArray(events) || events.length === 0) {
       if (result) result.textContent = 'Новых мероприятий не найдено';
+      showDiagnostic('success', 'Поиск выполнен', 'Сервис ответил корректно, но новых мероприятий для добавления не найдено.');
       return;
     }
     const names = events.map(e => typeof e === 'string' ? e : e.name).filter(Boolean);
@@ -18,30 +32,49 @@
         ? `Найдено новое мероприятие: ${names[0]}`
         : `Найдено новых мероприятий: ${names.length} · ${names.join(' · ')}`;
     }
+    showDiagnostic('success', 'Поиск выполнен', `Получено новых мероприятий: ${names.length || events.length}.`);
   }
 
   function renderError(data, status) {
     if (!result) return;
-    if (data?.error === 'api_credits_exhausted' || /credits|quota|баланс|кредит/i.test(data?.message || '')) {
-      result.textContent = 'Поиск недоступен: закончились API-кредиты OpenAI.';
+    const rawMessage = String(data?.message || data?.error || '').trim();
+
+    if (data?.error === 'api_credits_exhausted' || /credits|quota|баланс|кредит/i.test(rawMessage)) {
+      result.textContent = 'Основной AI недоступен: закончился лимит API.';
+      showDiagnostic('warning', 'AI временно недоступен', 'Причина: исчерпан лимит API. Календарь и ручное добавление продолжают работать. Попробуйте позже или пополните API-баланс.');
       return;
     }
-    if (data?.message) {
-      result.textContent = data.message;
+    if (status === 401 || status === 403) {
+      result.textContent = 'Ошибка доступа к сервису поиска.';
+      showDiagnostic('error', 'Сервис поиска не авторизован', `HTTP ${status}. Проверьте ключ/права Supabase Edge Function.`);
       return;
     }
-    if (status === 503) {
-      result.textContent = 'Сервис поиска временно недоступен. Повторите позже.';
+    if (status === 429) {
+      result.textContent = 'Слишком много запросов. Повторите позже.';
+      showDiagnostic('warning', 'Достигнут лимит запросов', 'Сервис ограничил частоту обращений. Подождите несколько минут и повторите поиск.');
+      return;
+    }
+    if (status === 503 || status === 502 || status === 504) {
+      result.textContent = 'Сервис поиска временно недоступен.';
+      showDiagnostic('warning', 'Временная недоступность сервиса', `HTTP ${status}. Ручное добавление активностей доступно.`);
+      return;
+    }
+    if (rawMessage) {
+      result.textContent = rawMessage;
+      showDiagnostic('error', 'Ошибка поиска', `${rawMessage}${status ? ` · HTTP ${status}` : ''}`);
       return;
     }
     result.textContent = 'Не удалось выполнить поиск.';
+    showDiagnostic('error', 'Неизвестная ошибка поиска', status ? `HTTP ${status}. Попробуйте еще раз.` : 'Ответ сервиса не содержит описания ошибки.');
   }
 
   async function runSearch() {
     const original = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Поиск…';
+    clearDiagnostic();
     if (result) result.textContent = 'Идет принудительный поиск новых мероприятий…';
+    showDiagnostic('info', 'Поиск запущен', 'Проверяем сервис поиска и источники мероприятий.');
 
     try {
       const existingNames = (window.EVENTS || (typeof EVENTS !== 'undefined' ? EVENTS : []))
@@ -71,7 +104,9 @@
       }));
     } catch (error) {
       console.error('ATOM forced search failed:', error);
-      if (result) result.textContent = 'Не удалось связаться с сервисом поиска.';
+      if (result) result.textContent = 'Нет связи с сервисом поиска.';
+      const text = error && error.message ? error.message : 'Сетевая ошибка';
+      showDiagnostic('error', 'Не удалось подключиться к поиску', `${text}. Проверьте интернет или доступность Supabase. Ручное добавление активностей работает.`);
     } finally {
       btn.disabled = false;
       btn.textContent = original;
