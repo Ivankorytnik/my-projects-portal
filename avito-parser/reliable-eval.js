@@ -1,4 +1,5 @@
 const AI_EVAL_API = "https://ytdacypygsfalkixhemj.supabase.co/functions/v1/avito-ai-evaluator";
+let rateLimitTimer = null;
 
 async function aiEvalApi(payload) {
   const res = await fetch(AI_EVAL_API, {
@@ -50,14 +51,60 @@ function refreshEvaluationProgressFromItems() {
   setEvaluationProgress(evaluated, total, total - evaluated, fallbackCountFromItems(), "");
 }
 
+function formatRemaining(seconds) {
+  seconds = Math.max(0, Math.ceil(Number(seconds) || 0));
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h} ч ${m} мин ${s} сек`;
+  if (m > 0) return `${m} мин ${s} сек`;
+  return `${s} сек`;
+}
+
+function formatResetTime(iso) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", second: "2-digit", timeZone: "Europe/Moscow" }) + " МСК";
+}
+
+function stopRateLimitCountdown() {
+  if (rateLimitTimer) clearInterval(rateLimitTimer);
+  rateLimitTimer = null;
+}
+
+function showRateLimitCountdown(data) {
+  stopRateLimitCountdown();
+  const note = document.getElementById("resultNote");
+  const kind = String(data?.rate_limit_kind || "");
+  const retryAt = data?.retry_at ? new Date(data.retry_at).getTime() : null;
+  let seconds = Number(data?.retry_after_seconds || 0);
+  const typeText = kind === "TPM" ? "лимит токенов в минуту (TPM)" : kind === "RPD" ? "дневной лимит запросов (RPD)" : kind === "RPM" ? "лимит запросов в минуту (RPM)" : "лимит OpenAI API";
+
+  const render = () => {
+    if (retryAt) seconds = Math.max(0, Math.ceil((retryAt - Date.now()) / 1000));
+    if (!note) return;
+    if (seconds > 0) {
+      const when = formatResetTime(data.retry_at);
+      note.textContent = `ЛИМИТ OPENAI: достигнут ${typeText}. До сброса лимита: ${formatRemaining(seconds)}${when ? ` · ориентировочно до ${when}` : ""}. Сейчас показана резервная оценка.`;
+    } else {
+      note.textContent = "ЛИМИТ OPENAI: время ожидания истекло. Можно нажать «Повторить AI-оценку».";
+      stopRateLimitCountdown();
+    }
+  };
+
+  render();
+  if (seconds > 0) rateLimitTimer = setInterval(render, 1000);
+}
+
 function quotaMessage(data) {
   const code = String(data?.error_code || "");
   const msg = String(data?.error_message || "");
-  if (code === "credit_balance_exhausted" || /no credits remaining|insufficient_quota|credit balance/i.test(msg)) {
-    return "OpenAI API: закончились кредиты. Сейчас показана резервная оценка. После пополнения нажмите «Повторить AI-оценку».";
+  if (data?.rate_limit || code === "rate_limit_exceeded" || /rate limit/i.test(msg)) {
+    return null;
   }
-  if (code === "rate_limit_exceeded" || /rate limit/i.test(msg)) {
-    return "OpenAI API временно достиг лимита запросов. Сейчас показана резервная оценка. Повторите AI-оценку позже.";
+  if (code === "credit_balance_exhausted" || /no credits remaining|insufficient_quota|credit balance/i.test(msg)) {
+    return "OpenAI API: закончились кредиты. Это не временный лимит — требуется пополнить API-баланс. Сейчас показана резервная оценка.";
   }
   return msg ? `OpenAI временно недоступен: ${msg}` : "OpenAI временно недоступен. Показана резервная оценка.";
 }
@@ -68,6 +115,7 @@ async function reliableEvaluate(options = {}) {
   const retryFallback = options.retryFallback === true;
   const btn = document.getElementById("evaluateBtn");
   if (btn) btn.disabled = true;
+  stopRateLimitCountdown();
 
   let last = null;
   let pass = 0;
@@ -78,10 +126,7 @@ async function reliableEvaluate(options = {}) {
       pass++;
       setStatus(auto ? `AI-оценка · этап ${pass}` : `Оцениваю · этап ${pass}`, "busy");
 
-      const data = await aiEvalApi({
-        run_id: state.runId,
-        retry_fallback: retryFallback
-      });
+      const data = await aiEvalApi({ run_id: state.runId, retry_fallback: retryFallback });
       last = data;
       state.items = Array.isArray(data.items) ? data.items : state.items;
       applyFilter();
@@ -89,9 +134,15 @@ async function reliableEvaluate(options = {}) {
       setEvaluationProgress(data.evaluated_count, data.total_count, data.pending_count, data.fallback_count || 0, data.model || "");
 
       if (data.used_fallback) {
-        setStatus("Резервная оценка", "bad");
         const note = document.getElementById("resultNote");
-        if (note) note.textContent = quotaMessage(data);
+        if (data.rate_limit) {
+          setStatus("Лимит OpenAI", "bad");
+          showRateLimitCountdown(data);
+        } else {
+          setStatus("Резервная оценка", "bad");
+          const message = quotaMessage(data);
+          if (note && message) note.textContent = message;
+        }
         if (btn) btn.textContent = "Повторить AI-оценку";
         break;
       }
@@ -139,13 +190,11 @@ function replaceButtonWithoutOldListeners(id) {
 
 (function installReliableEvaluator() {
   ensureEvaluationProgress();
-
   const evalBtn = replaceButtonWithoutOldListeners("evaluateBtn");
   if (evalBtn) {
     evalBtn.textContent = "Оценить неоценённые";
     evalBtn.addEventListener("click", () => reliableEvaluate({ auto: false, retryFallback: true }));
   }
-
   const parseBtn = replaceButtonWithoutOldListeners("parseBtn");
   if (parseBtn) {
     parseBtn.addEventListener("click", async () => {
@@ -157,18 +206,16 @@ function replaceButtonWithoutOldListeners(id) {
       }
     });
   }
-
   const historyList = document.getElementById("historyList");
   if (historyList) historyList.addEventListener("click", () => setTimeout(() => {
+    stopRateLimitCountdown();
     refreshEvaluationProgressFromItems();
     if (fallbackCountFromItems() > 0 && evalBtn) evalBtn.textContent = "Повторить AI-оценку";
   }, 500));
-
   const originalRender = renderItems;
   renderItems = function(items = state.filtered) {
     originalRender(items);
     refreshEvaluationProgressFromItems();
   };
-
   refreshEvaluationProgressFromItems();
 })();
