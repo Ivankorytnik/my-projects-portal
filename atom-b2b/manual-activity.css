@@ -1,0 +1,9 @@
+.search-diagnostic{margin-top:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.14);border-radius:10px;font-size:13px;line-height:1.4;background:rgba(255,255,255,.04)}
+.search-diagnostic.hidden{display:none}
+.search-diagnostic.info{display:block}
+.search-diagnostic.success{display:block}
+.search-diagnostic.warning{display:block}
+.search-diagnostic.error{display:block}
+.activity-modal-card{max-width:720px}
+.manual-save-note{font-size:12px;line-height:1.45;opacity:.72;margin-top:4px}
+@media(max-width:900px){.activity-modal-card{max-width:calc(100vw - 24px)}}
