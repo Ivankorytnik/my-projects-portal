@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Фото + оценка"
+            android:text="Оценка по фотографии"
             android:textColor="#15181E"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -32,83 +32,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Сделайте фото товара. Приложение отправит снимок на выбранную почту и покажет ориентировочную стоимость на экране."
+            android:text="Сфотографируйте товар. AI распознает предмет, найдет похожие предложения и доступные результаты продаж, затем покажет ориентировочную цену."
             android:textColor="#59616E"
             android:textSize="15sp" />
 
         <Button
-            android:id="@+id/updateButton"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="18dp"
-            android:text="Скачать обновление APK"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Откроется загрузка самой свежей версии приложения с Korytnik Hub."
-            android:textColor="#858D98"
-            android:textSize="12sp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:text="Куда отправлять"
-            android:textColor="#15181E"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/emailSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginTop="10dp"
-            android:background="#FFFFFF" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/newEmail"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:background="#FFFFFF"
-                android:hint="Новый email"
-                android:inputType="textEmailAddress"
-                android:paddingHorizontal="14dp"
-                android:singleLine="true"
-                android:textColor="#15181E"
-                android:textColorHint="#9AA1AC" />
-
-            <Button
-                android:id="@+id/saveEmailButton"
-                android:layout_width="wrap_content"
-                android:layout_height="52dp"
-                android:layout_marginStart="8dp"
-                android:text="Добавить" />
-        </LinearLayout>
-
-        <Button
-            android:id="@+id/deleteEmailButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Удалить выбранный адрес" />
-
-        <Button
             android:id="@+id/takePhotoButton"
             android:layout_width="match_parent"
-            android:layout_height="64dp"
+            android:layout_height="68dp"
             android:layout_marginTop="24dp"
-            android:text="Сделать фото · отправить · оценить"
-            android:textSize="17sp"
+            android:text="Сделать фото и оценить"
+            android:textSize="18sp"
             android:textStyle="bold" />
 
         <ProgressBar
@@ -220,81 +154,69 @@
                 android:textSize="12sp" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/settingsToggleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="26dp"
-            android:text="Настройка почты отправителя" />
-
         <LinearLayout
-            android:id="@+id/settingsPanel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="22dp"
             android:background="#FFFFFF"
             android:orientation="vertical"
-            android:padding="16dp"
-            android:visibility="gone">
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Настраивается один раз. Используйте пароль приложения, а не основной пароль от почты."
+                android:text="Как работает"
+                android:textColor="#15181E"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="1. AI распознает предмет и его видимое состояние."
                 android:textColor="#59616E"
                 android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/senderEmail"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="14dp"
-                android:hint="Почта отправителя"
-                android:inputType="textEmailAddress"
-                android:singleLine="true" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="2. Система ищет похожие предложения и доступные результаты продаж."
+                android:textColor="#59616E"
+                android:textSize="14sp" />
 
-            <EditText
-                android:id="@+id/senderPassword"
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="8dp"
-                android:hint="Пароль приложения"
-                android:inputType="textPassword"
-                android:singleLine="true" />
-
-            <EditText
-                android:id="@+id/smtpHost"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="8dp"
-                android:hint="SMTP сервер, например smtp.gmail.com"
-                android:inputType="textUri"
-                android:singleLine="true" />
-
-            <EditText
-                android:id="@+id/smtpPort"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="8dp"
-                android:hint="Порт"
-                android:inputType="number"
-                android:singleLine="true"
-                android:text="465" />
-
-            <Button
-                android:id="@+id/saveSenderButton"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:layout_marginTop="10dp"
-                android:text="Сохранить настройку почты" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="3. Цена корректируется по рынку и выводится на экран."
+                android:textColor="#59616E"
+                android:textSize="14sp" />
         </LinearLayout>
+
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginTop="22dp"
+            android:text="Скачать обновление APK"
+            android:textStyle="bold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="6dp"
+            android:text="Откроется загрузка самой свежей версии приложения с Korytnik Hub."
+            android:textColor="#858D98"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
             android:paddingBottom="24dp"
-            android:text="Оценка ориентировочная и зависит от фото, состояния, маркировок и спроса. Для дорогих или редких вещей обязательно проверяйте клейма, размеры, комплектность и реальные продажи. Фото сохраняется в Pictures/PhotoMail."
+            android:text="Оценка ориентировочная и зависит от качества фото, состояния, маркировок и спроса. Для дорогих или редких вещей дополнительно фотографируйте клейма, подписи, размеры, повреждения и комплектность. Фото сохраняется в Pictures/PhotoMarket."
             android:textColor="#858D98"
             android:textSize="12sp" />
     </LinearLayout>
