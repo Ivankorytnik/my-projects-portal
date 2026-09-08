@@ -1,12 +1,12 @@
 (() => {
   const PROJECT = {
     id: "atom-b2b-activities",
-    type: "work",
+    type: "business",
     title: "B2B Агент",
     category: "B2B / Sales Automation",
-    status: "active",
-    description: "Единый B2B-агент: поиск клиентов и ЛПР, CRM-воронка, письма и follow-up, КП и презентации, а также поиск и ведение мероприятий от согласования до участия или отказа.",
-    nextStep: "Подключить серверную базу, Gmail/Calendar и автоматические сценарии поиска, квалификации, рассылок и обновления CRM.",
+    status: "live",
+    description: "Автономный B2B-контур: ручной поиск клиентов, ЛПР и мероприятий; постоянная CRM-база; Gmail; Calendar; Drive; follow-up; КП и презентации; автоматическое движение карточек после появления лида.",
+    nextStep: "Перевести интерфейс CRM с localStorage на защищённую Supabase-базу и связать ручные поиски напрямую с карточками B2B Агента.",
     url: "https://korytnikhub.pro/atom-b2b/agent.html",
     githubUrl: "https://github.com/Ivankorytnik/my-projects-portal/tree/main/atom-b2b",
     owner: "Иван Корытник",
@@ -20,7 +20,7 @@
     const index = state.projects.findIndex(project => project.id === PROJECT.id);
     const normalized = typeof normalizeProject === "function" ? normalizeProject(PROJECT) : PROJECT;
     if (index >= 0) state.projects[index] = { ...state.projects[index], ...normalized };
-    else state.projects.push(normalized);
+    else state.projects.unshift(normalized);
     saveProjects();
     if (typeof render === "function") render();
     return true;
@@ -41,7 +41,7 @@
     setTimeout(() => {
       observer.disconnect();
       registerProject();
-    }, 8000);
+    }, 4000);
   }
 
   boot();
