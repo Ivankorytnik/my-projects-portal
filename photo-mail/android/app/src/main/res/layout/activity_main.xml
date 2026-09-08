@@ -14,7 +14,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ФОТО → ПОЧТА"
+            android:text="БАРАХОЛКА · ОЦЕНКА ПО ФОТО"
             android:textColor="#68707D"
             android:textSize="12sp"
             android:textStyle="bold" />
@@ -23,7 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:text="Фото на почту"
+            android:text="Фото + оценка"
             android:textColor="#15181E"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -32,7 +32,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Сделайте фотографию. Сразу после съемки она автоматически отправится на выбранный адрес."
+            android:text="Сделайте фото товара. Приложение отправит снимок на выбранную почту и покажет ориентировочную стоимость на экране."
             android:textColor="#59616E"
             android:textSize="15sp" />
 
@@ -91,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:layout_marginTop="24dp"
-            android:text="Сделать фото и отправить"
+            android:text="Сделать фото · отправить · оценить"
             android:textSize="17sp"
             android:textStyle="bold" />
 
@@ -112,6 +112,97 @@
             android:text="Готово к работе"
             android:textColor="#59616E"
             android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/valuationPanel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:background="#FFFFFF"
+            android:orientation="vertical"
+            android:padding="18dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ОРИЕНТИРОВОЧНАЯ ОЦЕНКА"
+                android:textColor="#68707D"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/itemNameText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Предмет"
+                android:textColor="#15181E"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/marketPriceText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="Рынок: —"
+                android:textColor="#15181E"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/quickPriceText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Быстрая продажа: —"
+                android:textColor="#59616E"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/buyMaxText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Для перепродажи брать до: —"
+                android:textColor="#59616E"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/recommendationText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Рекомендация: —"
+                android:textColor="#15181E"
+                android:textSize="17sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/valuationCommentText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="#59616E"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/checkNextText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#59616E"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/confidenceText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textColor="#858D98"
+                android:textSize="12sp" />
+        </LinearLayout>
 
         <Button
             android:id="@+id/settingsToggleButton"
@@ -187,7 +278,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:paddingBottom="24dp"
-            android:text="Фото сохраняется также в Pictures/PhotoMail. Пароль приложения хранится в зашифрованном виде с ключом Android Keystore."
+            android:text="Оценка ориентировочная и зависит от фото, состояния, маркировок и спроса. Для дорогих или редких вещей обязательно проверяйте клейма, размеры, комплектность и реальные продажи. Фото сохраняется в Pictures/PhotoMail."
             android:textColor="#858D98"
             android:textSize="12sp" />
     </LinearLayout>
