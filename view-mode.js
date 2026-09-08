@@ -141,14 +141,14 @@
     try {
       if (typeof typeLabels !== "undefined") Object.assign(typeLabels, TYPE_NAMES);
 
-      // «Общие» = все проекты, кроме личных.
+      // «Все проекты» и «Общие» показывают все проекты, кроме личных.
       // «Личные» = только personal, «АТОМ» = только work.
       if (typeof getFilteredProjects === "function") {
         getFilteredProjects = function () {
           const query = state.search.trim().toLowerCase();
           return state.projects
             .filter(project => {
-              if (state.viewFilter === "all") return true;
+              if (state.viewFilter === "all") return project.type !== "personal";
               if (state.viewFilter === "business") return project.type !== "personal";
               return project.type === state.viewFilter;
             })
@@ -165,10 +165,11 @@
       if (typeof renderStats === "function") {
         renderStats = function () {
           const activeStatuses = new Set(["active", "mvp", "live"]);
-          elements.totalCount.textContent = state.projects.length;
-          elements.businessCount.textContent = state.projects.filter(project => project.type !== "personal").length;
+          const nonPersonalProjects = state.projects.filter(project => project.type !== "personal");
+          elements.totalCount.textContent = nonPersonalProjects.length;
+          elements.businessCount.textContent = nonPersonalProjects.length;
           elements.personalCount.textContent = state.projects.filter(project => project.type === "personal").length;
-          elements.activeCount.textContent = state.projects.filter(project => activeStatuses.has(project.status)).length;
+          elements.activeCount.textContent = nonPersonalProjects.filter(project => activeStatuses.has(project.status)).length;
         };
       }
 
