@@ -2,15 +2,15 @@
   const PROJECT = {
     id: "atom-b2b-activities",
     type: "work",
-    title: "АТОМ — B2B активности",
-    category: "B2B / Automotive",
+    title: "B2B Агент",
+    category: "B2B / Sales Automation",
     status: "active",
-    description: "Рабочий сервис для управления B2B-активностями АТОМ: выставки, форумы, приоритеты, рекомендации, напоминания и следующие действия.",
-    nextStep: "Отработать мероприятия приоритета A: партнерство, экспозиция автомобиля, встречи с ЛПР и пилотные B2B-сценарии.",
-    url: "https://korytnikhub.pro/atom-b2b/",
+    description: "Единый B2B-агент: поиск клиентов и ЛПР, CRM-воронка, письма и follow-up, КП и презентации, а также поиск и ведение мероприятий от согласования до участия или отказа.",
+    nextStep: "Подключить серверную базу, Gmail/Calendar и автоматические сценарии поиска, квалификации, рассылок и обновления CRM.",
+    url: "https://korytnikhub.pro/atom-b2b/agent.html",
     githubUrl: "https://github.com/Ivankorytnik/my-projects-portal/tree/main/atom-b2b",
     owner: "Иван Корытник",
-    updated: "2026-09-05",
+    updated: "2026-09-08",
     color: "#15171a",
     accent: "#d7ff00"
   };
