@@ -27,6 +27,7 @@ class MainActivity : Activity() {
     private lateinit var saveEmailButton: Button
     private lateinit var deleteEmailButton: Button
     private lateinit var takePhotoButton: Button
+    private lateinit var updateButton: Button
     private lateinit var progress: ProgressBar
     private lateinit var statusText: TextView
 
@@ -65,6 +66,7 @@ class MainActivity : Activity() {
         saveEmailButton = findViewById(R.id.saveEmailButton)
         deleteEmailButton = findViewById(R.id.deleteEmailButton)
         takePhotoButton = findViewById(R.id.takePhotoButton)
+        updateButton = findViewById(R.id.updateButton)
         progress = findViewById(R.id.progress)
         statusText = findViewById(R.id.statusText)
 
@@ -93,6 +95,7 @@ class MainActivity : Activity() {
         saveEmailButton.setOnClickListener { addRecipient() }
         deleteEmailButton.setOnClickListener { deleteRecipient() }
         takePhotoButton.setOnClickListener { startCamera() }
+        updateButton.setOnClickListener { openLatestApk() }
         saveSenderButton.setOnClickListener { saveSenderSettings() }
         settingsToggleButton.setOnClickListener {
             settingsPanel.visibility = if (settingsPanel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
@@ -101,6 +104,16 @@ class MainActivity : Activity() {
         if (!isSenderConfigured()) {
             settingsPanel.visibility = View.VISIBLE
             statusText.text = "Сначала настройте почту отправителя"
+        }
+    }
+
+    private fun openLatestApk() {
+        val url = Uri.parse("https://korytnikhub.pro/photo-mail/download/PhotoToMail.apk?v=${System.currentTimeMillis()}")
+        val intent = Intent(Intent.ACTION_VIEW, url)
+        try {
+            startActivity(intent)
+        } catch (_: Exception) {
+            toast("Не удалось открыть загрузку обновления")
         }
     }
 
@@ -354,6 +367,7 @@ class MainActivity : Activity() {
     private fun setBusyUi(busy: Boolean) {
         progress.visibility = if (busy) View.VISIBLE else View.GONE
         takePhotoButton.isEnabled = !busy
+        updateButton.isEnabled = !busy
         saveEmailButton.isEnabled = !busy
         deleteEmailButton.isEnabled = !busy
         saveSenderButton.isEnabled = !busy
