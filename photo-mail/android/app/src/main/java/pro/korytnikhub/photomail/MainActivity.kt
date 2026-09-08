@@ -6,14 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Patterns
 import android.view.View
-import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import java.text.NumberFormat
@@ -22,10 +18,6 @@ import java.util.Date
 import java.util.Locale
 
 class MainActivity : Activity() {
-    private lateinit var emailSpinner: Spinner
-    private lateinit var newEmail: EditText
-    private lateinit var saveEmailButton: Button
-    private lateinit var deleteEmailButton: Button
     private lateinit var takePhotoButton: Button
     private lateinit var updateButton: Button
     private lateinit var progress: ProgressBar
@@ -41,17 +33,6 @@ class MainActivity : Activity() {
     private lateinit var checkNextText: TextView
     private lateinit var confidenceText: TextView
 
-    private lateinit var settingsToggleButton: Button
-    private lateinit var settingsPanel: LinearLayout
-    private lateinit var senderEmail: EditText
-    private lateinit var senderPassword: EditText
-    private lateinit var smtpHost: EditText
-    private lateinit var smtpPort: EditText
-    private lateinit var saveSenderButton: Button
-
-    private val prefs by lazy { getSharedPreferences("photo_mail", MODE_PRIVATE) }
-    private val secureStore by lazy { SecureStore(this) }
-    private val recipients = mutableListOf<String>()
     private var currentPhotoUri: Uri? = null
     private var currentFileName: String = "photo.jpg"
     private val requestPhoto = 1001
@@ -61,10 +42,6 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        emailSpinner = findViewById(R.id.emailSpinner)
-        newEmail = findViewById(R.id.newEmail)
-        saveEmailButton = findViewById(R.id.saveEmailButton)
-        deleteEmailButton = findViewById(R.id.deleteEmailButton)
         takePhotoButton = findViewById(R.id.takePhotoButton)
         updateButton = findViewById(R.id.updateButton)
         progress = findViewById(R.id.progress)
@@ -80,31 +57,8 @@ class MainActivity : Activity() {
         checkNextText = findViewById(R.id.checkNextText)
         confidenceText = findViewById(R.id.confidenceText)
 
-        settingsToggleButton = findViewById(R.id.settingsToggleButton)
-        settingsPanel = findViewById(R.id.settingsPanel)
-        senderEmail = findViewById(R.id.senderEmail)
-        senderPassword = findViewById(R.id.senderPassword)
-        smtpHost = findViewById(R.id.smtpHost)
-        smtpPort = findViewById(R.id.smtpPort)
-        saveSenderButton = findViewById(R.id.saveSenderButton)
-
-        loadRecipients()
-        refreshRecipientSpinner()
-        loadSenderSettings()
-
-        saveEmailButton.setOnClickListener { addRecipient() }
-        deleteEmailButton.setOnClickListener { deleteRecipient() }
         takePhotoButton.setOnClickListener { startCamera() }
         updateButton.setOnClickListener { openLatestApk() }
-        saveSenderButton.setOnClickListener { saveSenderSettings() }
-        settingsToggleButton.setOnClickListener {
-            settingsPanel.visibility = if (settingsPanel.visibility == View.VISIBLE) View.GONE else View.VISIBLE
-        }
-
-        if (!isSenderConfigured()) {
-            settingsPanel.visibility = View.VISIBLE
-            statusText.text = "Сначала настройте почту отправителя"
-        }
     }
 
     private fun openLatestApk() {
@@ -117,144 +71,14 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun loadRecipients() {
-        val saved = prefs.getString("recipients", "").orEmpty()
-        recipients.clear()
-        recipients.addAll(saved.split("|").map { it.trim() }.filter { it.isNotBlank() }.distinct())
-    }
-
-    private fun persistRecipients() {
-        prefs.edit().putString("recipients", recipients.joinToString("|")).apply()
-    }
-
-    private fun refreshRecipientSpinner(select: String? = null) {
-        val display = if (recipients.isEmpty()) listOf("Сначала добавьте email") else recipients
-        emailSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, display)
-        val preferred = select ?: prefs.getString("last_recipient", null)
-        val index = recipients.indexOf(preferred)
-        if (index >= 0) emailSpinner.setSelection(index)
-    }
-
-    private fun addRecipient() {
-        val email = newEmail.text.toString().trim().lowercase(Locale.ROOT)
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            toast("Введите корректный email")
-            return
-        }
-        if (!recipients.contains(email)) recipients.add(email)
-        persistRecipients()
-        prefs.edit().putString("last_recipient", email).apply()
-        refreshRecipientSpinner(email)
-        newEmail.text.clear()
-        statusText.text = "Адрес сохранен"
-    }
-
-    private fun deleteRecipient() {
-        if (recipients.isEmpty()) return
-        val email = emailSpinner.selectedItem?.toString() ?: return
-        recipients.remove(email)
-        persistRecipients()
-        if (prefs.getString("last_recipient", null) == email) prefs.edit().remove("last_recipient").apply()
-        refreshRecipientSpinner()
-        statusText.text = "Адрес удален"
-    }
-
-    private fun selectedRecipient(): String? {
-        if (recipients.isEmpty()) return null
-        val value = emailSpinner.selectedItem?.toString().orEmpty()
-        return value.takeIf { Patterns.EMAIL_ADDRESS.matcher(it).matches() }
-    }
-
-    private fun loadSenderSettings() {
-        senderEmail.setText(prefs.getString("sender_email", ""))
-        smtpHost.setText(prefs.getString("smtp_host", ""))
-        smtpPort.setText(prefs.getInt("smtp_port", 465).toString())
-        if (secureStore.hasPassword()) senderPassword.hint = "Пароль приложения сохранен"
-    }
-
-    private fun guessHost(email: String): String = when {
-        email.endsWith("@gmail.com") -> "smtp.gmail.com"
-        email.endsWith("@yandex.ru") || email.endsWith("@yandex.com") || email.endsWith("@ya.ru") -> "smtp.yandex.ru"
-        email.endsWith("@mail.ru") || email.endsWith("@bk.ru") || email.endsWith("@inbox.ru") || email.endsWith("@list.ru") -> "smtp.mail.ru"
-        else -> ""
-    }
-
-    private fun saveSenderSettings() {
-        val email = senderEmail.text.toString().trim().lowercase(Locale.ROOT)
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            toast("Введите корректную почту отправителя")
-            return
-        }
-
-        var host = smtpHost.text.toString().trim()
-        if (host.isBlank()) host = guessHost(email)
-        if (host.isBlank()) {
-            toast("Укажите SMTP сервер")
-            return
-        }
-
-        val port = smtpPort.text.toString().trim().toIntOrNull()
-        if (port != 465) {
-            toast("В этой версии используйте защищенный SMTP порт 465")
-            return
-        }
-
-        val newPassword = senderPassword.text.toString()
-        if (newPassword.isNotBlank()) secureStore.savePassword(newPassword)
-        else if (!secureStore.hasPassword()) {
-            toast("Введите пароль приложения")
-            return
-        }
-
-        prefs.edit()
-            .putString("sender_email", email)
-            .putString("smtp_host", host)
-            .putInt("smtp_port", port)
-            .apply()
-
-        senderEmail.setText(email)
-        smtpHost.setText(host)
-        senderPassword.text.clear()
-        senderPassword.hint = "Пароль приложения сохранен"
-        settingsPanel.visibility = View.GONE
-        statusText.text = "Почта отправителя настроена"
-    }
-
-    private fun isSenderConfigured(): Boolean {
-        return !prefs.getString("sender_email", "").isNullOrBlank() &&
-            !prefs.getString("smtp_host", "").isNullOrBlank() &&
-            secureStore.hasPassword()
-    }
-
-    private fun senderSettings(): SmtpSender.Settings? {
-        val email = prefs.getString("sender_email", "").orEmpty()
-        val host = prefs.getString("smtp_host", "").orEmpty()
-        val port = prefs.getInt("smtp_port", 465)
-        val password = secureStore.readPassword().orEmpty()
-        if (email.isBlank() || host.isBlank() || password.isBlank()) return null
-        return SmtpSender.Settings(host, port, email, password)
-    }
-
     private fun startCamera() {
-        val recipient = selectedRecipient()
-        if (recipient == null) {
-            toast("Сначала добавьте адрес получателя")
-            return
-        }
-        if (!isSenderConfigured()) {
-            settingsPanel.visibility = View.VISIBLE
-            toast("Сначала настройте почту отправителя")
-            return
-        }
-
-        prefs.edit().putString("last_recipient", recipient).apply()
         valuationPanel.visibility = View.GONE
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ROOT).format(Date())
         currentFileName = "PhotoMarket_$stamp.jpg"
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, currentFileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/PhotoMail")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/PhotoMarket")
         }
         currentPhotoUri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         val uri = currentPhotoUri
@@ -281,8 +105,7 @@ class MainActivity : Activity() {
         if (requestCode != requestPhoto) return
         if (resultCode == RESULT_OK) {
             val uri = currentPhotoUri ?: return
-            val recipient = selectedRecipient() ?: return
-            processPhoto(uri, recipient, currentFileName)
+            evaluatePhoto(uri)
         } else {
             currentPhotoUri?.let { contentResolver.delete(it, null, null) }
             currentPhotoUri = null
@@ -290,27 +113,11 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun processPhoto(uri: Uri, recipient: String, fileName: String) {
-        val settings = senderSettings()
-        if (settings == null) {
-            settingsPanel.visibility = View.VISIBLE
-            toast("Проверьте настройку почты отправителя")
-            return
-        }
-
-        setBusy(true, "Отправляю фото и оцениваю товар...")
+    private fun evaluatePhoto(uri: Uri) {
+        setBusy(true, "Распознаю предмет и проверяю рынок...")
         Thread {
-            var mailStatus = "Фото не отправлено"
             var evaluation: PhotoEvaluator.Result? = null
             var evaluationError: String? = null
-
-            try {
-                val stream = contentResolver.openInputStream(uri) ?: error("Не удалось прочитать фото")
-                SmtpSender.sendPhoto(settings, recipient, stream, fileName)
-                mailStatus = "Фото отправлено на $recipient"
-            } catch (e: Exception) {
-                mailStatus = "Фото не отправлено: ${e.message ?: "ошибка"}"
-            }
 
             try {
                 evaluation = PhotoEvaluator.evaluate(contentResolver, uri)
@@ -322,10 +129,10 @@ class MainActivity : Activity() {
                 setBusyUi(false)
                 if (evaluation != null) {
                     showValuation(evaluation!!)
-                    statusText.text = "$mailStatus · оценка готова"
+                    statusText.text = "Оценка готова"
                 } else {
                     valuationPanel.visibility = View.GONE
-                    statusText.text = "$mailStatus · оценка недоступна: ${evaluationError ?: "ошибка"}"
+                    statusText.text = "Оценка недоступна: ${evaluationError ?: "ошибка"}"
                 }
             }
         }.start()
@@ -368,9 +175,6 @@ class MainActivity : Activity() {
         progress.visibility = if (busy) View.VISIBLE else View.GONE
         takePhotoButton.isEnabled = !busy
         updateButton.isEnabled = !busy
-        saveEmailButton.isEnabled = !busy
-        deleteEmailButton.isEnabled = !busy
-        saveSenderButton.isEnabled = !busy
     }
 
     private fun toast(message: String) {
