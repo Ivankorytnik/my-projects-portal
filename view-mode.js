@@ -134,22 +134,22 @@
   const TYPE_NAMES = {
     business: "Общие",
     work: "АТОМ",
-    personal: "Личные"
+    personal: "Личные (закрыто)"
   };
 
   function applyProjectTypeNames() {
     try {
       if (typeof typeLabels !== "undefined") Object.assign(typeLabels, TYPE_NAMES);
 
-      // «Все проекты» и «Общие» показывают все проекты, кроме личных.
-      // «Личные» = только personal, «АТОМ» = только work.
+      // «Все проекты» показывают все проекты, кроме личных.
+      // «Общие» = только business, «Личные (закрыто)» = только personal, «АТОМ» = только work.
       if (typeof getFilteredProjects === "function") {
         getFilteredProjects = function () {
           const query = state.search.trim().toLowerCase();
           return state.projects
             .filter(project => {
               if (state.viewFilter === "all") return project.type !== "personal";
-              if (state.viewFilter === "business") return project.type !== "personal";
+              if (state.viewFilter === "business") return project.type === "business";
               return project.type === state.viewFilter;
             })
             .filter(project => state.statusFilter === "all" || project.status === state.statusFilter)
@@ -167,7 +167,7 @@
           const activeStatuses = new Set(["active", "mvp", "live"]);
           const nonPersonalProjects = state.projects.filter(project => project.type !== "personal");
           elements.totalCount.textContent = nonPersonalProjects.length;
-          elements.businessCount.textContent = nonPersonalProjects.length;
+          elements.businessCount.textContent = state.projects.filter(project => project.type === "business").length;
           elements.personalCount.textContent = state.projects.filter(project => project.type === "personal").length;
           elements.activeCount.textContent = nonPersonalProjects.filter(project => activeStatuses.has(project.status)).length;
         };
