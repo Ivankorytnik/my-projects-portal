@@ -3,25 +3,40 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="description" content="Фото на почту - приложение для Android и iPhone." />
+  <meta name="description" content="Оценка товаров на барахолке по фотографии — Android APK." />
   <meta name="theme-color" content="#111827" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Фото на почту" />
-  <title>Фото на почту | KORYTNIK HUB</title>
+  <title>Оценка по фото | KORYTNIK HUB</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css?v=1.0.2" />
   <style>
-    .platform-wrap{max-width:980px;margin:-8px auto 34px;padding:0 20px}.platform-title{text-align:center;margin-bottom:18px}.platform-title .eyebrow{margin-bottom:6px}.platform-title h2{margin:0;font:700 32px Manrope,sans-serif;color:#111827}.platform-title p{margin:8px auto 0;max-width:680px;color:#64748b}
-    .platform-switch{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:640px;margin:0 auto 22px;background:#eef2f7;padding:7px;border-radius:20px}.platform-btn{border:0;border-radius:15px;padding:16px 18px;background:transparent;color:#475569;font:700 17px Inter,sans-serif;cursor:pointer;transition:.2s}.platform-btn.active{background:#111827;color:#fff;box-shadow:0 8px 24px rgba(15,23,42,.18)}
-    .platform-panel{display:none}.platform-panel.active{display:block}.platform-card{background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:28px;box-shadow:0 18px 50px rgba(15,23,42,.08)}.platform-card.dark{background:#111827;color:#fff;border-color:#111827}.platform-card.dark p{color:#cbd5e1}.platform-head{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-bottom:22px}.platform-head h2{margin:4px 0 8px;font:700 30px Manrope,sans-serif}.platform-head p{margin:0;max-width:650px;color:#64748b}.platform-tag{flex:none;border-radius:999px;padding:8px 11px;background:#eef2f7;color:#475569;font-size:12px;font-weight:700}.dark .platform-tag{background:#1f2937;color:#cbd5e1}
-    .platform-actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.platform-primary{display:inline-flex;align-items:center;justify-content:center;min-height:50px;border:0;border-radius:14px;padding:0 20px;background:#111827;color:#fff;text-decoration:none;font:700 16px Inter,sans-serif;cursor:pointer}.dark .platform-primary{background:#fff;color:#111827}.platform-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #cbd5e1;border-radius:14px;padding:0 18px;background:#fff;color:#111827;text-decoration:none;font:600 15px Inter,sans-serif;cursor:pointer}.dark .platform-secondary{background:#1f2937;color:#fff;border-color:#475569}
-    .mini-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}.mini-step{padding:16px;border-radius:16px;background:#f8fafc;border:1px solid #e2e8f0}.mini-step strong{display:block;margin-bottom:5px}.mini-step span{font-size:14px;color:#64748b}.dark .mini-step{background:#1f2937;border-color:#374151}.dark .mini-step span{color:#94a3b8}
-    .help-block{margin-top:28px;padding-top:26px;border-top:1px solid #e2e8f0}.dark .help-block{border-top-color:#374151}.help-block h3{margin:0 0 6px;font:700 24px Manrope,sans-serif}.help-intro{margin:0 0 18px;color:#64748b}.dark .help-intro{color:#94a3b8}.instruction-list{display:grid;gap:12px}.instruction-step{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start;padding:16px;border:1px solid #e2e8f0;border-radius:17px;background:#f8fafc}.instruction-step .n{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:#111827;color:#fff;font-weight:700}.instruction-step h4{margin:1px 0 5px;font-size:16px}.instruction-step p{margin:0;color:#64748b;line-height:1.5}.dark .instruction-step{background:#1f2937;border-color:#374151}.dark .instruction-step .n{background:#fff;color:#111827}.dark .instruction-step p{color:#cbd5e1}.settings-table{width:100%;border-collapse:collapse;margin-top:14px;font-size:14px}.settings-table th,.settings-table td{text-align:left;padding:11px 12px;border-bottom:1px solid #e2e8f0}.settings-table th{color:#64748b;font-weight:600}.dark .settings-table th,.dark .settings-table td{border-bottom-color:#374151}.dark .settings-table th{color:#94a3b8}.tip{margin-top:14px;padding:14px 16px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:14px;line-height:1.5}.dark .tip{background:#0f172a;border-color:#334155;color:#cbd5e1}.tip strong{color:inherit}
-    .ios-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}.ios-box{background:#1f2937;border:1px solid #374151;border-radius:18px;padding:18px}.ios-box label{display:block;font-size:13px;color:#94a3b8;margin:0 0 7px}.ios-box input,.ios-box select{width:100%;box-sizing:border-box;border:1px solid #475569;border-radius:12px;background:#0f172a;color:#fff;padding:13px;font:inherit}.ios-row{display:grid;grid-template-columns:1fr auto;gap:9px;margin-top:10px}.ios-btn{border:0;border-radius:14px;padding:14px 18px;font:600 15px Inter,sans-serif;cursor:pointer}.ios-btn.primary{background:#fff;color:#111827;width:100%;font-size:17px}.ios-btn.secondary{background:#334155;color:#fff}.ios-btn.text{background:transparent;color:#94a3b8;padding-left:0}.ios-preview{margin-top:14px}.ios-preview img{display:block;width:100%;max-height:360px;object-fit:contain;background:#000;border-radius:16px;margin-bottom:12px}.ios-status{min-height:24px;margin:12px 0 0;color:#93c5fd!important}.hidden-local{display:none!important}.install-note{margin-top:16px;padding:15px 16px;border-radius:15px;background:#0f172a;color:#cbd5e1;font-size:14px}.install-note strong{color:#fff}.android-note{margin-top:18px;padding:15px 16px;border-radius:15px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:14px}
-    @media(max-width:720px){.platform-title h2{font-size:27px}.platform-switch{gap:6px}.platform-btn{padding:14px 8px;font-size:16px}.platform-card{padding:19px;border-radius:22px}.platform-head{display:block}.platform-tag{display:inline-block;margin-top:10px}.mini-steps,.ios-grid{grid-template-columns:1fr}.platform-actions{display:grid}.platform-primary,.platform-secondary{width:100%;box-sizing:border-box}.instruction-step{grid-template-columns:38px 1fr;padding:14px}.settings-table{font-size:13px}.settings-table th,.settings-table td{padding:9px 7px}}
+    .wrap{max-width:980px;margin:0 auto;padding:36px 20px 56px}
+    .hero2{display:grid;grid-template-columns:1.35fr .65fr;gap:26px;align-items:center;margin:20px 0 34px}
+    .hero2 h1{margin:8px 0 14px;font:700 clamp(38px,6vw,68px) Manrope,sans-serif;line-height:1.02;color:#111827}
+    .hero2 h1 span{color:#64748b}
+    .hero2 p{max-width:680px;margin:0;color:#64748b;font-size:18px;line-height:1.6}
+    .eyebrow2{font-size:12px;font-weight:700;letter-spacing:.12em;color:#64748b;text-transform:uppercase}
+    .phone2{background:#111827;color:#fff;border-radius:32px;padding:26px;box-shadow:0 22px 60px rgba(15,23,42,.18)}
+    .phone2 .small{font-size:12px;color:#94a3b8;font-weight:700;letter-spacing:.08em}
+    .phone2 h2{margin:8px 0 10px;font:700 25px Manrope,sans-serif}
+    .price{font:700 30px Manrope,sans-serif;margin:18px 0 8px}
+    .muted{color:#cbd5e1;font-size:14px;line-height:1.5}
+    .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
+    .primary,.secondary{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 20px;border-radius:14px;text-decoration:none;font-weight:700}
+    .primary{background:#111827;color:#fff}.secondary{background:#fff;color:#111827;border:1px solid #cbd5e1}
+    .card{background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:28px;box-shadow:0 16px 45px rgba(15,23,42,.07);margin-top:22px}
+    .card h2{margin:0 0 8px;font:700 30px Manrope,sans-serif;color:#111827}
+    .card-intro{margin:0 0 20px;color:#64748b;line-height:1.6}
+    .steps{display:grid;gap:12px}
+    .step{display:grid;grid-template-columns:44px 1fr;gap:14px;padding:17px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0}
+    .n{display:flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:50%;background:#111827;color:#fff;font-weight:700}
+    .step h3{margin:1px 0 5px;font-size:17px;color:#111827}.step p{margin:0;color:#64748b;line-height:1.55}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
+    .info{padding:18px;border-radius:18px;background:#f8fafc;border:1px solid #e2e8f0}.info strong{display:block;margin-bottom:6px;color:#111827}.info span{font-size:14px;color:#64748b;line-height:1.5}
+    .tip{margin-top:14px;padding:15px 17px;border-radius:15px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:14px;line-height:1.55}
+    footer{max-width:980px;margin:0 auto;padding:0 20px 36px;display:flex;justify-content:space-between;gap:16px;color:#94a3b8;font-size:13px}
+    @media(max-width:760px){.hero2{grid-template-columns:1fr}.phone2{order:2}.actions{display:grid}.primary,.secondary{width:100%;box-sizing:border-box}.card{padding:20px;border-radius:22px}.grid{grid-template-columns:1fr}.step{grid-template-columns:40px 1fr;padding:14px}footer{display:block}footer span{display:block;margin-top:6px}}
   </style>
 </head>
 <body>
@@ -30,249 +45,61 @@
     <a class="back" href="/">← Все проекты</a>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow">KORYTNIK HUB · PHOTO MAIL</div>
-        <h1>Фото <span>→</span> Почта</h1>
-        <p class="lead">Одна страница для Android и iPhone. Выберите ваш телефон ниже.</p>
-      </div>
-      <div class="phone" aria-label="Фото на почту">
-        <div class="phone-top"></div>
-        <div class="screen">
-          <div class="mini-label">ФОТО → ПОЧТА</div>
-          <h2>Фото на почту</h2>
-          <p>Выберите платформу</p>
-          <div class="select-demo">Android / iPhone <span>⌄</span></div>
-          <div class="camera-button">Сделать фото</div>
-          <div class="sent">✓ Готово</div>
+  <main class="wrap">
+    <section class="hero2">
+      <div>
+        <div class="eyebrow2">KORYTNIK HUB · БАРАХОЛКА</div>
+        <h1>Оценка товара <span>по фото</span></h1>
+        <p>Сфотографируйте вещь — приложение распознает предмет, найдет похожие предложения и доступные результаты продаж, скорректирует цену по рынку и покажет оценку прямо на экране.</p>
+        <div class="actions">
+          <a class="primary" href="download/PhotoToMail.apk" download>Скачать APK</a>
+          <a class="secondary" href="#instruction">Как пользоваться</a>
         </div>
+      </div>
+      <div class="phone2" aria-label="Пример результата оценки">
+        <div class="small">ОЦЕНКА ГОТОВА</div>
+        <h2>Предмет распознан</h2>
+        <div class="price">Рынок: 8 000–12 000 ₽</div>
+        <div class="muted">Быстрая продажа: 6 000–8 000 ₽</div>
+        <div class="muted">Для перепродажи брать до: 4 500 ₽</div>
       </div>
     </section>
 
-    <section class="platform-wrap" id="platform">
-      <div class="platform-title">
-        <div class="eyebrow">ВЫБЕРИТЕ ТЕЛЕФОН</div>
-        <h2>Android или iPhone?</h2>
-        <p>После выбора показывается только ваша версия и ее инструкция.</p>
+    <section class="card">
+      <h2>Что делает приложение</h2>
+      <p class="card-intro">Почта, SMTP и получатели больше не нужны. Приложение предназначено только для быстрой оценки товара на барахолке по фотографии.</p>
+      <div class="grid">
+        <div class="info"><strong>1. Распознает</strong><span>Определяет предмет, категорию и видимое состояние.</span></div>
+        <div class="info"><strong>2. Проверяет рынок</strong><span>Ищет похожие публичные предложения и доступные результаты продаж.</span></div>
+        <div class="info"><strong>3. Показывает цену</strong><span>Рынок, быстрая продажа, цена покупки для перепродажи и рекомендация.</span></div>
+      </div>
+    </section>
+
+    <section id="instruction" class="card">
+      <h2>Инструкция</h2>
+      <p class="card-intro">Никаких настроек почты. После установки достаточно открыть приложение и сделать фотографию.</p>
+      <div class="steps">
+        <div class="step"><div class="n">1</div><div><h3>Скачайте и установите APK</h3><p>Нажмите «Скачать APK». Откройте загруженный файл. Если Android попросит разрешить установку из этого источника, разрешите установку для вашего браузера.</p></div></div>
+        <div class="step"><div class="n">2</div><div><h3>Откройте приложение</h3><p>На главном экране нажмите большую кнопку «Сделать фото и оценить».</p></div></div>
+        <div class="step"><div class="n">3</div><div><h3>Сфотографируйте один предмет</h3><p>Снимайте при хорошем освещении. Вещь должна занимать большую часть кадра. По возможности уберите лишние предметы с фона.</p></div></div>
+        <div class="step"><div class="n">4</div><div><h3>Подождите оценку</h3><p>Сначала AI распознает предмет и его состояние. Затем система ищет аналоги на вторичном рынке и корректирует цену по найденным данным.</p></div></div>
+        <div class="step"><div class="n">5</div><div><h3>Посмотрите результат</h3><p>На экране появятся ориентировочная рыночная цена, цена быстрой продажи, максимальная цена покупки для перепродажи, рекомендация, комментарий и уверенность оценки.</p></div></div>
+        <div class="step"><div class="n">6</div><div><h3>Для редких вещей сделайте дополнительные фото</h3><p>Если это антиквариат, фарфор, часы, украшение, книга или коллекционная вещь — отдельно сфотографируйте клеймо, подпись, маркировку, повреждения, размеры и комплектность, затем повторите оценку.</p></div></div>
       </div>
 
-      <div class="platform-switch" role="tablist" aria-label="Выбор платформы">
-        <button id="androidTab" class="platform-btn active" type="button" data-platform="android">Android</button>
-        <button id="iphoneTab" class="platform-btn" type="button" data-platform="iphone">iPhone</button>
-      </div>
+      <div class="tip"><strong>Как читать результат:</strong> «Рынок» — ориентир обычной продажи. «Быстрая продажа» — диапазон для более быстрого выхода. «Для перепродажи брать до» — максимальная ориентировочная цена покупки с запасом на торг, риск и перепродажу.</div>
+      <div class="tip"><strong>Важно:</strong> активное объявление показывает цену продавца, а не подтвержденную цену сделки. Для дорогих и редких вещей оценка по одной фотографии не заменяет экспертизу.</div>
+    </section>
 
-      <div id="androidPanel" class="platform-panel active">
-        <div class="platform-card">
-          <div class="platform-head">
-            <div>
-              <div class="eyebrow">ANDROID · APK</div>
-              <h2>Версия для Android</h2>
-              <p>Приложение фотографирует товар, отправляет снимок на выбранную почту, распознает предмет с помощью AI, ищет похожие предложения и доступные результаты продаж и показывает ориентировочную цену прямо на экране.</p>
-            </div>
-            <span class="platform-tag">Android 10+</span>
-          </div>
-
-          <div class="platform-actions">
-            <a class="platform-primary" href="download/PhotoToMail.apk" download>Скачать APK</a>
-            <a class="platform-secondary" href="#android-instruction">Инструкция Android</a>
-          </div>
-
-          <div class="mini-steps">
-            <div class="mini-step"><strong>1. Установить</strong><span>Скачайте APK и установите на телефон.</span></div>
-            <div class="mini-step"><strong>2. Настроить почту</strong><span>Один раз укажите SMTP, пароль приложения и получателя.</span></div>
-            <div class="mini-step"><strong>3. Фото → оценка</strong><span>Снимите товар. AI распознает его, проверит рынок и покажет цену.</span></div>
-          </div>
-
-          <div id="android-instruction" class="help-block">
-            <h3>Как оценить товар на барахолке</h3>
-            <p class="help-intro">Почта настраивается один раз. Дальше вы фотографируете предмет, а приложение отправляет снимок и запускает двухэтапную оценку: распознавание предмета → поиск похожих предложений и доступных результатов продаж → корректировка цены по рынку.</p>
-            <div class="instruction-list">
-              <div class="instruction-step"><div class="n">1</div><div><h4>Скачайте и установите APK</h4><p>Нажмите «Скачать APK» и откройте загруженный файл. Если Android попросит разрешение на установку из этого источника, разрешите его для браузера, из которого скачали APK.</p></div></div>
-              <div class="instruction-step"><div class="n">2</div><div><h4>Один раз настройте почту отправителя</h4><p>Откройте «Настройка почты отправителя» и введите полный адрес вашей почты. Например: <code>name@mail.ru</code>.</p></div></div>
-              <div class="instruction-step"><div class="n">3</div><div><h4>Используйте пароль для внешнего приложения</h4><p>Не вводите основной пароль от почты. Для Mail.ru откройте: Настройки → Все настройки → Безопасность → Пароли для внешних приложений. Создайте отдельный пароль и вставьте его в приложение.</p></div></div>
-              <div class="instruction-step"><div class="n">4</div><div><h4>Укажите SMTP</h4><p>Для Mail.ru: <code>smtp.mail.ru</code>, порт <code>465</code>. Для Gmail и Яндекса параметры указаны ниже. Нажмите «Сохранить настройку почты».</p></div></div>
-              <div class="instruction-step"><div class="n">5</div><div><h4>Добавьте адрес получателя</h4><p>Введите email, куда нужно отправлять фотографии, и нажмите «Добавить». Можно сохранить несколько адресов и выбирать нужный перед съемкой.</p></div></div>
-              <div class="instruction-step"><div class="n">6</div><div><h4>Сфотографируйте товар крупно</h4><p>Положите один предмет в кадр, снимайте при хорошем освещении и старайтесь показать форму, материал, состояние и важные детали. Затем нажмите «Сделать фото · отправить · оценить» и подтвердите снимок.</p></div></div>
-              <div class="instruction-step"><div class="n">7</div><div><h4>Дождитесь двухэтапной оценки</h4><p>Сначала AI определит, что находится на фотографии и сформирует поисковый запрос. Затем система найдет похожие публичные предложения и доступные результаты завершенных продаж, отбросит слабые аналоги и скорректирует цену по рынку.</p></div></div>
-              <div class="instruction-step"><div class="n">8</div><div><h4>Смотрите результат на экране</h4><p>Приложение покажет обычную рыночную цену, диапазон быстрой продажи, максимальную разумную цену покупки для перепродажи, рекомендацию, комментарий и уверенность оценки.</p></div></div>
-              <div class="instruction-step"><div class="n">9</div><div><h4>Если AI просит детали — сделайте еще фото</h4><p>Для антиквариата, фарфора, украшений, часов и коллекционных вещей отдельно сфотографируйте клеймо, маркировку, подпись, повреждения, размеры или комплектность и повторите оценку.</p></div></div>
-            </div>
-
-            <div class="tip"><strong>Как читать цену:</strong> «Рынок» — ориентир обычной продажи; «Быстрая продажа» — цена, по которой вещь проще продать быстрее; «Для перепродажи брать до» — максимальная ориентировочная цена покупки с запасом на торг и риск.</div>
-            <div class="tip"><strong>Важно:</strong> активное объявление — это цена продавца, а не подтвержденная цена сделки. Приложение учитывает завершенные продажи отдельно только там, где такие данные доступны. Оценка остается ориентировочной, особенно для редких и дорогих предметов.</div>
-
-            <table class="settings-table" aria-label="SMTP настройки">
-              <tr><th>Почта</th><th>SMTP</th><th>Порт</th></tr>
-              <tr><td>Mail.ru</td><td><code>smtp.mail.ru</code></td><td><code>465</code></td></tr>
-              <tr><td>Gmail</td><td><code>smtp.gmail.com</code></td><td><code>465</code></td></tr>
-              <tr><td>Яндекс</td><td><code>smtp.yandex.ru</code></td><td><code>465</code></td></tr>
-            </table>
-
-            <div class="tip"><strong>Ошибка 535:</strong> соединение с SMTP-сервером есть, но сервер не принял логин или пароль. Проверьте полный адрес почты и создайте новый пароль для внешнего приложения. Старый пароль Mail.ru повторно посмотреть нельзя.</div>
-          </div>
-        </div>
-      </div>
-
-      <div id="iphonePanel" class="platform-panel">
-        <div class="platform-card dark">
-          <div class="platform-head">
-            <div>
-              <div class="eyebrow">iPHONE · WEB APP</div>
-              <h2>Версия для iPhone</h2>
-              <p>Работает прямо на этой странице и может быть добавлена на экран «Домой» без App Store.</p>
-            </div>
-            <span class="platform-tag">Safari</span>
-          </div>
-
-          <div class="ios-grid">
-            <div class="ios-box">
-              <label for="iosRecipientSelect">Куда отправлять</label>
-              <select id="iosRecipientSelect"></select>
-              <div class="ios-row">
-                <input id="iosNewRecipient" type="email" inputmode="email" placeholder="name@example.com" />
-                <button id="iosAddRecipient" class="ios-btn secondary" type="button">Добавить</button>
-              </div>
-              <button id="iosDeleteRecipient" class="ios-btn text" type="button">Удалить выбранный адрес</button>
-            </div>
-
-            <div class="ios-box">
-              <input id="iosCamera" type="file" accept="image/*" capture="environment" class="hidden-local" />
-              <button id="iosCameraButton" class="ios-btn primary" type="button">Сделать фото</button>
-              <div id="iosPreviewWrap" class="ios-preview hidden-local">
-                <img id="iosPreview" alt="Снятое фото" />
-                <button id="iosShareButton" class="ios-btn primary" type="button">Отправить фото</button>
-              </div>
-              <p id="iosStatus" class="ios-status">Готово к работе</p>
-            </div>
-          </div>
-
-          <div class="help-block" id="iphone-instruction">
-            <h3>Инструкция для iPhone</h3>
-            <p class="help-intro">Пароль почты в веб-версии не вводится. Фото передается через стандартное меню iPhone.</p>
-            <div class="instruction-list">
-              <div class="instruction-step"><div class="n">1</div><div><h4>Откройте страницу в Safari</h4><p>На iPhone откройте <code>korytnikhub.pro/photo-mail/</code> именно в Safari и выберите вкладку «iPhone».</p></div></div>
-              <div class="instruction-step"><div class="n">2</div><div><h4>Добавьте приложение на экран «Домой»</h4><p>В Safari нажмите кнопку «Поделиться», пролистайте меню и выберите «На экран Домой». Подтвердите добавление. Появится отдельная иконка «Фото на почту».</p></div></div>
-              <div class="instruction-step"><div class="n">3</div><div><h4>Добавьте адрес получателя</h4><p>Введите email и нажмите «Добавить». Адрес сохранится на этом iPhone. Можно сохранить несколько адресов.</p></div></div>
-              <div class="instruction-step"><div class="n">4</div><div><h4>Сделайте фотографию</h4><p>Выберите нужный адрес и нажмите «Сделать фото». Разрешите доступ к камере, если iPhone попросит разрешение.</p></div></div>
-              <div class="instruction-step"><div class="n">5</div><div><h4>Нажмите «Отправить фото»</h4><p>Откроется стандартное меню iPhone с фотографией. Выберите Mail или другое почтовое приложение. Адрес получателя дополнительно копируется в буфер обмена.</p></div></div>
-              <div class="instruction-step"><div class="n">6</div><div><h4>Вставьте адрес и отправьте</h4><p>Если почтовое приложение не подставило адрес автоматически, нажмите в поле «Кому» и выберите «Вставить». Затем отправьте письмо.</p></div></div>
-            </div>
-            <div class="tip"><strong>Важно:</strong> веб-приложение iPhone не хранит пароль Mail.ru и не подключается напрямую к SMTP. Это сделано специально, чтобы не сохранять пароль почты в Safari.</div>
-          </div>
-        </div>
-      </div>
+    <section class="card">
+      <h2>Обновление приложения</h2>
+      <p class="card-intro">В самом APK есть кнопка «Скачать обновление APK». Она открывает загрузку самой свежей версии с Korytnik Hub. Устанавливайте новую версию поверх текущей — настройки Android сохранятся.</p>
     </section>
   </main>
 
   <footer>
     <span>KORYTNIK HUB</span>
-    <span>Фото на почту · Android / iPhone</span>
+    <span>Барахолка · Оценка товаров по фотографии</span>
   </footer>
-
-  <script>
-  (() => {
-    const androidTab = document.getElementById('androidTab');
-    const iphoneTab = document.getElementById('iphoneTab');
-    const androidPanel = document.getElementById('androidPanel');
-    const iphonePanel = document.getElementById('iphonePanel');
-
-    function setPlatform(platform) {
-      const iphone = platform === 'iphone';
-      androidTab.classList.toggle('active', !iphone);
-      iphoneTab.classList.toggle('active', iphone);
-      androidPanel.classList.toggle('active', !iphone);
-      iphonePanel.classList.toggle('active', iphone);
-      try { localStorage.setItem('photo-mail-platform', platform); } catch {}
-    }
-
-    androidTab.addEventListener('click', () => setPlatform('android'));
-    iphoneTab.addEventListener('click', () => setPlatform('iphone'));
-
-    let saved = '';
-    try { saved = localStorage.getItem('photo-mail-platform') || ''; } catch {}
-    const isiPhone = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-    setPlatform(saved || (isiPhone ? 'iphone' : 'android'));
-
-    const key = 'photo-mail-ios-recipients-v1';
-    const select = document.getElementById('iosRecipientSelect');
-    const input = document.getElementById('iosNewRecipient');
-    const add = document.getElementById('iosAddRecipient');
-    const del = document.getElementById('iosDeleteRecipient');
-    const camera = document.getElementById('iosCamera');
-    const cameraBtn = document.getElementById('iosCameraButton');
-    const wrap = document.getElementById('iosPreviewWrap');
-    const preview = document.getElementById('iosPreview');
-    const share = document.getElementById('iosShareButton');
-    const status = document.getElementById('iosStatus');
-    let photo = null;
-
-    const valid = value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    const load = () => { try { return JSON.parse(localStorage.getItem(key) || '[]'); } catch { return []; } };
-    const save = addresses => localStorage.setItem(key, JSON.stringify(addresses));
-
-    function render(prefer) {
-      const addresses = load();
-      select.innerHTML = '';
-      if (!addresses.length) {
-        select.add(new Option('Сначала добавьте email', ''));
-        return;
-      }
-      addresses.forEach(value => select.add(new Option(value, value)));
-      if (prefer && addresses.includes(prefer)) select.value = prefer;
-    }
-
-    add.addEventListener('click', () => {
-      const value = input.value.trim().toLowerCase();
-      if (!valid(value)) { status.textContent = 'Введите корректный email'; return; }
-      const addresses = load();
-      if (!addresses.includes(value)) addresses.push(value);
-      save(addresses);
-      render(value);
-      input.value = '';
-      status.textContent = 'Адрес сохранен';
-    });
-
-    del.addEventListener('click', () => {
-      const value = select.value;
-      if (!value) return;
-      save(load().filter(address => address !== value));
-      render();
-      status.textContent = 'Адрес удален';
-    });
-
-    cameraBtn.addEventListener('click', () => {
-      if (!select.value) { status.textContent = 'Сначала добавьте email'; return; }
-      camera.click();
-    });
-
-    camera.addEventListener('change', () => {
-      photo = camera.files && camera.files[0];
-      if (!photo) return;
-      preview.src = URL.createObjectURL(photo);
-      wrap.classList.remove('hidden-local');
-      status.textContent = 'Фото готово. Нажмите «Отправить фото».';
-    });
-
-    share.addEventListener('click', async () => {
-      if (!photo || !select.value) return;
-      const recipient = select.value;
-      try { await navigator.clipboard?.writeText(recipient); } catch {}
-      const data = { files: [photo], title: 'Фото на почту', text: 'Получатель: ' + recipient };
-      if (navigator.canShare && navigator.canShare({ files: [photo] })) {
-        try {
-          await navigator.share(data);
-          status.textContent = 'Фото передано. Адрес получателя скопирован.';
-        } catch (error) {
-          if (error.name !== 'AbortError') status.textContent = 'Не удалось открыть меню отправки';
-        }
-      } else {
-        status.textContent = 'Для отправки откройте эту страницу в Safari на iPhone.';
-      }
-    });
-
-    render();
-  })();
-  </script>
 </body>
 </html>
