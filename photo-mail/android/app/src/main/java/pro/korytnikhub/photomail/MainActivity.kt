@@ -16,6 +16,7 @@ import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -28,6 +29,16 @@ class MainActivity : Activity() {
     private lateinit var takePhotoButton: Button
     private lateinit var progress: ProgressBar
     private lateinit var statusText: TextView
+
+    private lateinit var valuationPanel: LinearLayout
+    private lateinit var itemNameText: TextView
+    private lateinit var marketPriceText: TextView
+    private lateinit var quickPriceText: TextView
+    private lateinit var buyMaxText: TextView
+    private lateinit var recommendationText: TextView
+    private lateinit var valuationCommentText: TextView
+    private lateinit var checkNextText: TextView
+    private lateinit var confidenceText: TextView
 
     private lateinit var settingsToggleButton: Button
     private lateinit var settingsPanel: LinearLayout
@@ -43,6 +54,7 @@ class MainActivity : Activity() {
     private var currentPhotoUri: Uri? = null
     private var currentFileName: String = "photo.jpg"
     private val requestPhoto = 1001
+    private val money = NumberFormat.getIntegerInstance(Locale("ru", "RU"))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +67,16 @@ class MainActivity : Activity() {
         takePhotoButton = findViewById(R.id.takePhotoButton)
         progress = findViewById(R.id.progress)
         statusText = findViewById(R.id.statusText)
+
+        valuationPanel = findViewById(R.id.valuationPanel)
+        itemNameText = findViewById(R.id.itemNameText)
+        marketPriceText = findViewById(R.id.marketPriceText)
+        quickPriceText = findViewById(R.id.quickPriceText)
+        buyMaxText = findViewById(R.id.buyMaxText)
+        recommendationText = findViewById(R.id.recommendationText)
+        valuationCommentText = findViewById(R.id.valuationCommentText)
+        checkNextText = findViewById(R.id.checkNextText)
+        confidenceText = findViewById(R.id.confidenceText)
 
         settingsToggleButton = findViewById(R.id.settingsToggleButton)
         settingsPanel = findViewById(R.id.settingsPanel)
@@ -119,9 +141,7 @@ class MainActivity : Activity() {
         val email = emailSpinner.selectedItem?.toString() ?: return
         recipients.remove(email)
         persistRecipients()
-        if (prefs.getString("last_recipient", null) == email) {
-            prefs.edit().remove("last_recipient").apply()
-        }
+        if (prefs.getString("last_recipient", null) == email) prefs.edit().remove("last_recipient").apply()
         refreshRecipientSpinner()
         statusText.text = "Адрес удален"
     }
@@ -167,9 +187,8 @@ class MainActivity : Activity() {
         }
 
         val newPassword = senderPassword.text.toString()
-        if (newPassword.isNotBlank()) {
-            secureStore.savePassword(newPassword)
-        } else if (!secureStore.hasPassword()) {
+        if (newPassword.isNotBlank()) secureStore.savePassword(newPassword)
+        else if (!secureStore.hasPassword()) {
             toast("Введите пароль приложения")
             return
         }
@@ -216,8 +235,9 @@ class MainActivity : Activity() {
         }
 
         prefs.edit().putString("last_recipient", recipient).apply()
+        valuationPanel.visibility = View.GONE
         val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.ROOT).format(Date())
-        currentFileName = "PhotoMail_$stamp.jpg"
+        currentFileName = "PhotoMarket_$stamp.jpg"
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.DISPLAY_NAME, currentFileName)
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
@@ -249,7 +269,7 @@ class MainActivity : Activity() {
         if (resultCode == RESULT_OK) {
             val uri = currentPhotoUri ?: return
             val recipient = selectedRecipient() ?: return
-            sendPhoto(uri, recipient, currentFileName)
+            processPhoto(uri, recipient, currentFileName)
         } else {
             currentPhotoUri?.let { contentResolver.delete(it, null, null) }
             currentPhotoUri = null
@@ -257,7 +277,7 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun sendPhoto(uri: Uri, recipient: String, fileName: String) {
+    private fun processPhoto(uri: Uri, recipient: String, fileName: String) {
         val settings = senderSettings()
         if (settings == null) {
             settingsPanel.visibility = View.VISIBLE
@@ -265,27 +285,78 @@ class MainActivity : Activity() {
             return
         }
 
-        setBusy(true, "Отправляю на $recipient...")
+        setBusy(true, "Отправляю фото и оцениваю товар...")
         Thread {
+            var mailStatus = "Фото не отправлено"
+            var evaluation: PhotoEvaluator.Result? = null
+            var evaluationError: String? = null
+
             try {
                 val stream = contentResolver.openInputStream(uri) ?: error("Не удалось прочитать фото")
                 SmtpSender.sendPhoto(settings, recipient, stream, fileName)
-                setBusy(false, "Отправлено на $recipient")
+                mailStatus = "Фото отправлено на $recipient"
             } catch (e: Exception) {
-                setBusy(false, "Не отправлено: ${e.message ?: "ошибка"}")
+                mailStatus = "Фото не отправлено: ${e.message ?: "ошибка"}"
+            }
+
+            try {
+                evaluation = PhotoEvaluator.evaluate(contentResolver, uri)
+            } catch (e: Exception) {
+                evaluationError = e.message ?: "ошибка оценки"
+            }
+
+            runOnUiThread {
+                setBusyUi(false)
+                if (evaluation != null) {
+                    showValuation(evaluation!!)
+                    statusText.text = "$mailStatus · оценка готова"
+                } else {
+                    valuationPanel.visibility = View.GONE
+                    statusText.text = "$mailStatus · оценка недоступна: ${evaluationError ?: "ошибка"}"
+                }
             }
         }.start()
     }
 
+    private fun showValuation(r: PhotoEvaluator.Result) {
+        valuationPanel.visibility = View.VISIBLE
+        itemNameText.text = r.itemName + if (r.category.isNotBlank()) " · ${r.category}" else ""
+        marketPriceText.text = "Рынок: ${range(r.marketLow, r.marketHigh)}"
+        quickPriceText.text = "Быстрая продажа: ${range(r.quickSaleLow, r.quickSaleHigh)}"
+        buyMaxText.text = "Для перепродажи брать до: ${rub(r.buyMax)}"
+        recommendationText.text = "Рекомендация: ${r.recommendation}"
+
+        val visible = r.visibleCondition.takeIf { it.isNotBlank() }
+        val comment = r.comment.takeIf { it.isNotBlank() }
+        valuationCommentText.text = listOfNotNull(visible, comment).joinToString("\n")
+        valuationCommentText.visibility = if (valuationCommentText.text.isNullOrBlank()) View.GONE else View.VISIBLE
+
+        checkNextText.text = if (r.checkNext.isNotBlank()) "Что проверить: ${r.checkNext}" else ""
+        checkNextText.visibility = if (r.checkNext.isBlank()) View.GONE else View.VISIBLE
+        confidenceText.text = "Уверенность оценки: ${r.confidence}% · цена ориентировочная"
+    }
+
+    private fun range(low: Int?, high: Int?): String {
+        if (low == null && high == null) return "недостаточно данных"
+        if (low != null && high != null) return "${rub(low)}–${rub(high)}"
+        return rub(low ?: high)
+    }
+
+    private fun rub(value: Int?): String = value?.let { "${money.format(it)} ₽" } ?: "—"
+
     private fun setBusy(busy: Boolean, message: String) {
         runOnUiThread {
-            progress.visibility = if (busy) View.VISIBLE else View.GONE
-            takePhotoButton.isEnabled = !busy
-            saveEmailButton.isEnabled = !busy
-            deleteEmailButton.isEnabled = !busy
-            saveSenderButton.isEnabled = !busy
+            setBusyUi(busy)
             statusText.text = message
         }
+    }
+
+    private fun setBusyUi(busy: Boolean) {
+        progress.visibility = if (busy) View.VISIBLE else View.GONE
+        takePhotoButton.isEnabled = !busy
+        saveEmailButton.isEnabled = !busy
+        deleteEmailButton.isEnabled = !busy
+        saveSenderButton.isEnabled = !busy
     }
 
     private fun toast(message: String) {
