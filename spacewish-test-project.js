@@ -2,16 +2,16 @@
   const project = {
     id: "spacewish-test",
     type: "personal",
-    title: "Space Wish — тест",
-    category: "Личный / Space",
+    title: "SpaceWish Test",
+    category: "Личный / Space / Test",
     status: "mvp",
-    description: "Личная тестовая версия проекта Space Wish на отдельном домене.",
-    nextStep: "Использовать тестовую версию для доработок и проверки перед публикацией изменений.",
-    url: "http://spacewish.agency/test/",
-    githubUrl: "https://github.com/Ivankorytnik/Jelanie",
+    description: "Отдельный автономный тестовый стенд проекта «Желание сквозь Вселенную», полностью отделённый от PROD.",
+    nextStep: "Использовать для доработок и проверки изменений перед переносом подтверждённой версии в PROD.",
+    url: "https://ivankorytnik.github.io/SpaceWish-Test/",
+    githubUrl: "https://github.com/Ivankorytnik/SpaceWish-Test",
     owner: "Иван Корытник",
-    updated: "2026-09-08",
-    color: "#242b52",
+    updated: "2026-09-09",
+    color: "#07101c",
     accent: "#68e7ff"
   };
 
@@ -29,7 +29,7 @@
       else localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
       if (typeof render === "function") render();
     } catch (error) {
-      console.error("Space Wish test card bootstrap failed:", error);
+      console.error("SpaceWish Test card bootstrap failed:", error);
     }
   }
 
