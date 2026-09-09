@@ -1,0 +1,64 @@
+name: Add SpaceWish Test to portal
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-spacewish-test-project.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add personal SpaceWish Test project
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path = Path('app.js')
+          text = path.read_text(encoding='utf-8')
+
+          if 'id: "spacewish-test"' not in text:
+              marker = '''  {
+    id: "jelanie",'''
+              block = '''  {
+    id: "spacewish-test",
+    type: "personal",
+    title: "SpaceWish Test",
+    category: "Тестовый стенд / Web",
+    status: "mvp",
+    description: "Отдельный автономный тестовый стенд проекта «Желание сквозь Вселенную», полностью изолированный от PROD.",
+    nextStep: "Использовать для проверки изменений перед переносом подтверждённой версии в PROD.",
+    url: "",
+    githubUrl: "https://github.com/Ivankorytnik/SpaceWish-Test",
+    owner: "Иван Корытник",
+    updated: "2026-09-09",
+    color: "#07101c",
+    accent: "#68e7ff"
+  },
+'''
+              if marker not in text:
+                  raise SystemExit('Insertion marker not found in app.js')
+              text = text.replace(marker, block + marker, 1)
+
+          text = text.replace('const APP_VERSION = "1.4.3";', 'const APP_VERSION = "1.4.4";', 1)
+          path.write_text(text, encoding='utf-8')
+          PY
+
+          rm -f .github/workflows/add-spacewish-test-project.yml
+
+      - name: Commit change
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "korytnik-hub-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -m "Add SpaceWish Test as personal project"
+          git push
