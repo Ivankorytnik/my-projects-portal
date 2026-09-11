@@ -1,287 +1,78 @@
 'use strict';
-
 (() => {
-  const DOCS = [
-    {kind:'poa', label:'Доверенность'},
-    {kind:'questionnaire', label:'Анкета ТД'},
-    {kind:'consent', label:'СОПД'},
-    {kind:'obligation', label:'Письменное обязательство'}
+  const DOCS=[
+    {kind:'poa',label:'Доверенность'},
+    {kind:'questionnaire',label:'Анкета ТД'},
+    {kind:'consent',label:'СОПД'},
+    {kind:'obligation',label:'Письменное обязательство'}
   ];
-
-  const REQUIRED_BY_DOC = {
-    poa: [
-      ['fullName','ФИО'],['passportSeries','Серия паспорта'],['passportNumber','Номер паспорта'],
-      ['passportIssuedBy','Кем выдан паспорт'],['passportIssueDate','Дата выдачи паспорта'],['passportCode','Код подразделения'],
-      ['driverLicense','Водительское удостоверение'],['driverLicenseIssueDate','Дата выдачи ВУ'],['driverCategory','Категория ВУ'],
-      ['driverIssuedBy','Кем выдано ВУ / ГИБДД'],['carModel','Модель автомобиля'],['vin','VIN'],['plate','Госномер'],
-      ['carYear','Год выпуска'],['bodyNumber','Номер кузова'],['chassis','Шасси'],['pts','ПТС'],['sts','СТС'],
-      ['poaNumber','Номер доверенности'],['poaDate','Дата доверенности'],['poaValidUntil','Срок действия доверенности'],
-      ['companyRepRole','Должность представителя организации'],['companyRepName','ФИО представителя организации'],
-      ['companyRepPoaNo','Номер доверенности представителя'],['companyRepPoaDate','Дата доверенности представителя']
-    ],
-    questionnaire: [
-      ['fullName','ФИО'],['phone','Телефон'],['email','Email'],['passportSeries','Серия паспорта'],['passportNumber','Номер паспорта'],
-      ['passportIssuedBy','Кем выдан паспорт'],['passportIssueDate','Дата выдачи паспорта'],['passportCode','Код подразделения'],
-      ['registrationAddress','Адрес регистрации'],['carModel','Модель автомобиля'],['vin','VIN'],['plate','Госномер'],
-      ['managerName','Сопровождающий менеджер'],['testDriveDate','Дата тест-драйва']
-    ],
-    consent: [
-      ['salutation','Обращение'],['fullName','ФИО'],['phone','Телефон'],['email','Email'],['birthDate','Дата рождения']
-    ],
-    obligation: [
-      ['fullName','ФИО'],['passportSeries','Серия паспорта'],['passportNumber','Номер паспорта'],
-      ['passportIssuedBy','Кем выдан паспорт'],['passportCode','Код подразделения'],['birthDate','Дата рождения'],
-      ['birthPlace','Место рождения'],['registrationAddress','Адрес регистрации'],['testDriveDate','Дата тест-драйва']
-    ]
+  const REQUIRED={
+    poa:['fullName','passportSeries','passportNumber','passportIssuedBy','passportIssueDate','passportCode','driverLicense','driverLicenseIssueDate','driverCategory','driverIssuedBy','carModel','vin','plate','carYear','bodyNumber','chassis','pts','sts','poaNumber','poaDate','poaValidUntil','companyRepRole','companyRepName','companyRepPoaNo','companyRepPoaDate'],
+    questionnaire:['fullName','phone','email','passportSeries','passportNumber','passportIssuedBy','passportIssueDate','passportCode','registrationAddress','carModel','vin','plate','managerName','testDriveDate'],
+    consent:['salutation','fullName','phone','email','birthDate'],
+    obligation:['fullName','passportSeries','passportNumber','passportIssuedBy','passportCode','birthDate','birthPlace','registrationAddress','testDriveDate']
   };
+  const LABEL={fullName:'ФИО',phone:'Телефон',email:'Email',birthDate:'Дата рождения',birthPlace:'Место рождения',salutation:'Обращение',passportSeries:'Серия паспорта',passportNumber:'Номер паспорта',passportIssuedBy:'Кем выдан паспорт',passportIssueDate:'Дата выдачи паспорта',passportCode:'Код подразделения',registrationAddress:'Адрес регистрации',driverLicense:'Водительское удостоверение',driverLicenseIssueDate:'Дата выдачи ВУ',driverCategory:'Категория ВУ',driverIssuedBy:'Кем выдано ВУ / ГИБДД',carModel:'Модель автомобиля',vin:'VIN',plate:'Госномер',carYear:'Год выпуска',bodyNumber:'Номер кузова',chassis:'Шасси',pts:'ПТС',sts:'СТС',managerName:'Сопровождающий менеджер',poaNumber:'Номер доверенности',poaDate:'Дата доверенности',poaValidUntil:'Срок действия доверенности',companyRepRole:'Должность представителя организации',companyRepName:'ФИО представителя организации',companyRepPoaNo:'Номер доверенности представителя',companyRepPoaDate:'Дата доверенности представителя',testDriveDate:'Дата тест-драйва',messenger:'Мессенджер'};
+  const selected=new Set(DOCS.map(d=>d.kind));
+  const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+  let busy=false,templateLoading=false,wiredPrint=false;
 
-  const selectedDocs = new Set(DOCS.map(doc => doc.kind));
-  let mounted = false;
-  let printWired = false;
-  let exportBusy = false;
-  let updateQueued = false;
+  const nativeSetInterval=window.setInterval;
+  function guardedSetInterval(fn,delay,...args){if(Number(delay)===500&&typeof fn==='function'&&fn.name==='render')return 0;return Reflect.apply(nativeSetInterval,window,[fn,delay,...args]);}
+  window.setInterval=guardedSetInterval;
+  window.addEventListener('load',()=>{if(window.setInterval===guardedSetInterval)window.setInterval=nativeSetInterval;},{once:true});
 
-  const $ = (s, root=document) => root.querySelector(s);
-  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
-
-  try {
-    TEMPLATE_NAMES.obligation = 'written_obligation_template.docx';
-    OUTPUT_NAMES.obligation = '04_Письменное_обязательство.docx';
-  } catch (_) {}
-
-  function selectedKinds() {
-    return DOCS.map(doc => doc.kind).filter(kind => selectedDocs.has(kind));
+  function injectBirthPlace(){
+    if($('[data-f="birthPlace"]'))return;
+    const row=$('[data-f="birthDate"]')?.closest('.row');if(!row)return;
+    const f=document.createElement('div');f.className='field';f.innerHTML='<label>Место рождения</label><input data-f="birthPlace" autocomplete="off">';row.appendChild(f);
   }
-  function docLabel(kind) { return DOCS.find(doc => doc.kind === kind)?.label || kind; }
-
-  function requiredRows(kinds = selectedKinds()) {
-    const rows=[]; const seen=new Set();
-    kinds.forEach(kind => (REQUIRED_BY_DOC[kind] || []).forEach(row => {
-      if (!seen.has(row[0])) { seen.add(row[0]); rows.push(row); }
-    }));
-    if (kinds.includes('consent') && $('[data-c="consentMessenger"]')?.checked && !seen.has('messenger')) rows.push(['messenger','Мессенджер']);
-    return rows;
-  }
-
-  function validateSelectedData(kinds = selectedKinds()) {
-    const d = typeof getData === 'function' ? getData() : {};
-    const rows = requiredRows(kinds);
-    const required = new Set(rows.map(([key]) => key));
-    const missing = rows.filter(([key]) => !String(d[key] ?? '').trim()).map(([,label]) => label);
-    if (required.has('passportSeries') && d.passportSeries && !/^\d{4}$/.test(d.passportSeries)) missing.push('Серия паспорта: 4 цифры');
-    if (required.has('passportNumber') && d.passportNumber && !/^\d{6}$/.test(d.passportNumber)) missing.push('Номер паспорта: 6 цифр');
-    return missing;
-  }
-
-  function isEmpty(el) { return !String(el?.value ?? '').trim(); }
-  function applyRequiredState() {
-    const required = new Set(requiredRows().map(([key]) => key));
-    $$('[data-f]').forEach(el => {
-      const field=el.closest('.field'); if (!field) return;
-      const active=required.has(el.dataset.f); const empty=active && isEmpty(el);
-      field.classList.toggle('required-field',active);
-      field.classList.toggle('required-empty',empty);
-      el.classList.toggle('required-empty-control',empty);
-      el.required=active;
-      if (active) { el.setAttribute('aria-required','true'); el.setAttribute('aria-invalid',empty?'true':'false'); }
-      else { el.removeAttribute('aria-required'); el.removeAttribute('aria-invalid'); }
-    });
-  }
-
-  function missingControls(kinds = selectedKinds()) {
-    const required=new Set(requiredRows(kinds).map(([key]) => key));
-    return $$('[data-f]').filter(el => required.has(el.dataset.f) && isEmpty(el));
-  }
-  function focusFirstMissing(kinds = selectedKinds()) {
-    const first=missingControls(kinds)[0]; if (!first) return false;
-    first.scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>first.focus({preventScroll:true}),250); return true;
-  }
-  function templatesReady(kinds = selectedKinds()) {
-    return typeof state !== 'undefined' && !!state?.templates && kinds.every(kind => state.templates.has(kind));
-  }
-
-  function syncSelectionButtons() {
-    $$('[data-output-doc]').forEach(button => {
-      const on=selectedDocs.has(button.dataset.outputDoc);
-      button.setAttribute('aria-selected',String(on)); button.setAttribute('aria-pressed',String(on));
-      button.textContent=`${on ? '✓ ' : ''}${docLabel(button.dataset.outputDoc)}`;
-    });
-  }
-
-  function updatePrintSummaryFallback() {
-    const out=$('#tdPrintSummary'); if (!out) return;
-    const parts=[]; let total=0;
-    DOCS.forEach(doc => {
-      const ch=$(`[data-print-doc="${doc.kind}"]`); const input=$(`[data-print-copies="${doc.kind}"]`);
-      if (!ch?.checked || !input) return;
-      let n=parseInt(input.value,10); if (!Number.isFinite(n)) n=1; n=Math.max(1,Math.min(20,n)); input.value=String(n);
-      total+=n; parts.push(`${doc.label}: ${n}`);
-    });
-    out.textContent=total ? `К печати: ${parts.join(' · ')}. Всего экземпляров: ${total}.` : 'Выберите хотя бы один документ.';
-    const master=$('#tdPrintAll'); if (master) {
-      const checks=$$('[data-print-doc]'); const n=checks.filter(ch=>ch.checked).length;
-      master.checked=n===checks.length; master.indeterminate=n>0 && n<checks.length;
+  function patchData(){
+    if(!window.__tdBirthPlacePatched&&typeof window.getData==='function'){
+      const old=window.getData;window.getData=function(){const d=old();d.birthPlace=$('[data-f="birthPlace"]')?.value?.trim()||'';return d;};window.__tdBirthPlacePatched=true;
+    }
+    if(!window.__tdObligationContextPatched&&typeof window.buildContext==='function'){
+      const old=window.buildContext;window.buildContext=function(){const ctx=old(),d=window.getData(),v=d.testDriveDate||new Date().toISOString().slice(0,10),m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v),months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];ctx.testDriveDateDay=m?m[3]:'__';ctx.testDriveDateMonth=m?(months[Number(m[2])-1]||'__________'):'__________';ctx.testDriveDateYear=m?m[1]:'2026';ctx.birthPlace=d.birthPlace||'';return ctx;};window.__tdObligationContextPatched=true;
     }
   }
+  async function loadObligationTemplate(){
+    try{
+      TEMPLATE_NAMES.obligation='commitment_template.docx';OUTPUT_NAMES.obligation='04_Письменное_обязательство.docx';
+      if(state.templates.has('obligation'))return true;if(templateLoading)return false;templateLoading=true;
+      const res=await fetch('./commitment-template-data.js',{cache:'force-cache',credentials:'same-origin'});if(!res.ok)throw new Error('Шаблон не загружен');
+      const txt=await res.text(),m=txt.match(/COMMITMENT_TEMPLATE_BASE64='([^']+)'/);if(!m)throw new Error('Шаблон поврежден');
+      const raw=atob(m[1]),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+      state.templates.set('obligation',new File([bytes],'commitment_template.docx',{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));return true;
+    }catch(_){return false;}finally{templateLoading=false;update();}
+  }
+  window.ensureObligationTemplate=()=>{void loadObligationTemplate();return !!state?.templates?.has('obligation');};
 
-  function syncPrintFromSelection() {
-    const selected=new Set(selectedKinds());
-    $$('[data-print-doc]').forEach(ch => {
-      ch.checked=selected.has(ch.dataset.printDoc);
-      const input=$(`[data-print-copies="${ch.dataset.printDoc}"]`); if (input) input.disabled=!ch.checked;
-    });
-    updatePrintSummaryFallback();
-  }
+  function obligationMarkup(){return `<article class="td-doc-paper td-obligation-paper"><div class="td-center td-doc-title">Письменное обязательство о гарантиях</div><p><b>г. Липецк</b> &nbsp;&nbsp;&nbsp; «<span class="td-fill" data-o="testDriveDateDay"></span>» <span class="td-fill" data-o="testDriveDateMonth"></span> <span class="td-fill" data-o="testDriveDateYear"></span> года</p><p>Настоящим, Я <span class="td-fill" data-o="fullName"></span> (ФИО), паспортные данные: <span class="td-fill" data-o="passportSeries"></span> (серия), <span class="td-fill" data-o="passportNumber"></span> (номер), <span class="td-fill" data-o="passportIssuedBy"></span>, <span class="td-fill" data-o="passportCode"></span> (код подразделения), <span class="td-fill" data-o="birthDateText"></span> (дата рождения), <span class="td-fill" data-o="birthPlace"></span> (место рождения), <span class="td-fill" data-o="registrationAddress"></span> (адрес регистрации), даю письменное обязательство в адрес Акционерного Общества «КАМА» (ИНН: 1650404549, ОГРН: 1211600055424, юридический адрес: 115191, г. Москва, вн.тер.г. муниципальный округ Даниловский, пер. Холодильный, д.6) и гарантирую следующее:</p><ul class="td-bullets"><li>свое добровольное участие в проводимом тест драйве прототипа электромобиля «Атом»;</li><li>наличие у меня действующего водительского удостоверения, а также достаточного опыта для управления транспортным средством;</li><li>отсутствие в отношении меня ограничений на право управления транспортными средствами на дату дачи настоящего Обязательства;</li><li>отсутствие у меня медицинских противопоказаний (головокружение, сердечная недостаточность, эпилепсия и пр.) для участия в тест драйве;</li><li>отсутствие факта приема мной алкогольных, наркотических, психотропных веществ, и иных веществ прием которых, является противопоказанием к управлению транспортными средствами на момент участия в тест драйве;</li><li>до начал проведения тест драйва я ознакомился с Правилами техники безопасности, маршрутом, а также инструкциями по управлению прототипом электромобиля «Атом»;</li><li>я осознаю, что прототип электромобиля «Атом» является источником повышенной опасности, в связи с этим беру на себя полную ответственность за причинение любого вреда жизни, здоровью, имуществу себе и любым лицам, которым такой вред может быть причинен.</li></ul><p><span class="td-fill" data-o="fullName"></span> / _________________(подпись)</p><p>Настоящим также даю согласие АО «КАМА» на автоматизированную, а также без использования средств автоматизации, обработку (включая сбор, запись, систематизацию, накопление, хранение, уточнение (обновление, изменение), использование, передачу (распространение, предоставление, доступ), блокирование, удаление, уничтожение) моих персональных данных, указанных выше, а также моих фото- и видеоизображений для целей участия в проводимом тест драйве прототипа электромобиля «Атом».</p><p>Согласие вступает в силу со дня его подписания и действует до достижения цели обработки.</p><p>Согласие может быть отозвано путем подачи письменного заявления об отзыве в АО «КАМА» по адресу АО «КАМА», указанному выше в настоящем согласии.</p><p><span class="td-fill" data-o="fullName"></span> / _________________(подпись)</p><p>Настоящим также, руководствуясь п. 1 ст. 152.1 Гражданского кодекса Российской Федерации, заявляю о согласии на безвозмездное использование АО «КАМА» моих фото- и видеоизображений.</p><p>АО «КАМА» вправе обнародовать и использовать изображение в любой форме и любыми способами по своему усмотрению, включая, но не ограничиваясь, следующими:</p><ul class="td-bullets"><li>доводить до всеобщего сведения таким образом, что любое лицо может получить доступ к нему из любого места и в любое время по собственному выбору;</li><li>воспроизводить изображение, то есть изготавливать один и более экземпляр или его части в любой материальной форме (в том числе путем нанесения на рекламную, сувенирную и иную продукцию);</li><li>распространять путем продажи или иного отчуждения его оригинала или экземпляров, представляющих собой копии на любом материальном носителе;</li><li>осуществлять любое сообщение, содержащее изображение с помощью технических средств в месте, открытом для свободного посещения, или в месте, где присутствует значительное число лиц, не принадлежащих к обычному кругу семьи.</li></ul><p>Настоящим я даю свое согласие на использование изображения без указания имени (т.е. анонимно). При этом не возражаю против указания имени при использовании изображения в случаях, определенных по усмотрению АО «КАМА».</p><p>АО «КАМА» вправе использовать изображение на территории РФ без получения какого-либо дополнительного согласия и без выплаты вознаграждения.</p><p><span class="td-fill" data-o="fullName"></span> / _________________(подпись)</p></article>`;}
+  function renderObligation(){const p=$('[data-doc-panel="obligation"]');if(!p||typeof buildContext!=='function')return;const ctx=buildContext();Object.entries(ctx).forEach(([k,v])=>{if(typeof v!=='boolean')p.querySelectorAll(`[data-o="${k}"]`).forEach(el=>el.textContent=v||'');});}
+  function mountObligation(){if($('[data-doc-tab="obligation"]'))return true;const tabs=$('.preview-card .td-doc-tabs'),stage=$('.preview-card .td-doc-stage');if(!tabs||!stage)return false;const b=document.createElement('button');b.type='button';b.className='td-doc-tab';b.dataset.docTab='obligation';b.setAttribute('role','tab');b.setAttribute('aria-selected','false');b.textContent='Письменное обязательство';b.onclick=()=>{$$('[data-doc-tab]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));$$('[data-doc-panel]').forEach(x=>x.hidden=x.dataset.docPanel!=='obligation');renderObligation();};tabs.appendChild(b);const p=document.createElement('div');p.className='td-doc-panel';p.dataset.docPanel='obligation';p.setAttribute('role','tabpanel');p.hidden=true;p.innerHTML=obligationMarkup();stage.appendChild(p);renderObligation();return true;}
 
-  function syncActions() {
-    const kinds=selectedKinds(); const count=kinds.length; const missing=validateSelectedData(kinds); const readyTemplates=templatesReady(kinds);
-    const blocked=missing.length>0 || !readyTemplates;
-    const save=$('#saveDocsBtn'), zip=$('#downloadZipBtn');
-    if (save) { save.textContent=`Сформировать и сохранить ${count} DOCX`; save.disabled=blocked||exportBusy; save.title=blocked?'Заполните обязательные поля для выбранных документов':''; }
-    if (zip) { zip.textContent=`Скачать ZIP с ${count} DOCX`; zip.disabled=blocked||exportBusy; zip.title=blocked?'Заполните обязательные поля для выбранных документов':''; }
-    const badge=$('#readinessBadge'), status=$('#validationStatus');
-    if (badge) { badge.textContent=blocked?'Не готово':'Готово'; badge.classList.toggle('ready',!blocked); }
-    if (status) {
-      if (missing.length) { status.className='status warn required-summary'; status.textContent=`Для выбранных документов не заполнено ${missing.length}: ${missing.slice(0,8).join(', ')}${missing.length>8?'...':''}`; }
-      else if (!readyTemplates) { const absent=kinds.filter(kind=>!state?.templates?.has(kind)).map(docLabel); status.className='status warn required-summary'; status.textContent=`Не загружены шаблоны: ${absent.join(', ')}.`; }
-      else { status.className='status ok required-summary'; status.textContent=`Все обязательные поля для выбранных документов заполнены. Выбрано: ${count}.`; }
-    }
-    const printKinds=$$('[data-print-doc]').filter(ch=>ch.checked).map(ch=>ch.dataset.printDoc); const printBtn=$('#tdPrintBtn');
-    if (printBtn) { const pm=printKinds.length ? validateSelectedData(printKinds) : ['Выберите документ']; printBtn.disabled=pm.length>0; printBtn.title=printBtn.disabled?'Заполните обязательные поля для документов, выбранных к печати':''; }
-  }
-
-  function updateAll() { applyRequiredState(); syncSelectionButtons(); syncActions(); }
-  function scheduleUpdate() {
-    if (updateQueued) return; updateQueued=true;
-    requestAnimationFrame(() => { updateQueued=false; updateAll(); window.TestDriveBatch?.refresh?.(); });
-  }
-
-  function setSelection(kinds) {
-    const valid=DOCS.map(doc=>doc.kind).filter(kind=>kinds.includes(kind)); if (!valid.length) return false;
-    selectedDocs.clear(); valid.forEach(kind=>selectedDocs.add(kind)); syncPrintFromSelection(); updateAll();
-    if (typeof window.render === 'function') window.render(); window.TestDriveBatch?.refresh?.(); return true;
-  }
-  function setDocumentSelected(kind,on) {
-    if (!DOCS.some(doc=>doc.kind===kind)) return false;
-    const next=new Set(selectedDocs); on ? next.add(kind) : next.delete(kind); if (!next.size) return false; return setSelection([...next]);
-  }
-  function showSelectionHint(text) {
-    const hint=$('#tdOutputHint'); if (!hint) return;
-    const normal='Выберите документы для формирования. Можно выбрать от 1 до 4.'; hint.textContent=text;
-    if (text!==normal) setTimeout(()=>{ if (hint) hint.textContent=normal; },1800);
-  }
-
-  function mountSelectionUi() {
-    const previewCard=$('.preview-card.live-doc-preview-card') || $('.preview-card');
-    const previewTabs=previewCard?.querySelector('.td-doc-tabs[role="tablist"]') || previewCard?.querySelector('.td-doc-tabs');
-    if (!previewCard || !previewTabs) return false;
-    let controls=$('#tdOutputDocs');
-    if (!controls) {
-      const hint=document.createElement('div'); hint.id='tdOutputHint'; hint.className='td-live-note'; hint.textContent='Выберите документы для формирования. Можно выбрать от 1 до 4.';
-      controls=document.createElement('div'); controls.id='tdOutputDocs'; controls.className='td-doc-tabs'; controls.setAttribute('aria-label','Документы для формирования');
-      const previewHint=document.createElement('div'); previewHint.className='td-live-note'; previewHint.textContent='Предпросмотр документа:';
-      previewTabs.before(hint,controls,previewHint);
-    }
-    DOCS.forEach(doc => {
-      if (controls.querySelector(`[data-output-doc="${doc.kind}"]`)) return;
-      const button=document.createElement('button'); button.type='button'; button.className='td-doc-tab'; button.dataset.outputDoc=doc.kind;
-      button.addEventListener('click',()=>{ const next=!selectedDocs.has(doc.kind); if (!setDocumentSelected(doc.kind,next)) { showSelectionHint('Нужно оставить выбранным хотя бы один документ.'); syncSelectionButtons(); } });
-      controls.appendChild(button);
-    });
-    syncSelectionButtons(); return true;
-  }
-
-  function wirePrintControls() {
-    const box=$('#tdPrintBox'); if (!box) return false;
-    if (!printWired) {
-      printWired=true;
-      box.addEventListener('change',event => {
-        if (!event.target?.matches?.('[data-print-doc],#tdPrintAll')) return;
-        const chosen=$$('[data-print-doc]',box).filter(ch=>ch.checked).map(ch=>ch.dataset.printDoc);
-        if (!chosen.length) { const active=$('[data-doc-tab][aria-selected="true"]')?.dataset.docTab || selectedKinds()[0] || 'poa'; setSelection([active]); showSelectionHint('Нужно оставить выбранным хотя бы один документ.'); }
-        else setSelection(chosen);
-        syncPrintFromSelection();
-      });
-    }
-    syncPrintFromSelection(); return true;
-  }
-
-  function augmentContext(ctx) {
-    const d=typeof getData==='function'?getData():{};
-    const td=typeof dateParts==='function'?dateParts(d.testDriveDate):{day:'____',month:'_______',year:'2026'};
-    ctx.testDriveDateDay=td.day; ctx.testDriveDateMonth=td.month; ctx.testDriveDateYear=td.year; return ctx;
-  }
-
-  async function buildSelectedDocuments() {
-    if (typeof state==='undefined') throw new Error('Состояние приложения недоступно. Обновите страницу.');
-    if (state.busy || exportBusy) throw new Error('Формирование уже выполняется.');
-    const kinds=selectedKinds(); const absent=kinds.filter(kind=>!state.templates.has(kind));
-    if (absent.length) throw new Error(`Не загружены шаблоны: ${absent.map(docLabel).join(', ')}.`);
-    const missing=validateSelectedData(kinds); if (missing.length) throw new Error('Не заполнено: '+missing.slice(0,8).join(', ')+(missing.length>8?'...':''));
-    state.busy=true; exportBusy=true; updateAll();
-    try {
-      const ctx=augmentContext(buildContext()); const docs=new Map();
-      for (const kind of kinds) docs.set(kind,await fillDocx(state.templates.get(kind),ctx));
-      return docs;
-    } finally { state.busy=false; exportBusy=false; updateAll(); }
-  }
-
-  async function saveSelectedDocuments(docs) {
-    if (!state.outputHandle) throw new Error('Папка хранения не выбрана.');
-    if (!$('#localFolderConfirm')?.checked) throw new Error('Подтвердите, что выбранная папка локальная и не синхронизируется с облаком.');
-    const root=await state.outputHandle.getDirectoryHandle('Тестдрайв',{create:true}); const d=getData();
-    const date=formatDateIso(d.testDriveDate)||formatDateIso(new Date().toISOString().slice(0,10)); const folderName=safeFilePart(`${d.fullName} ${date}`);
-    const participant=await root.getDirectoryHandle(folderName,{create:true});
-    for (const [kind,bytes] of docs.entries()) await saveBytesToHandle(participant,OUTPUT_NAMES[kind],bytes);
-    return `Тестдрайв / ${folderName}`;
-  }
-  function buildSelectedZip(docs) { return writeZip([...docs.entries()].map(([kind,data])=>({name:OUTPUT_NAMES[kind],data}))); }
-
-  async function runSave() {
-    const count=selectedKinds().length;
-    try { setStatus('#exportStatus',`Формирую ${count} DOCX локально в браузере...`,'busy'); const docs=await buildSelectedDocuments(); const folder=await saveSelectedDocuments(docs); setStatus('#exportStatus',`Готово. ${docs.size} DOCX сохранено в ${folder}.`,'ok'); }
-    catch(e) { setStatus('#exportStatus',e?.message||'Не удалось сформировать документы.','warn'); focusFirstMissing(); }
-    finally { updateAll(); }
-  }
-  async function runZip() {
-    const count=selectedKinds().length;
-    try { setStatus('#exportStatus',`Формирую ZIP с ${count} DOCX локально в браузере...`,'busy'); const docs=await buildSelectedDocuments(); const zip=buildSelectedZip(docs); const d=getData(); const name=`TestDrive_${safeFilePart(d.fullName)}_${d.testDriveDate||new Date().toISOString().slice(0,10)}.zip`; downloadBlob(new Blob([zip],{type:'application/zip'}),name); setStatus('#exportStatus',`ZIP сформирован локально. В архиве: ${docs.size} DOCX.`,'ok'); }
-    catch(e) { setStatus('#exportStatus',e?.message||'Не удалось сформировать ZIP.','warn'); focusFirstMissing(); }
-    finally { updateAll(); }
-  }
-
-  function interceptActions(event) {
-    const target=event.target instanceof Element?event.target.closest('button'):null; if (!target) return;
-    if (target.id==='saveDocsBtn' || target.id==='downloadZipBtn') {
-      event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); if (target.disabled) return;
-      target.id==='saveDocsBtn' ? void runSave() : void runZip(); return;
-    }
-    if (target.id==='tdPrintBtn') {
-      const kinds=$$('[data-print-doc]').filter(ch=>ch.checked).map(ch=>ch.dataset.printDoc); const missing=validateSelectedData(kinds.length?kinds:selectedKinds());
-      if (!missing.length) return; event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); focusFirstMissing(kinds.length?kinds:selectedKinds());
-    }
-  }
-
-  function loadObligationAssets() {
-    if (!document.querySelector('link[data-obligation-css]')) { const link=document.createElement('link'); link.rel='stylesheet'; link.href='obligation-template.css?v=043'; link.dataset.obligationCss='1'; document.head.appendChild(link); }
-    if (!document.querySelector('script[data-obligation-js]')) { const script=document.createElement('script'); script.src='obligation-template.js?v=043'; script.defer=false; script.dataset.obligationJs='1'; script.onload=()=>refresh(); document.body.appendChild(script); }
-  }
-  function setVersionText() {
-    const meta=$('.title-wrap span'); if (meta) meta.textContent='v0.4.3 · 4 шаблона · локальная обработка';
-    const footer=$('footer'); if (footer) footer.textContent='TestDrive_Doc Web v0.4.3 · 11.09.2026 · 4 шаблона документов';
-  }
-  function refresh() { mountSelectionUi(); wirePrintControls(); updateAll(); window.TestDriveBatch?.refresh?.(); }
-
-  function boot() {
-    if (mounted) return; mounted=true;
-    window.validateData=validateSelectedData;
-    window.TestDriveDocs={getSelected:selectedKinds,isSelected:kind=>selectedDocs.has(kind),setSelected:setDocumentSelected,setSelection,refresh,getRequiredFields:()=>requiredRows().map(([key,label])=>({key,label}))};
-    setVersionText(); loadObligationAssets(); document.addEventListener('click',interceptActions,true);
-    document.addEventListener('input',event=>{ if (event.target?.matches?.('[data-f]')) scheduleUpdate(); },true);
-    document.addEventListener('change',event=>{ if (event.target?.matches?.('[data-f],[data-c]')) scheduleUpdate(); },true);
-    $('#clearBtn')?.addEventListener('click',()=>setTimeout(scheduleUpdate,0));
-    refresh(); requestAnimationFrame(refresh); setTimeout(refresh,250); setTimeout(refresh,900);
-  }
-
-  if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
+  function kinds(){return DOCS.map(d=>d.kind).filter(k=>selected.has(k));}
+  function requiredKeys(use=kinds()){const out=[],seen=new Set();use.forEach(k=>(REQUIRED[k]||[]).forEach(f=>{if(!seen.has(f)){seen.add(f);out.push(f);}}));if(use.includes('consent')&&$('[data-c="consentMessenger"]')?.checked&&!seen.has('messenger'))out.push('messenger');return out;}
+  function data(){return typeof getData==='function'?getData():{};}
+  function errors(use=kinds()){const d=data(),req=requiredKeys(use),out=req.filter(k=>!String(d[k]??'').trim()).map(k=>LABEL[k]||k);if(req.includes('passportSeries')&&d.passportSeries&&!/^\d{4}$/.test(d.passportSeries))out.push('Серия паспорта: 4 цифры');if(req.includes('passportNumber')&&d.passportNumber&&!/^\d{6}$/.test(d.passportNumber))out.push('Номер паспорта: 6 цифр');return out;}
+  function templatesReady(use=kinds()){window.ensureObligationTemplate?.();return !!(typeof state!=='undefined'&&state?.templates&&use.every(k=>state.templates.has(k)));}
+  function mark(){const req=new Set(requiredKeys());$$('[data-f]').forEach(el=>{const f=el.closest('.field');if(!f)return;const on=req.has(el.dataset.f),empty=!String(el.value??'').trim();f.classList.toggle('required-field',on);f.classList.toggle('required-empty',on&&empty);el.classList.toggle('required-empty-control',on&&empty);el.required=on;});}
+  function syncButtons(){$$('[data-output-doc]').forEach(b=>{const on=selected.has(b.dataset.outputDoc),doc=DOCS.find(d=>d.kind===b.dataset.outputDoc);b.setAttribute('aria-selected',String(on));b.setAttribute('aria-pressed',String(on));b.textContent=`${on?'✓ ':''}${doc?.label||b.dataset.outputDoc}`;});}
+  function syncActions(){const use=kinds(),missing=errors(use),ready=templatesReady(use),blocked=missing.length||!ready;const save=$('#saveDocsBtn'),zip=$('#downloadZipBtn'),badge=$('#readinessBadge'),status=$('#validationStatus');if(save){save.textContent=`Сформировать и сохранить ${use.length} DOCX`;save.disabled=!!blocked||busy;}if(zip){zip.textContent=`Скачать ZIP с ${use.length} DOCX`;zip.disabled=!!blocked||busy;}if(badge){badge.textContent=blocked?'Не готово':'Готово';badge.classList.toggle('ready',!blocked);}if(status){if(missing.length){status.className='status warn required-summary';status.textContent=`Для выбранных документов не заполнено ${missing.length}: ${missing.slice(0,8).join(', ')}${missing.length>8?'...':''}`;}else if(!ready){status.className='status warn required-summary';status.textContent='Загружаю выбранные шаблоны...';}else{status.className='status ok required-summary';status.textContent=`Все обязательные поля заполнены. Выбрано документов: ${use.length}.`;}}}
+  function update(){mark();syncButtons();syncActions();}
+  function setSelection(list){const valid=DOCS.map(d=>d.kind).filter(k=>list.includes(k));if(!valid.length)return false;selected.clear();valid.forEach(k=>selected.add(k));syncPrint();update();return true;}
+  function setSelected(kind,on){if(!DOCS.some(d=>d.kind===kind))return false;const next=new Set(selected);on?next.add(kind):next.delete(kind);if(!next.size)return false;return setSelection([...next]);}
+  function mountSelection(){if($('#tdOutputDocs'))return true;const tabs=$('.preview-card .td-doc-tabs');if(!tabs)return false;const hint=document.createElement('div');hint.id='tdOutputHint';hint.className='td-live-note';hint.textContent='Выберите документы для формирования. Можно выбрать от 1 до 4.';const controls=document.createElement('div');controls.id='tdOutputDocs';controls.className='td-doc-tabs';DOCS.forEach(doc=>{const b=document.createElement('button');b.type='button';b.className='td-doc-tab';b.dataset.outputDoc=doc.kind;b.onclick=()=>{if(!setSelected(doc.kind,!selected.has(doc.kind))){hint.textContent='Нужно оставить хотя бы один документ.';setTimeout(()=>hint.textContent='Выберите документы для формирования. Можно выбрать от 1 до 4.',1500);}};controls.appendChild(b);});tabs.before(hint,controls);syncButtons();return true;}
+  function syncPrint(){$$('[data-print-doc]').forEach(ch=>{ch.checked=selected.has(ch.dataset.printDoc);const n=$(`[data-print-copies="${ch.dataset.printDoc}"]`);if(n)n.disabled=!ch.checked;});}
+  function wirePrint(){if(wiredPrint||!$('#tdPrintBox'))return false;wiredPrint=true;$$('[data-print-doc]').forEach(ch=>ch.addEventListener('change',()=>{const use=$$('[data-print-doc]').filter(x=>x.checked).map(x=>x.dataset.printDoc);if(use.length)setSelection(use);else{ch.checked=true;setSelection([ch.dataset.printDoc]);}}));syncPrint();return true;}
+  function focusFirst(){const req=new Set(requiredKeys()),el=$$('[data-f]').find(x=>req.has(x.dataset.f)&&!String(x.value??'').trim());if(el){el.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>el.focus(),200);}}
+  async function build(){if(busy)throw new Error('Формирование уже выполняется.');const use=kinds();await loadObligationTemplate();const miss=errors(use);if(miss.length)throw new Error('Не заполнено: '+miss.slice(0,8).join(', '));if(!templatesReady(use))throw new Error('Не все выбранные шаблоны загружены.');busy=true;update();try{const ctx=buildContext(),docs=new Map();for(const kind of use)docs.set(kind,await fillDocx(state.templates.get(kind),ctx));return docs;}finally{busy=false;update();}}
+  async function saveFolder(docs){if(!state.outputHandle)throw new Error('Папка хранения не выбрана.');if(!$('#localFolderConfirm')?.checked)throw new Error('Подтвердите, что папка локальная.');const root=await state.outputHandle.getDirectoryHandle('Тестдрайв',{create:true}),d=data(),folder=safeFilePart(`${d.fullName} ${formatDateIso(d.testDriveDate)||formatDateIso(new Date().toISOString().slice(0,10))}`),dir=await root.getDirectoryHandle(folder,{create:true});for(const [kind,bytes] of docs)await saveBytesToHandle(dir,OUTPUT_NAMES[kind],bytes);return `Тестдрайв / ${folder}`;}
+  function zip(docs){return writeZip([...docs].map(([kind,bytes])=>({name:OUTPUT_NAMES[kind],data:bytes})));}
+  async function runSave(){try{setStatus('#exportStatus',`Формирую ${kinds().length} DOCX...`,'busy');const docs=await build(),folder=await saveFolder(docs);setStatus('#exportStatus',`Готово. ${docs.size} DOCX сохранено в ${folder}.`,'ok');}catch(e){setStatus('#exportStatus',e.message||'Ошибка формирования.','warn');focusFirst();}}
+  async function runZip(){try{setStatus('#exportStatus',`Формирую ZIP с ${kinds().length} DOCX...`,'busy');const docs=await build(),z=zip(docs),d=data(),name=`TestDrive_${safeFilePart(d.fullName)}_${d.testDriveDate||new Date().toISOString().slice(0,10)}.zip`;downloadBlob(new Blob([z],{type:'application/zip'}),name);setStatus('#exportStatus',`ZIP сформирован. В архиве ${docs.size} DOCX.`,'ok');}catch(e){setStatus('#exportStatus',e.message||'Ошибка формирования ZIP.','warn');focusFirst();}}
+  function intercept(e){const b=e.target instanceof Element?e.target.closest('button'):null;if(!b)return;if(b.id==='saveDocsBtn'||b.id==='downloadZipBtn'){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();if(b.disabled)return;b.id==='saveDocsBtn'?void runSave():void runZip();return;}if(b.id==='tdPrintBtn'){const use=$$('[data-print-doc]').filter(x=>x.checked).map(x=>x.dataset.printDoc),miss=errors(use.length?use:kinds());if(miss.length){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();focusFirst();}}}
+  function refresh(){patchData();mountObligation();mountSelection();wirePrint();renderObligation();update();}
+  function boot(){injectBirthPlace();patchData();void loadObligationTemplate();window.validateData=errors;window.TestDriveDocs={getSelected:kinds,isSelected:k=>selected.has(k),setSelected,setSelection,refresh,getRequiredFields:()=>requiredKeys().map(key=>({key,label:LABEL[key]||key}))};const meta=$('.title-wrap span');if(meta)meta.textContent='v0.4.3 · 4 шаблона · массовая печать';const footer=$('footer');if(footer)footer.textContent='TestDrive_Doc Web v0.4.3 · 11.09.2026 · 4 шаблона';document.addEventListener('click',intercept,true);document.addEventListener('input',()=>{renderObligation();update();},true);document.addEventListener('change',()=>{renderObligation();update();},true);refresh();requestAnimationFrame(refresh);setTimeout(refresh,250);setTimeout(refresh,1000);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();
