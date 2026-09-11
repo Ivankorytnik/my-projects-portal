@@ -64,9 +64,23 @@
   let mounted = false;
   let printWired = false;
   let exportBusy = false;
+  let updateQueued = false;
 
   const $ = (s, root=document) => root.querySelector(s);
   const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+
+  // live-doc-preview.js раньше запускал render() каждые 500 мс.
+  // Его собственные input/change/clear/OCR-события уже полностью покрывают обновление,
+  // поэтому подавляем только этот один старый таймер до события load.
+  const nativeSetInterval = window.setInterval;
+  function guardedSetInterval(fn, delay, ...args) {
+    if (Number(delay) === 500 && typeof fn === 'function' && fn.name === 'render') return 0;
+    return Reflect.apply(nativeSetInterval, window, [fn, delay, ...args]);
+  }
+  window.setInterval = guardedSetInterval;
+  window.addEventListener('load',() => {
+    if (window.setInterval === guardedSetInterval) window.setInterval = nativeSetInterval;
+  },{once:true});
 
   function selectedKinds() {
     return DOCS.map(doc => doc.kind).filter(kind => selectedDocs.has(kind));
@@ -252,6 +266,17 @@
     applyRequiredState();
     syncSelectionButtons();
     syncActions();
+  }
+
+  function scheduleUpdate() {
+    if (updateQueued) return;
+    updateQueued = true;
+    const run = () => {
+      updateQueued = false;
+      updateAll();
+    };
+    if (typeof requestAnimationFrame === 'function') requestAnimationFrame(run);
+    else setTimeout(run,0);
   }
 
   function setSelection(kinds) {
@@ -484,9 +509,15 @@
 
   function setVersionText() {
     const meta = $('.title-wrap span');
-    if (meta) meta.textContent = 'v0.4.0 · обязательные поля по выбранным документам · локальная обработка';
+    if (meta) meta.textContent = 'v0.4.1 · реактивное обновление · локальная обработка';
     const footer = $('footer');
-    if (footer) footer.textContent = 'TestDrive_Doc Web v0.4.0 · 11.09.2026 · обязательные поля по выбранным документам';
+    if (footer) footer.textContent = 'TestDrive_Doc Web v0.4.1 · 11.09.2026 · реактивное обновление без фонового опроса';
+  }
+
+  function refresh() {
+    mountSelectionUi();
+    wirePrintControls();
+    updateAll();
   }
 
   function boot() {
@@ -499,31 +530,23 @@
       isSelected: kind => selectedDocs.has(kind),
       setSelected: setDocumentSelected,
       setSelection,
+      refresh,
       getRequiredFields: () => requiredRows().map(([key,label]) => ({key,label}))
     };
 
     setVersionText();
     document.addEventListener('click',interceptActions,true);
     $$('[data-f]').forEach(el => {
-      el.addEventListener('input',updateAll);
-      el.addEventListener('change',updateAll);
+      el.addEventListener('input',scheduleUpdate);
+      el.addEventListener('change',scheduleUpdate);
     });
-    $$('[data-c]').forEach(el => el.addEventListener('change',updateAll));
-    $('#clearBtn')?.addEventListener('click',() => setTimeout(updateAll,0));
+    $$('[data-c]').forEach(el => el.addEventListener('change',scheduleUpdate));
+    $('#clearBtn')?.addEventListener('click',() => setTimeout(scheduleUpdate,0));
 
-    const mountExtras = () => {
-      mountSelectionUi();
-      wirePrintControls();
-      updateAll();
-    };
-    mountExtras();
-    setTimeout(mountExtras,250);
-    setTimeout(mountExtras,800);
-    setInterval(() => {
-      if (!$('#tdOutputDocs')) mountSelectionUi();
-      if (!printWired) wirePrintControls();
-      updateAll();
-    },700);
+    refresh();
+    requestAnimationFrame(refresh);
+    setTimeout(refresh,250);
+    setTimeout(refresh,800);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',boot,{once:true});
