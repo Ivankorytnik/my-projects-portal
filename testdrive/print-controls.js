@@ -4,7 +4,8 @@
   const DOCS = [
     {kind:'poa', label:'Доверенность'},
     {kind:'questionnaire', label:'Анкета клиента'},
-    {kind:'consent', label:'СОПД'}
+    {kind:'consent', label:'СОПД'},
+    {kind:'obligation', label:'Письменное обязательство'}
   ];
 
   const $ = (s, root=document) => root.querySelector(s);
