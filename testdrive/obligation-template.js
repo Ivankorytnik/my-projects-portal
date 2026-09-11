@@ -7,6 +7,7 @@
   const $=(s,root=document)=>root.querySelector(s);
   const $$=(s,root=document)=>[...root.querySelectorAll(s)];
   const months=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+  let getDataPatched=false;
 
   function fmtDate(v) {
     const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(v||'');
@@ -39,6 +40,17 @@
     const input=document.createElement('input'); input.dataset.f='birthPlace'; input.autocomplete='off';
     field.append(label,input); row.after(field);
     return true;
+  }
+
+  function patchGetData() {
+    if (getDataPatched || typeof window.getData !== 'function') return;
+    const base=window.getData;
+    window.getData=function() {
+      const d=base();
+      d.birthPlace=String($('[data-f="birthPlace"]')?.value||'').trim();
+      return d;
+    };
+    getDataPatched=true;
   }
 
   function markup() {
@@ -97,9 +109,10 @@
   }
   async function loadTemplate() {
     try {
-      const res=await fetch('./templates/written_obligation_template.b64?v=20260911-1',{cache:'force-cache',credentials:'same-origin'});
-      if (!res.ok) throw new Error('template');
-      const bytes=decodeBase64(await res.text());
+      const responses=await Promise.all([1,2,3,4,5,6].map(i=>fetch(`./templates/written_obligation_template.part${i}?v=20260911-1`,{cache:'force-cache',credentials:'same-origin'})));
+      if (responses.some(res=>!res.ok)) throw new Error('template');
+      const b64=(await Promise.all(responses.map(res=>res.text()))).join('');
+      const bytes=decodeBase64(b64);
       state.templates.set(KIND,new File([bytes],TEMPLATE_FILE,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
       const status=$('#templatesStatus'); if (status && !/письменное обязательство/i.test(status.textContent)) status.textContent=`${status.textContent.replace(/\.$/,'')} · письменное обязательство загружено.`;
       window.TestDriveDocs?.refresh?.();
@@ -110,13 +123,13 @@
   }
 
   function boot() {
-    addBirthPlaceField();
+    addBirthPlaceField(); patchGetData();
     if (!mountPreview()) setTimeout(mountPreview,100);
     document.addEventListener('input',event=>{ if (event.target?.matches?.('[data-f]')) render(); },true);
     document.addEventListener('change',event=>{ if (event.target?.matches?.('[data-f]')) render(); },true);
     $('#clearBtn')?.addEventListener('click',()=>setTimeout(render,0));
     void loadTemplate();
-    setTimeout(()=>{ addBirthPlaceField(); mountPreview(); render(); window.TestDriveDocs?.refresh?.(); },350);
+    setTimeout(()=>{ addBirthPlaceField(); patchGetData(); mountPreview(); render(); window.TestDriveDocs?.refresh?.(); },350);
   }
 
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot,{once:true}); else boot();
