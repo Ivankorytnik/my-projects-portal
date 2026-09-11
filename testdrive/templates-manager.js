@@ -51,18 +51,23 @@
       if (el) el.textContent = text;
     }
   }
+  function refreshUi() {
+    if (typeof render === 'function') render();
+    window.TestDriveDocs?.refresh?.();
+  }
   async function loadSavedTemplates() {
     try {
+      const rows = await Promise.all(KINDS.map(kind => dbGet(kind)));
       const map = new Map();
-      for (const kind of KINDS) {
-        const row = await dbGet(kind);
+      rows.forEach((row,index) => {
+        const kind = KINDS[index];
         if (row?.blob) map.set(kind,new File([row.blob],row.name || TEMPLATE_NAMES[kind],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
-      }
+      });
       if (map.size === 3) {
         state.templates = map;
         const version = await dbGet(VERSION_KEY);
         status(`Активны сохранённые шаблоны${version ? ` · ${version}` : ''}. Персональные данные в хранилище шаблонов не записываются.`,'ok');
-        render();
+        refreshUi();
         return true;
       }
     } catch (_) {}
@@ -73,21 +78,23 @@
       const manifestRes = await fetch('./templates/manifest.json',{cache:'no-store',credentials:'same-origin'});
       if (!manifestRes.ok) throw new Error('manifest');
       const manifest = await manifestRes.json();
-      const map = new Map();
-      for (const kind of KINDS) {
+      const version = encodeURIComponent(manifest.version || manifest.updated || 'current');
+
+      const loaded = await Promise.all(KINDS.map(async kind => {
         const name = manifest.templates?.[kind] || TEMPLATE_NAMES[kind];
-        const res = await fetch(`./templates/${encodeURIComponent(name)}`,{cache:'no-store',credentials:'same-origin'});
+        const res = await fetch(`./templates/${encodeURIComponent(name)}?v=${version}`,{cache:'force-cache',credentials:'same-origin'});
         if (!res.ok) throw new Error(name);
         const blob = await res.blob();
-        map.set(kind,new File([blob],name,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}));
-      }
-      state.templates = map;
+        return [kind,new File([blob],name,{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})];
+      }));
+
+      state.templates = new Map(loaded);
       status(`Штатные шаблоны сайта загружены · версия ${manifest.version || manifest.updated || 'текущая'}.`,'ok');
-      render();
+      refreshUi();
       return true;
     } catch (_) {
       status('Штатные шаблоны ещё не опубликованы. Нажмите «Обновить шаблоны» и выберите 3 DOCX.','warn');
-      render();
+      refreshUi();
       return false;
     }
   }
@@ -100,12 +107,12 @@
       if (file) selected.set(kind,file);
     }
     if (selected.size !== 3) throw new Error('Выберите 3 файла: poa_template.docx, questionnaire_template.docx и consent_template.docx.');
-    for (const [kind,file] of selected) await dbPut(kind,{name:file.name,blob:file,lastModified:file.lastModified});
+    await Promise.all([...selected].map(([kind,file]) => dbPut(kind,{name:file.name,blob:file,lastModified:file.lastModified})));
     const stamp = new Intl.DateTimeFormat('ru-RU',{dateStyle:'short',timeStyle:'short'}).format(new Date());
     await dbPut(VERSION_KEY,`обновлено ${stamp}`);
     state.templates = selected;
     status(`Шаблоны обновлены и сохранены только в этом браузере · ${stamp}.`,'ok');
-    render();
+    refreshUi();
   }
   function addSecurityLinks() {
     const actions = document.querySelector('.top-actions');
