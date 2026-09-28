@@ -38,13 +38,14 @@
   }
 
   function syncDeletedIdsFromCloud(remoteProjects) {
-    if (!Array.isArray(remoteProjects) || typeof initialProjects === "undefined") return;
+    if (!Array.isArray(remoteProjects)) return;
     const remoteIds = new Set(remoteProjects.map(project => project.id));
     const deleted = getDeletedIds();
-    initialProjects.forEach(project => {
-      if (!remoteIds.has(project.id)) deleted.add(project.id);
+    let changed = false;
+    remoteIds.forEach(id => {
+      if (deleted.delete(id)) changed = true;
     });
-    saveDeletedIds(deleted);
+    if (changed) saveDeletedIds(deleted);
   }
 
   document.addEventListener("click", event => {
