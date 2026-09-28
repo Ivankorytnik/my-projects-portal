@@ -153,7 +153,9 @@
       window.HubDeletedProjects.syncDeletedIdsFromCloud(remoteProjects);
       remoteProjects = window.HubDeletedProjects.removeDeletedFromProjects(remoteProjects);
     }
-    state.projects = remoteProjects.map(normalizeProject);
+    state.projects = typeof mergeWithCatalog === "function"
+      ? mergeWithCatalog(remoteProjects)
+      : remoteProjects.map(normalizeProject);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
   }
 
