@@ -31,3 +31,5 @@ npm start
 npm install
 npm run dist
 ```
+
+Сборка запускается автоматически при изменениях desktop-версии.
