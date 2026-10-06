@@ -1,0 +1,49 @@
+{
+  "name": "testdrive-doc-desktop",
+  "version": "0.4.3",
+  "private": true,
+  "description": "Offline Windows desktop application for TestDrive_Doc",
+  "main": "desktop/main.js",
+  "author": "KORYTNIK HUB",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis portable"
+  },
+  "devDependencies": {
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "pro.korytnikhub.testdrive",
+    "productName": "TestDrive Doc",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "testdrive/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "artifactName": "TestDrive-Doc-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TestDrive Doc"
+    }
+  }
+}
