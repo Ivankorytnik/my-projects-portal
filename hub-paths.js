@@ -2,7 +2,6 @@
   const managedUrls = {
     sound: "https://korytnikhub.pro/sound/",
     "fishing-day": "https://korytnikhub.pro/fishing/",
-    calculator: "https://korytnikhub.pro/calculator/",
     "kp-auto": "https://korytnikhub.pro/auto/",
     "korytnik-ai": "https://korytnikhub.pro/ai/"
   };

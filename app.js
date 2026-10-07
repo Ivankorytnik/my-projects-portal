@@ -34,21 +34,6 @@ const initialProjects = [
     accent: "#68e7ff"
   },
   {
-    id: "calculator",
-    type: "business",
-    title: "Калькулятор финмодели",
-    category: "Финмодель",
-    status: "mvp",
-    description: "Интерактивный калькулятор 12-месячной финансовой модели проекта «Желание сквозь Вселенную».",
-    nextStep: "Синхронизировать модель с актуальными тарифами и пилотными затратами.",
-    url: "https://ivankorytnik.github.io/calculator/",
-    githubUrl: "https://github.com/Ivankorytnik/calculator",
-    owner: "Иван Корытник",
-    updated: "2026-09-01",
-    color: "#0b1020",
-    accent: "#78a8ff"
-  },
-  {
     id: "fishing-day",
     type: "personal",
     title: "Рыболовный день",

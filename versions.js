@@ -5,7 +5,6 @@
   const KNOWN_VERSIONS = {
     "personal-site": "v1.0.0",
     "jelanie": "v2.1",
-    "calculator": "v1.0.0",
     "fishing-day": "35",
     "sound": "v1.6.0",
     "kp-auto": "v4.4",
