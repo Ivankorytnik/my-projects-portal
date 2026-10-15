@@ -1,0 +1,65 @@
+name: Synchronize approved Speech Lab and verify live site
+on:
+  push:
+    branches: [speechlab/stage-v1.6.3-20261015-02]
+permissions:
+  contents: write
+jobs:
+  reviewed-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      HUB_BASE: bf9b2d6ab6b3c644790017b8630f97dbf5e82d92
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          repository: Ivankorytnik/Sound
+          ref: 65a0ffefdfb036149917f85ad488bbff39351700
+          path: reviewed-sound
+      - name: Copy exactly six already tested files into a clean candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse origin/main)" = "$HUB_BASE"
+          git worktree add --detach "$RUNNER_TEMP/speechlab-hub" "$HUB_BASE"
+          python - <<'PY'
+          import hashlib, os
+          from pathlib import Path
+          target=Path(os.environ['RUNNER_TEMP'])/'speechlab-hub'/'sound'
+          source=Path('reviewed-sound')
+          old={'app-core.js':'de9f06958caa33c0cb5a1833a7807f8ecb022d81','index.html':'44f2ea8fcca70991c0da507a093c9eaea8da8f8b','app.js':'19c77595d8a3a663b0c1758182b7dcf5f50e3fcd','transcription-worker.js':'66e1738e17f34dfb3662a624c04d675e10755d49'}
+          new={'app-core.js':'a09be849fbaf9948e40ae3f4d3a267ecb07c91e1','index.html':'7ad79fb7297338e9441230f319fbd88c10170b94','app.js':'dc394cd3246fb4402cd5e975f5a0dbd17286c2a7','transcription-worker.js':'4f9ba4450c13f22fa80ea7b0d7467235510f133d','transcription-runtime.js':'c2e7ac9522e2e7a5637ccef806073a77b66823fd','transcription-engine.js':'0d58a9c30fed9390b33c56e357a3bf53116594dc'}
+          def sha(b):return hashlib.sha1(f'blob {len(b)}\0'.encode()+b).hexdigest()
+          for name,expected in old.items():assert sha((target/name).read_bytes())==expected,name
+          for name,expected in new.items():assert sha((source/name).read_bytes())==expected,name
+          for name in new:(target/name).write_bytes((source/name).read_bytes())
+          print('All six release files exactly match the tested Sound candidate.')
+          PY
+          cd "$RUNNER_TEMP/speechlab-hub"
+          for file in sound/app-core.js sound/app.js sound/transcription-worker.js sound/transcription-runtime.js sound/transcription-engine.js; do node --check "$file"; done
+          git diff --check
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add sound/app-core.js sound/index.html sound/app.js sound/transcription-worker.js sound/transcription-runtime.js sound/transcription-engine.js
+          test "$(git diff --cached --name-only | wc -l)" -eq 6
+          git commit -m 'Publish approved Speech Lab v1.6.3: runtime recovery and lifecycle fixes'
+          git push origin "HEAD:refs/heads/speechlab/candidate-$GITHUB_RUN_ID"
+          echo "CANDIDATE_SHA=$(git rev-parse HEAD)"
+          echo "Candidate: $(git rev-parse HEAD)" >> "$GITHUB_STEP_SUMMARY"
+          git diff "$HUB_BASE" HEAD --stat
+      - name: Install verification browser
+        run: |
+          python -m pip install playwright==1.55.0
+          python -m playwright install --with-deps chromium
+      - name: Verify deployed bytes and actual speech recognition on the public site
+        run: python .speechlab-checks/verify-live.py
+      - name: Retain verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: speechlab-live-verification
+          retention-days: 14
+          path: ${{ runner.temp }}/speechlab-live/
