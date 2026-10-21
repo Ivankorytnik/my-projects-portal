@@ -48,6 +48,8 @@ jobs:
           set -euo pipefail
           mkdir -p hub/sound
           rsync -a --delete --exclude='.git' --exclude='CNAME' src-sound/ hub/sound/
+          test -s hub/sound/index.html && test -s hub/sound/styles.css && test -s hub/sound/folder-save.js
+          echo "Speech Lab synchronized from $(git -C src-sound rev-parse --short HEAD)"
           # On workflow updates, publish only Speech Lab; preserve every other project.
           # Scheduled/manual runs also sync the two available external repositories.
           if [ "$GITHUB_EVENT_NAME" != "push" ]; then
