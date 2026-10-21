@@ -29,18 +29,14 @@ jobs:
           path: src-sound
 
       - name: Checkout Fishing Day
+        if: github.event_name != 'push'
         uses: actions/checkout@v4
         with:
           repository: Ivankorytnik/fishing-day
           path: src-fishing
 
-      - name: Checkout calculator
-        uses: actions/checkout@v4
-        with:
-          repository: Ivankorytnik/calculator
-          path: src-calculator
-
       - name: Checkout KP AUTO
+        if: github.event_name != 'push'
         uses: actions/checkout@v4
         with:
           repository: Ivankorytnik/KP_AUTO
@@ -49,13 +45,17 @@ jobs:
       - name: Copy projects into hub paths
         shell: bash
         run: |
-          set -e
-          rm -rf hub/sound hub/fishing hub/calculator hub/auto
-          mkdir -p hub/sound hub/fishing hub/calculator hub/auto
+          set -euo pipefail
+          mkdir -p hub/sound
           rsync -a --delete --exclude='.git' --exclude='CNAME' src-sound/ hub/sound/
-          rsync -a --delete --exclude='.git' --exclude='CNAME' src-fishing/ hub/fishing/
-          rsync -a --delete --exclude='.git' --exclude='CNAME' src-calculator/ hub/calculator/
-          rsync -a --delete --exclude='.git' --exclude='CNAME' src-auto/ hub/auto/
+          # On workflow updates, publish only Speech Lab; preserve every other project.
+          # Scheduled/manual runs also sync the two available external repositories.
+          if [ "$GITHUB_EVENT_NAME" != "push" ]; then
+            mkdir -p hub/fishing hub/auto
+            rsync -a --delete --exclude='.git' --exclude='CNAME' src-fishing/ hub/fishing/
+            rsync -a --delete --exclude='.git' --exclude='CNAME' src-auto/ hub/auto/
+          fi
+          # Calculator repository is no longer accessible. Keep existing hub/calculator.
 
       - name: Commit synchronized projects
         shell: bash
@@ -64,7 +64,10 @@ jobs:
           set -e
           git config user.name 'korytnik-hub-bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sound fishing calculator auto
+          git add sound
+          if [ "$GITHUB_EVENT_NAME" != "push" ]; then
+            git add fishing auto
+          fi
           if git diff --cached --quiet; then
             echo 'No project changes to sync.'
             exit 0
