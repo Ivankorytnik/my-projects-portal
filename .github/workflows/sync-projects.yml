@@ -50,6 +50,7 @@ jobs:
           rsync -a --delete --exclude='.git' --exclude='CNAME' src-sound/ hub/sound/
           test -s hub/sound/index.html && test -s hub/sound/styles.css && test -s hub/sound/folder-save.js
           echo "Speech Lab synchronized from $(git -C src-sound rev-parse --short HEAD)"
+          test -f hub/sound/styles.css && grep -q 'Dictaphone: auto-transcription toggle and recording status side-by-side' hub/sound/styles.css
           # On workflow updates, publish only Speech Lab; preserve every other project.
           # Scheduled/manual runs also sync the two available external repositories.
           if [ "$GITHUB_EVENT_NAME" != "push" ]; then
