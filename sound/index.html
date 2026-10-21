@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
   <link rel="preconnect" href="https://cdn.sheetjs.com" crossorigin />
   <link rel="preconnect" href="https://huggingface.co" crossorigin />
-  <link rel="stylesheet" href="./styles.css?build=v1.5.1-20260821-0708" />
+  <link rel="stylesheet" href="./styles.css?build=inline-switches-20261021-01" />
 </head>
 <body>
   <main class="shell">
@@ -30,8 +30,8 @@
         <div class="badge">LOCAL AI</div>
         <div class="build-badge" id="buildBadge" aria-label="Версия приложения">
           <span>ВЕРСИЯ</span>
-          <strong id="appVersion">v1.6.3</strong>
-          <small id="appBuildTime">15.10.2026 · 16:22</small>
+          <strong id="appVersion">v1.6.5</strong>
+          <small id="appBuildTime">21.10.2026 · 11:46</small>
         </div>
       </div>
     </header>
@@ -81,7 +81,7 @@
             <div class="capture-source-mode-head">
               <div>
                 <strong>РЕЖИМ ВЫБОРА ИСТОЧНИКА</strong>
-                <small>Авто запоминает тип последнего источника. Ручной позволяет выбрать тип самому.</small>
+                <small>Авто запоминает последний источник, с которого удалось начать запись. Ручной позволяет указать предпочтительный тип.</small>
               </div>
               <span class="capture-mode-badge" id="captureModeBadge">AUTO</span>
             </div>
@@ -116,7 +116,7 @@
             <label class="switch-row">
               <span>
                 <strong>ДОБАВИТЬ МОЙ МИКРОФОН</strong>
-                <small>Ваш голос пишется отдельным каналом для пометки «ВЫ»</small>
+                <small>Микрофон добавляется к общему аудио. Автоматической идентификации голосов нет.</small>
               </span>
               <input id="micToggle" type="checkbox" checked />
               <i></i>
@@ -206,18 +206,18 @@
             </button>
           </div>
 
-          <div class="capture-help">
-            <strong>КАК ЗАХВАТИТЬ ЗВУК ЛОКАЛЬНО</strong>
+          <details class="capture-help">
+            <summary>КАК ЗАХВАТИТЬ ЗВУК ЛОКАЛЬНО</summary>
             <ol>
               <li>Открой Zoom / Толк / встречу и вернись сюда.</li>
               <li>Выбери «Автозахват» или «Ручной».</li>
               <li>Нажми «Найти и начать» / «Выбрать и начать».</li>
               <li>Подтверди источник в системном окне браузера. Это обязательная защита браузера.</li>
               <li>В окне браузера включи «Поделиться аудио» / «Share audio».</li>
-              <li>После звонка AI локально разделит удалённые голоса на Спикер 1 / 2 / 3 и подставит заданные имена.</li>
-              <li>Прослушай первую реплику каждого спикера и при необходимости поменяй имена местами.</li>
+              <li>После распознавания открой сегменты и назначь говорящих вручную (если включена разметка).</li>
+              <li>Проверь таймкоды и текст. Автоматического разделения голосов пока нет.</li>
             </ol>
-          </div>
+          </details>
         </section>
 
 
@@ -276,15 +276,15 @@
             </button>
           </div>
 
-          <div class="capture-help">
-            <strong>КАК ИСПОЛЬЗОВАТЬ</strong>
+          <details class="capture-help">
+            <summary>КАК ИСПОЛЬЗОВАТЬ</summary>
             <ol>
               <li>Разреши браузеру доступ к микрофону.</li>
               <li>Нажми «Начать запись» и говори.</li>
               <li>Нажми «Остановить».</li>
               <li>При включённом авто-режиме Whisper сразу создаст текст.</li>
             </ol>
-          </div>
+          </details>
         </section>
 
         <section class="mode-section hidden" id="fileMode">
@@ -391,7 +391,7 @@
           <div class="signal" aria-hidden="true">
             <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
           </div>
-          <p>Здесь появится стенограмма. В живом разговоре реплики будут разделены по голосам и помечены именами участников.</p>
+          <p>Здесь появится стенограмма. После обработки можно вручную назначить говорящих сегментам записи.</p>
         </div>
 
         <div class="result hidden" id="resultBlock">
@@ -419,13 +419,13 @@
 
     <footer>
       <span>Локальная обработка аудио · без API-ключа · без загрузки записи</span>
-      <span id="footerBuild">Версия v1.6.3 · сборка 15.10.2026 16:22</span>
+      <span id="footerBuild">Версия v1.6.5 · сборка 21.10.2026 11:46</span>
       <span>Системные индикаторы браузера/ОС не скрываются и не обходятся</span>
     </footer>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  <script defer src="./app.js?build=v1.6.3-20261015-02"></script>
+  <script defer src="./app.js?build=v1.6.5-20261021-01"></script>
 </body>
 </html>
