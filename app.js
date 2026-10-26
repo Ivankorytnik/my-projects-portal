@@ -222,6 +222,8 @@ const initialProjects = [
   }
 ];
 
+const RETIRED_PROJECT_IDS = new Set(["spacewish-test","atom-commercial-analytics","atom-commercial-analytics-test","atom-business-control-center","atom-brain","atom-lead-hub","cross-analytics","b2b-company-registry"]);
+
 const statusLabels = {
   idea: "Идея",
   active: "В работе",
@@ -349,7 +351,7 @@ function saveDeletedProjectIds(ids) {
 
 function mergeWithCatalog(savedProjects) {
   const deleted = new Set(getDeletedProjectIds());
-  const catalog = initialProjects.map(normalizeProject).filter(project => !deleted.has(project.id));
+  const catalog = initialProjects.map(normalizeProject).filter(project => !deleted.has(project.id) && !RETIRED_PROJECT_IDS.has(project.id));
   const saved = Array.isArray(savedProjects) ? savedProjects.map(normalizeProject) : [];
   const result = saved.filter(project => !deleted.has(project.id));
   const byId = new Map(result.map((project, index) => [project.id, index]));
@@ -370,7 +372,7 @@ function mergeWithCatalog(savedProjects) {
 function loadProjects() {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (!saved) {
-    state.projects = initialProjects.map(normalizeProject);
+    state.projects = initialProjects.map(normalizeProject).filter(project => !RETIRED_PROJECT_IDS.has(project.id));
     saveProjects();
     return;
   }
