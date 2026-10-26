@@ -38,14 +38,9 @@
   }
 
   function syncDeletedIdsFromCloud(remoteProjects) {
+    // Deletions are tombstones. A stale cloud snapshot must never resurrect
+    // a project that was explicitly deleted in this browser.
     if (!Array.isArray(remoteProjects)) return;
-    const remoteIds = new Set(remoteProjects.map(project => project.id));
-    const deleted = getDeletedIds();
-    let changed = false;
-    remoteIds.forEach(id => {
-      if (deleted.delete(id)) changed = true;
-    });
-    if (changed) saveDeletedIds(deleted);
   }
 
   document.addEventListener("click", event => {
