@@ -353,7 +353,7 @@ function mergeWithCatalog(savedProjects) {
   const deleted = new Set(getDeletedProjectIds());
   const catalog = initialProjects.map(normalizeProject).filter(project => !deleted.has(project.id) && !RETIRED_PROJECT_IDS.has(project.id));
   const saved = Array.isArray(savedProjects) ? savedProjects.map(normalizeProject) : [];
-  const result = saved.filter(project => !deleted.has(project.id));
+  const result = saved.filter(project => !deleted.has(project.id) && !RETIRED_PROJECT_IDS.has(project.id));
   const byId = new Map(result.map((project, index) => [project.id, index]));
 
   catalog.forEach(catalogProject => {
@@ -388,6 +388,7 @@ function loadProjects() {
 }
 
 function saveProjects() {
+  state.projects = state.projects.filter(project => !RETIRED_PROJECT_IDS.has(project.id));
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
 }
 
