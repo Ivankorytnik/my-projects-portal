@@ -29,7 +29,7 @@
           await fetch(SYNC_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projects: state.projects }),
+            body: JSON.stringify({ projects: state.projects.filter(project => !RETIRED_PROJECT_IDS.has(project.id)) }),
             signal: controller.signal
           });
         } finally {
@@ -153,7 +153,7 @@
       window.HubDeletedProjects.syncDeletedIdsFromCloud(remoteProjects);
       remoteProjects = window.HubDeletedProjects.removeDeletedFromProjects(remoteProjects);
     }
-    state.projects = remoteProjects.map(normalizeProject);
+    state.projects = remoteProjects.map(normalizeProject).filter(project => !RETIRED_PROJECT_IDS.has(project.id));
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state.projects));
   }
 
