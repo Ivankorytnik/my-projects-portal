@@ -2,9 +2,9 @@
   'use strict';
 
   const BUILD = {
-    version: 'v1.6.5',
-    date: '21.10.2026',
-    time: '11:46',
+    version: 'v1.6.6',
+    date: '29.10.2026',
+    time: '15:40',
     key: 'v1.6.5-20261021-01',
   };
 
@@ -115,7 +115,9 @@
 
   function preferredSurface() {
     if (!els.autoCaptureToggle?.checked) return els.manualSourceSelect?.value || 'browser';
-    return safeStorageGet('speechlab.lastSurface') || 'browser';
+    // Окна приложений браузер не отдаёт со звуком, поэтому «окно» автоматически не предлагаем.
+    const last = safeStorageGet('speechlab.lastSurface');
+    return last === 'monitor' ? 'monitor' : 'browser';
   }
 
   function updateCaptureModeUI() {
@@ -262,7 +264,7 @@
     setCaptureStatus('recording', micOk || !els.micToggle.checked ? 'ИДЁТ ЗАПИСЬ' : 'ЗАПИСЬ ВСТРЕЧИ · БЕЗ МИКРОФОНА');
     els.startCaptureBtn.classList.add('hidden');
     els.stopCaptureBtn.classList.remove('hidden');
-    safeStorageSet('speechlab.lastSurface', actualSurface);
+    if (actualSurface !== 'window') safeStorageSet('speechlab.lastSurface', actualSurface);
     els.lastSourceText.textContent = displaySurfaceLabel(actualSurface);
     videoTrack?.addEventListener('ended', () => {
       if (!state.captureRecorder) return;
@@ -324,7 +326,9 @@
     if (surface === 'browser') {
       text = 'Вкладка выбрана, но браузер не передал её аудио. Повтори захват, выбери вкладку Zoom/Толк/Meet и включи «Также передавать аудио вкладки» / «Share tab audio» в системном окне.';
     } else if (surface === 'window') {
-      text = 'Окно приложения выбрано без аудиодорожки. Для Zoom/Толк в браузере надёжнее выбрать «Вкладка браузера». Для Zoom Desktop попробуй «Экран целиком» с системным аудио — поддержка зависит от ОС и браузера.';
+      safeStorageSet('speechlab.lastSurface', 'browser');
+      if (els.lastSourceText) els.lastSourceText.textContent = displaySurfaceLabel('browser');
+      text = 'Окно приложения выбрано без аудиодорожки: браузер не передаёт звук окон. Выбери «Вкладку браузера» и включи «Также передавать аудио вкладки». Для Zoom Desktop выбери «Весь экран» и включи «Поделиться аудио системы». Поддержка зависит от ОС и браузера.';
     } else {
       text = 'Экран выбран без системной аудиодорожки. На некоторых ОС браузер не умеет отдавать звук всего экрана. Если встреча открыта в браузере — выбери именно вкладку и включи передачу аудио.';
     }
@@ -1042,7 +1046,7 @@
 
   function init() {
     els.appVersion.textContent = BUILD.version; els.appBuildTime.textContent = `${BUILD.date} · ${BUILD.time}`; els.footerBuild.textContent = `Версия ${BUILD.version} · сборка ${BUILD.date} ${BUILD.time}`;
-    const lastSurface = safeStorageGet('speechlab.lastSurface'); if (lastSurface) els.lastSourceText.textContent = displaySurfaceLabel(lastSurface);
+    const lastSurface = safeStorageGet('speechlab.lastSurface'); if (lastSurface && lastSurface !== 'window') els.lastSourceText.textContent = displaySurfaceLabel(lastSurface);
     setMode('dictaphone'); updateCaptureModeUI(); updateEngineHint(); bindEvents();
     setCaptureStatus('idle', 'ГОТОВ К ЗАХВАТУ');
   }
