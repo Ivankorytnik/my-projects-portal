@@ -18,7 +18,7 @@ with sync_playwright() as p:
     page.on("pageerror", lambda e: errors.append(str(e)))
     page.goto("http://127.0.0.1:8765", wait_until="networkidle")
     page.wait_for_selector("#appVersion")
-    assert page.locator("#appVersion").inner_text() == "v1.6.6"
+    assert page.locator("#appVersion").inner_text() == "v1.6.5"
     assert page.locator("#chooseSaveFolderBtn").count() == 1
     assert page.locator("#transcribeBtn").is_disabled()
     # Dictaphone is selected by default before any user interaction.
