@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#151e32" />
   <title>Воспоминания | KORYTNIK HUB</title>
   <link rel="stylesheet" href="style.css?v=1.2.0" />
-  <link rel="stylesheet" href="literary.css?v=1.1.0" />
+  <link rel="stylesheet" href="literary.css?v=1.2.0" />
 </head>
 <body>
   <section id="gate" class="gate">
@@ -43,7 +43,27 @@
         <div class="side-head"><strong>Книга</strong><span id="chapterCount" class="chapter-count">0</span></div>
         <div class="book-path">Детство → училище → армия → семья → работа → Яндекс → Gett → проекты → настоящее</div>
         <button id="newBtn" class="new-btn" type="button">+ Новое воспоминание</button>
+
+        <div id="viewSwitch" class="view-switch" role="tablist" aria-label="Порядок глав">
+          <button type="button" data-mode="periods" class="active" role="tab">Периоды</button>
+          <button type="button" data-mode="timeline" role="tab">Хронология</button>
+          <button type="button" data-mode="manual" role="tab">Моя раскладка</button>
+        </div>
+        <div id="viewHint" class="view-hint"></div>
+
         <div id="chapterList" class="chapter-list"></div>
+
+        <div class="side-tools">
+          <label class="birth-row" for="birthYear">
+            <span>Год рождения автора. Нужен, чтобы считать дату по фразам «мне было 7 лет»</span>
+            <input id="birthYear" type="number" min="1900" max="2100" inputmode="numeric" placeholder="Год" />
+          </label>
+          <button id="exportBook" class="small-btn" type="button">⇩ Скачать книгу целиком</button>
+          <button id="backupBtn" class="small-btn" type="button">⇩ Сохранить копию данных</button>
+          <button id="restoreBtn" class="small-btn" type="button">⇧ Загрузить копию данных</button>
+          <input id="restoreInput" class="hidden" type="file" accept="application/json,.json" />
+          <div class="side-note">Главы и аудио хранятся только в этом браузере. Копия данных сохраняет тексты и даты, аудио в неё не входит.</div>
+        </div>
       </aside>
 
       <section class="workspace">
@@ -69,6 +89,34 @@
             <div><span class="agent-label">Места</span><span id="placesValue">—</span></div>
             <div><span class="agent-label">Даты</span><span id="datesValue">—</span></div>
           </div>
+
+          <section id="eventCard" class="event-card" aria-label="Когда это было">
+            <div class="event-head">
+              <span class="agent-label">Когда это было</span>
+              <strong id="eventLabel" class="event-label">Дата не указана</strong>
+              <span id="eventAuto" class="event-auto"></span>
+            </div>
+            <div class="event-grid">
+              <label>Год<input id="evYear" type="number" min="1850" max="2100" inputmode="numeric" placeholder="Год" /></label>
+              <label>По год<input id="evYearTo" type="number" min="1850" max="2100" inputmode="numeric" placeholder="если период" /></label>
+              <label>Месяц
+                <select id="evMonth">
+                  <option value="">не указан</option>
+                  <option value="1">январь</option><option value="2">февраль</option><option value="3">март</option>
+                  <option value="4">апрель</option><option value="5">май</option><option value="6">июнь</option>
+                  <option value="7">июль</option><option value="8">август</option><option value="9">сентябрь</option>
+                  <option value="10">октябрь</option><option value="11">ноябрь</option><option value="12">декабрь</option>
+                </select>
+              </label>
+              <label>День<input id="evDay" type="number" min="1" max="31" inputmode="numeric" placeholder="День" /></label>
+              <label>Период жизни<select id="periodSelect"></select></label>
+              <label class="event-check"><input id="evApprox" type="checkbox" /> примерно</label>
+            </div>
+            <div class="event-actions">
+              <button id="evDetect" class="small-btn" type="button">Определить по тексту</button>
+              <button id="evClear" class="small-btn" type="button">Очистить дату</button>
+            </div>
+          </section>
 
           <section id="questionCard" class="question-card hidden">
             <div class="question-kicker">ОДИН УТОЧНЯЮЩИЙ ВОПРОС</div>
@@ -110,6 +158,7 @@
   </div>
 
   <div id="busy" class="busy-banner hidden">Обрабатываю выбранную главу…</div>
-  <script src="app.js?v=1.2.0"></script>
+  <script src="timeline.js?v=1.3.0"></script>
+  <script src="app.js?v=1.3.0"></script>
 </body>
 </html>
