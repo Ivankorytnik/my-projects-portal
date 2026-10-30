@@ -1,4 +1,18 @@
-const API_URL='https://ytdacypygsfalkixhemj.supabase.co/functions/v1/memories-transcribe';
+/* Где распознавать. local: сервер на этом компьютере (Whisper и Ollama, бесплатно), cloud: прежняя облачная функция. */
+const API_CLOUD='https://ytdacypygsfalkixhemj.supabase.co/functions/v1/memories-transcribe';
+const API_LOCAL='http://127.0.0.1:8790/';
+function apiMode(){try{return localStorage.getItem('memories-api-mode')==='cloud'?'cloud':'local'}catch{return 'local'}}
+function apiUrl(){if(apiMode()==='cloud')return API_CLOUD;try{return localStorage.getItem('memories-api-local')||API_LOCAL}catch{return API_LOCAL}}
+const LOCAL_DOWN='Локальный сервер распознавания не отвечает. Запустите на компьютере ярлык «Воспоминания - локальный сервер». Если браузер спросит про доступ к устройствам в локальной сети, разрешите.';
+async function apiPost(form,key){
+  const local=apiMode()==='local';
+  const init={method:'POST',headers:{'x-memory-key':key},body:form};
+  if(local)init.targetAddressSpace='loopback';
+  let res;
+  try{res=await fetch(apiUrl(),init)}catch(e){throw new Error(local?LOCAL_DOWN:'Нет связи с сервером распознавания: '+(e.message||e))}
+  const data=await res.json().catch(()=>({}));
+  return{res,data};
+}
 const DB_NAME='korytnik-memories-v1';
 const DB_VERSION=1;
 const STORE='chapters';
@@ -22,7 +36,7 @@ const VIEW_HINTS={
 };
 
 const $=s=>document.querySelector(s);
-const els={gate:$('#gate'),gateKey:$('#gateKey'),gateBtn:$('#gateBtn'),gateError:$('#gateError'),app:$('#app'),chapterList:$('#chapterList'),chapterCount:$('#chapterCount'),newBtn:$('#newBtn'),ready:$('#ready'),date:$('#chapterDate'),title:$('#chapterTitle'),audio:$('#audio'),audioInput:$('#audioInput'),uploadAudio:$('#uploadAudio'),recordBtn:$('#recordBtn'),audioNote:$('#audioNote'),dictionary:$('#dictionary'),editor:$('#editor'),raw:$('#rawText'),retranscribe:$('#retranscribe'),agentBtn:$('#agentBtn'),save:$('#save'),download:$('#download'),status:$('#status'),busy:$('#busy'),legacy:$('#legacy'),period:$('#periodValue'),people:$('#peopleValue'),places:$('#placesValue'),dates:$('#datesValue'),questionCard:$('#questionCard'),questionText:$('#questionText'),questionAnswer:$('#questionAnswer'),applyAnswer:$('#applyAnswer'),viewSwitch:$('#viewSwitch'),viewHint:$('#viewHint'),birthYear:$('#birthYear'),exportBook:$('#exportBook'),backupBtn:$('#backupBtn'),restoreBtn:$('#restoreBtn'),restoreInput:$('#restoreInput'),eventLabel:$('#eventLabel'),eventAuto:$('#eventAuto'),evYear:$('#evYear'),evYearTo:$('#evYearTo'),evMonth:$('#evMonth'),evDay:$('#evDay'),evApprox:$('#evApprox'),evDetect:$('#evDetect'),evClear:$('#evClear'),periodSelect:$('#periodSelect')};
+const els={gate:$('#gate'),gateKey:$('#gateKey'),gateBtn:$('#gateBtn'),gateError:$('#gateError'),app:$('#app'),chapterList:$('#chapterList'),chapterCount:$('#chapterCount'),newBtn:$('#newBtn'),ready:$('#ready'),date:$('#chapterDate'),title:$('#chapterTitle'),audio:$('#audio'),audioInput:$('#audioInput'),uploadAudio:$('#uploadAudio'),recordBtn:$('#recordBtn'),audioNote:$('#audioNote'),dictionary:$('#dictionary'),editor:$('#editor'),raw:$('#rawText'),retranscribe:$('#retranscribe'),agentBtn:$('#agentBtn'),save:$('#save'),download:$('#download'),status:$('#status'),busy:$('#busy'),legacy:$('#legacy'),period:$('#periodValue'),people:$('#peopleValue'),places:$('#placesValue'),dates:$('#datesValue'),questionCard:$('#questionCard'),questionText:$('#questionText'),questionAnswer:$('#questionAnswer'),applyAnswer:$('#applyAnswer'),viewSwitch:$('#viewSwitch'),viewHint:$('#viewHint'),birthYear:$('#birthYear'),exportBook:$('#exportBook'),backupBtn:$('#backupBtn'),restoreBtn:$('#restoreBtn'),restoreInput:$('#restoreInput'),eventLabel:$('#eventLabel'),eventAuto:$('#eventAuto'),evYear:$('#evYear'),evYearTo:$('#evYearTo'),evMonth:$('#evMonth'),evDay:$('#evDay'),evApprox:$('#evApprox'),evDetect:$('#evDetect'),evClear:$('#evClear'),periodSelect:$('#periodSelect'),apiMode:$('#apiMode')};
 
 function openDb(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{const d=req.result;if(!d.objectStoreNames.contains(STORE))d.createObjectStore(STORE,{keyPath:'id'})};req.onsuccess=()=>{db=req.result;resolve(db)};req.onerror=()=>reject(req.error)})}
 function tx(mode='readonly'){return db.transaction(STORE,mode).objectStore(STORE)}
@@ -193,23 +207,22 @@ async function callAgent({answer='' }={}){
     const dictionary=els.dictionary.value.trim();localStorage.setItem('memories-dictionary',dictionary);
     const form=new FormData();form.append('action','agent');form.append('transcript',transcript);form.append('chapter_title',els.title.value.trim());form.append('previous_text',els.editor.value.slice(0,12000));form.append('dictionary',dictionary);
     if(answer){form.append('clarifying_question',c.question||'');form.append('clarifying_answer',answer)}
-    const res=await fetch(API_URL,{method:'POST',headers:{'x-memory-key':sessionAccessKey},body:form});
-    const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok)throw new Error(data.error||'Ошибка агента');
+    const{res,data}=await apiPost(form,sessionAccessKey);if(!res.ok||!data.ok)throw new Error(data.error||'Ошибка агента');
     applyAgent(c,data.agent);await put(c);els.title.value=c.title;els.editor.value=c.text;els.raw.textContent=c.raw;renderAgentMeta(c);renderList();setStatus(answer?'Уточнение добавлено. Глава обновлена.':'Агент оформил главу и подготовил один уточняющий вопрос.');
   }catch(e){setStatus(e.message||'Не удалось обработать воспоминание',true)}finally{setBusy(false)}
 }
 
 async function retranscribe(){
   const c=current();if(!c)return;if(!sessionAccessKey){setStatus('Для распознавания нужно снова открыть личный архив.',true);return}if(!c.audioBlob){setStatus('Сначала прикрепите или запишите аудио именно этой главы.',true);return}
-  setBusy(true,'Максимальное распознавание и анализ главы…');setStatus('Два прохода распознавания, сверка текста и работа агента…');
+  const local=apiMode()==='local';
+  setBusy(true,local?'Распознаю на компьютере и оформляю главу…':'Максимальное распознавание и анализ главы…');setStatus(local?'Распознавание и литературная обработка идут на этом компьютере. Длинная запись займёт несколько минут, страницу не закрывайте.':'Два прохода распознавания, сверка текста и работа агента…');
   try{
     const dictionary=els.dictionary.value.trim();localStorage.setItem('memories-dictionary',dictionary);
     const form=new FormData();form.append('action','transcribe');form.append('audio',c.audioBlob,c.audioBlob.name||'chapter.webm');form.append('chapter_title',els.title.value.trim());form.append('previous_text',els.editor.value.slice(0,12000));form.append('context','Семейные воспоминания на русском языке. Сохранять имена, даты, географические названия и смысл буквально. Не додумывать слова.');form.append('dictionary',dictionary);form.append('quality','max');form.append('language','ru');
-    const res=await fetch(API_URL,{method:'POST',headers:{'x-memory-key':sessionAccessKey},body:form});
-    const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok)throw new Error(data.error||'Ошибка распознавания');
+    const{res,data}=await apiPost(form,sessionAccessKey);if(!res.ok||!data.ok)throw new Error(data.error||'Ошибка распознавания');
     const finalTranscript=String(data.text||data.raw_primary||'').trim();if(!finalTranscript)throw new Error('Распознавание не вернуло текст');
     c.raw=finalTranscript;
-    if(data.agent){applyAgent(c,data.agent);setStatus('Готово: распознано, литературно оформлено, период и факты определены.')}else{c.text=finalTranscript;c.updatedAt=Date.now();setStatus('Расшифровка готова, но агент временно недоступен.',true)}
+    if(data.agent){applyAgent(c,data.agent);setStatus('Готово: распознано, литературно оформлено, период и факты определены.')}else{c.text=finalTranscript;c.updatedAt=Date.now();setStatus('Расшифровка готова, литературная обработка не выполнена'+(data.agent_error?': '+data.agent_error:'. Агент временно недоступен.'),true)}
     await put(c);els.title.value=c.title;els.editor.value=c.text;els.raw.textContent=c.raw;renderAgentMeta(c);renderList();
   }catch(e){setStatus(e.message||'Не удалось распознать',true)}finally{setBusy(false)}
 }
@@ -218,7 +231,7 @@ function downloadCurrent(){const c=current();if(!c)return;commitEditsSync();cons
 
 async function startStopRecording(){if(recorder&&recorder.state==='recording'){recorder.stop();return}try{recordStream=await navigator.mediaDevices.getUserMedia({audio:{channelCount:1,sampleRate:48000,echoCancellation:true,noiseSuppression:true,autoGainControl:true}});recordChunks=[];const mime=['audio/webm;codecs=opus','audio/webm'].find(t=>MediaRecorder.isTypeSupported(t))||'';recorder=new MediaRecorder(recordStream,mime?{mimeType:mime,audioBitsPerSecond:192000}:{audioBitsPerSecond:192000});recorder.ondataavailable=e=>{if(e.data.size)recordChunks.push(e.data)};recorder.onstop=async()=>{recordStream.getTracks().forEach(t=>t.stop());const blob=new Blob(recordChunks,{type:recorder.mimeType||'audio/webm'});blob.name='chapter-recording.webm';await attachAudio(blob);els.recordBtn.textContent='● Записать';els.recordBtn.classList.remove('recording');setStatus('Запись сохранена. Нажмите «Распознать заново», чтобы агент оформил главу.')};recorder.start(1000);els.recordBtn.textContent='■ Остановить';els.recordBtn.classList.add('recording');setStatus('Идёт запись воспоминания')}catch(e){setStatus('Не удалось включить микрофон: '+(e.message||e),true)}}
 
-async function unlock(){const key=els.gateKey.value.trim();if(!key){els.gateError.textContent='Введите пароль';return}els.gateBtn.disabled=true;els.gateError.textContent='Проверяю пароль…';try{const probe=new FormData();probe.append('action','validate');const response=await fetch(API_URL,{method:'POST',headers:{'x-memory-key':key},body:probe});if(response.status===401||response.status===403)throw new Error('Неверный пароль');if(!response.ok)throw new Error('Не удалось проверить пароль');sessionAccessKey=key;els.gateKey.value='';els.gate.classList.add('hidden');els.app.classList.remove('hidden');els.gateError.textContent=''}catch(error){els.gateError.textContent=error.message||'Не удалось проверить пароль'}finally{els.gateBtn.disabled=false}}
+async function unlock(){const key=els.gateKey.value.trim();if(!key){els.gateError.textContent='Введите пароль';return}if(/[^\x00-\xff]/.test(key)){els.gateError.textContent='В пароле есть русские буквы. Проверьте раскладку клавиатуры.';return}els.gateBtn.disabled=true;els.gateError.textContent='Проверяю пароль…';try{const probe=new FormData();probe.append('action','validate');const{res:response,data}=await apiPost(probe,key);if(response.status===401)throw new Error('Неверный пароль');if(response.status===403)throw new Error(apiMode()==='local'?(data.error||'Локальный сервер не допускает этот сайт'):'Неверный пароль');if(!response.ok)throw new Error(data.error||'Не удалось проверить пароль');sessionAccessKey=key;els.gateKey.value='';els.gate.classList.add('hidden');els.app.classList.remove('hidden');els.gateError.textContent=''}catch(error){els.gateError.textContent=error.message||'Не удалось проверить пароль'}finally{els.gateBtn.disabled=false}}
 
 function downloadFile(name,text,type){const blob=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 
@@ -333,6 +346,8 @@ function wireTimeline(){
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')commitEditsSync()});
 }
 
-async function boot(){await openDb();await seed();chapters=await getAll();loadPrefs();await migrateEvents();selectedId=chapters.sort((a,b)=>a.createdAt-b.createdAt)[0]?.id||null;els.dictionary.value=localStorage.getItem('memories-dictionary')||'';renderList();if(selectedId)selectChapter(selectedId);
-els.gateBtn.onclick=unlock;els.gateKey.addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});els.newBtn.onclick=addChapter;els.chapterList.onclick=e=>{const mv=e.target.closest('[data-move]');if(mv){moveChapter(mv.dataset.id,mv.dataset.move);return}if(e.target.closest('[data-action="sort-by-date"]')){sortManualByDate();return}const b=e.target.closest('[data-id]');if(b)selectChapter(b.dataset.id)};els.save.onclick=()=>saveCurrent();els.download.onclick=downloadCurrent;els.retranscribe.onclick=retranscribe;els.agentBtn.onclick=()=>callAgent();els.applyAnswer.onclick=()=>{const answer=els.questionAnswer.value.trim();if(!answer){setStatus('Введите ответ на уточняющий вопрос.',true);return}callAgent({answer})};els.uploadAudio.onclick=()=>els.audioInput.click();els.audioInput.onchange=()=>{const f=els.audioInput.files?.[0];if(f)attachAudio(f);els.audioInput.value=''};els.recordBtn.onclick=startStopRecording;els.title.addEventListener('change',()=>saveCurrent());els.editor.addEventListener('input',markDirty);els.legacy.href='https://kniga-dlya-vnukov.nergy-techno-3776.chatgpt.site/';wireTimeline()}
+/* Экран входа подключается сразу, до загрузки базы глав, чтобы ранний клик не терялся. */
+function wireGate(){els.apiMode.value=apiMode();els.apiMode.onchange=()=>{try{localStorage.setItem('memories-api-mode',els.apiMode.value)}catch{}els.gateError.textContent=''};els.gateBtn.onclick=unlock;els.gateKey.addEventListener('keydown',e=>{if(e.key==='Enter')unlock()});}
+async function boot(){wireGate();await openDb();await seed();chapters=await getAll();loadPrefs();await migrateEvents();selectedId=chapters.sort((a,b)=>a.createdAt-b.createdAt)[0]?.id||null;els.dictionary.value=localStorage.getItem('memories-dictionary')||'';renderList();if(selectedId)selectChapter(selectedId);
+els.newBtn.onclick=addChapter;els.chapterList.onclick=e=>{const mv=e.target.closest('[data-move]');if(mv){moveChapter(mv.dataset.id,mv.dataset.move);return}if(e.target.closest('[data-action="sort-by-date"]')){sortManualByDate();return}const b=e.target.closest('[data-id]');if(b)selectChapter(b.dataset.id)};els.save.onclick=()=>saveCurrent();els.download.onclick=downloadCurrent;els.retranscribe.onclick=retranscribe;els.agentBtn.onclick=()=>callAgent();els.applyAnswer.onclick=()=>{const answer=els.questionAnswer.value.trim();if(!answer){setStatus('Введите ответ на уточняющий вопрос.',true);return}callAgent({answer})};els.uploadAudio.onclick=()=>els.audioInput.click();els.audioInput.onchange=()=>{const f=els.audioInput.files?.[0];if(f)attachAudio(f);els.audioInput.value=''};els.recordBtn.onclick=startStopRecording;els.title.addEventListener('change',()=>saveCurrent());els.editor.addEventListener('input',markDirty);els.legacy.href='https://kniga-dlya-vnukov.nergy-techno-3776.chatgpt.site/';wireTimeline()}
 boot();

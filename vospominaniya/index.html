@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#151e32" />
   <title>Воспоминания | KORYTNIK HUB</title>
   <link rel="stylesheet" href="style.css?v=1.2.0" />
-  <link rel="stylesheet" href="literary.css?v=1.2.0" />
+  <link rel="stylesheet" href="literary.css?v=1.4.0" />
 </head>
 <body>
   <section id="gate" class="gate">
@@ -22,6 +22,12 @@
         <input id="gateKey" type="password" autocomplete="off" placeholder="Пароль" />
         <button id="gateBtn" class="btn primary" type="button">Открыть</button>
       </div>
+      <label class="gate-mode" for="apiMode">Распознавание и обработка
+        <select id="apiMode">
+          <option value="local">на этом компьютере, бесплатно</option>
+          <option value="cloud">в облаке, как раньше</option>
+        </select>
+      </label>
       <div id="gateError" class="gate-error"></div>
     </div>
   </section>
@@ -158,7 +164,7 @@
   </div>
 
   <div id="busy" class="busy-banner hidden">Обрабатываю выбранную главу…</div>
-  <script src="timeline.js?v=1.3.0"></script>
-  <script src="app.js?v=1.3.0"></script>
+  <script src="timeline.js?v=1.4.0"></script>
+  <script src="app.js?v=1.4.0"></script>
 </body>
 </html>

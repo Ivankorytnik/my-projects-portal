@@ -241,3 +241,23 @@
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Выбор места распознавания на экране входа (v1.4.0) */
+.gate-mode {
+  display: grid;
+  gap: 6px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: #687181;
+}
+
+.gate-mode select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #f8fafc;
+  padding: 9px 10px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ink);
+}
