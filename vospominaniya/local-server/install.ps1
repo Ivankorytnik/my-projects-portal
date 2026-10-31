@@ -20,24 +20,41 @@ $LinkName = 'Воспоминания - локальный сервер.lnk'
 function Step($text) { Write-Host ''; Write-Host "== $text" -ForegroundColor Cyan }
 function Fail($text) { Write-Host ''; Write-Host "ОШИБКА: $text" -ForegroundColor Red; exit 1 }
 
+function Test-Python($exe, $arg) {
+    # Возвращает @(версия, путь) или $null. Строку ответа ищем по шаблону: менеджеры Python могут печатать приветствие.
+    try {
+        $argsList = @()
+        if ($arg) { $argsList += $arg }
+        # Без двойных кавычек: Windows PowerShell 5.1 теряет их при передаче аргументов внешней программе.
+        $argsList += @('-c', 'import sys,struct;print(''PYINFO'', sys.version_info[0]*100+sys.version_info[1], struct.calcsize(''P'')*8, sys.executable)')
+        $out = & $exe @argsList 2>&1 | Out-String
+        $m = [regex]::Match($out, 'PYINFO (\d+) (\d+) (.+)')
+        if (-not $m.Success -or [int]$m.Groups[2].Value -ne 64) { return $null }
+        return @([int]$m.Groups[1].Value, $m.Groups[3].Value.Trim())
+    } catch { return $null }
+}
+
 function Find-Python {
-    $tries = @(
-        @('py', '-3.12'), @('py', '-3.11'), @('py', '-3.10'), @('py', '-3.13'), @('py', '-3'),
-        @('python', $null), @('python3', $null)
-    )
-    foreach ($t in $tries) {
-        $exe = $t[0]; $arg = $t[1]
-        if (-not (Get-Command $exe -ErrorAction SilentlyContinue)) { continue }
-        try {
-            $argsList = @()
-            if ($arg) { $argsList += $arg }
-            $argsList += @('-c', 'import sys,struct;print(sys.version_info[0]*100+sys.version_info[1], struct.calcsize("P")*8, sys.executable)')
-            $out = & $exe @argsList 2>$null
-            if (-not $out) { continue }
-            $parts = ($out | Select-Object -First 1).Trim().Split(' ', 3)
-            $ver = [int]$parts[0]; $bits = [int]$parts[1]
-            if ($ver -ge 309 -and $bits -eq 64) { return $parts[2] }
-        } catch {}
+    # Сначала явные пути установки, потом команды. Предпочтение 3.10-3.13: под них точно есть сборки faster-whisper.
+    $cands = @()
+    foreach ($v in @('312', '311', '310', '313')) {
+        $cands += ,@((Join-Path $env:LOCALAPPDATA "Programs\Python\Python$v\python.exe"), $null)
+        $cands += ,@((Join-Path $env:ProgramFiles "Python$v\python.exe"), $null)
+        $cands += ,@((Join-Path $env:LOCALAPPDATA "Python\pythoncore-$($v.Substring(0,1)).$($v.Substring(1))-64\python.exe"), $null)
+    }
+    foreach ($a in @('-3.12', '-3.11', '-3.10', '-3.13', '-3')) { $cands += ,@('py', $a) }
+    $cands += ,@('python', $null)
+    $cands += ,@('python3', $null)
+    foreach ($c in $cands) {
+        $exe = $c[0]
+        if ($exe -like '*\*') { if (-not (Test-Path $exe)) { continue } }
+        elseif (-not (Get-Command $exe -ErrorAction SilentlyContinue)) { continue }
+        $r = Test-Python $exe $c[1]
+        $label = if ($c[1]) { "$exe $($c[1])" } else { $exe }
+        if (-not $r) { Write-Host "  $label : не отвечает как Python" -ForegroundColor DarkGray; continue }
+        Write-Host "  $label : Python $([math]::Floor($r[0] / 100)).$($r[0] % 100), $($r[1])" -ForegroundColor DarkGray
+        if ($r[0] -ge 310 -and $r[0] -le 313) { return $r[1] }
+        if ($r[0] -ge 309 -and -not $script:PyFallback) { $script:PyFallback = $r[1] }
     }
     return $null
 }
@@ -68,14 +85,24 @@ if ($listen) {
 # 2. Python
 Step 'Ищу Python 3.9 или новее (64-бит)'
 $Base = Find-Python
+$pym = Get-Command pymanager -ErrorAction SilentlyContinue
+if (-not $Base -and $pym) {
+    Write-Host 'Подходящий Python не найден. Ставлю Python 3.12 через Python Install Manager.'
+    & $pym.Source install 3.12
+    $Base = Find-Python
+}
 if (-not $Base) {
     Write-Host 'Python не найден. Ставлю Python 3.12 через winget (только для текущего пользователя).'
     if (-not (Get-Command winget -ErrorAction SilentlyContinue)) { Fail 'Нет winget. Установите Python 3.12 с python.org и запустите установку снова.' }
     winget install -e --id Python.Python.3.12 --scope user --accept-package-agreements --accept-source-agreements
     $env:Path = [Environment]::GetEnvironmentVariable('Path', 'User') + ';' + [Environment]::GetEnvironmentVariable('Path', 'Machine')
     $Base = Find-Python
-    if (-not $Base) { Fail 'Python установился, но не найден. Закройте окно и запустите установку снова.' }
 }
+if (-not $Base -and $script:PyFallback) {
+    Write-Host "Python 3.10-3.13 не найден, пробую $script:PyFallback" -ForegroundColor Yellow
+    $Base = $script:PyFallback
+}
+if (-not $Base) { Fail 'Python не найден. Пришлите Claude снимок этого окна.' }
 Write-Host "Python: $Base"
 
 # 3. Файлы сервера и окружение
@@ -91,7 +118,7 @@ if (-not (Test-Path $Py)) { & $Base -m venv $Venv; if ($LASTEXITCODE -ne 0) { Fa
 & $Py -m pip install --disable-pip-version-check -q --upgrade pip
 & $Py -m pip install --disable-pip-version-check -q --upgrade 'faster-whisper>=1.1.0'
 if ($LASTEXITCODE -ne 0) { Fail 'Не удалось установить faster-whisper. Проверьте интернет и запустите установку снова.' }
-& $Py -c 'import faster_whisper; print("faster-whisper", faster_whisper.__version__)'
+& $Py -c 'import faster_whisper; print(''faster-whisper'', faster_whisper.__version__)'
 
 # 4. Модель Whisper: если Танька Ассистент уже скачал large-v3-turbo, берём её копию на диске
 Step 'Ищу уже скачанную модель Whisper large-v3-turbo'
