@@ -120,6 +120,23 @@ if (-not (Test-Path $Py)) { & $Base -m venv $Venv; if ($LASTEXITCODE -ne 0) { Fa
 if ($LASTEXITCODE -ne 0) { Fail 'Не удалось установить faster-whisper. Проверьте интернет и запустите установку снова.' }
 & $Py -c 'import faster_whisper; print(''faster-whisper'', faster_whisper.__version__)'
 
+# 3а. GigaAM v3: основной движок для русской речи. Если не встанет, распознавать будет Whisper.
+Step 'Ставлю GigaAM v3 (точное распознавание русской речи, первый раз около 1,5 ГБ)'
+$giga = $true
+& $Py -m pip install --disable-pip-version-check -q torch torchaudio --index-url https://download.pytorch.org/whl/cpu
+if ($LASTEXITCODE -ne 0) { $giga = $false; Write-Host 'Не удалось поставить torch.' -ForegroundColor Yellow }
+if ($giga) {
+    & $Py -m pip install --disable-pip-version-check -q 'gigaam @ https://github.com/salute-developers/GigaAM/archive/refs/heads/main.zip'
+    if ($LASTEXITCODE -ne 0) { $giga = $false; Write-Host 'Не удалось поставить пакет GigaAM.' -ForegroundColor Yellow }
+}
+if ($giga) {
+    Write-Host 'Скачиваю и проверяю модель GigaAM v3 e2e (около 900 МБ)...'
+    & $Py $Server --download-models
+    if ($LASTEXITCODE -eq 0) { Write-Host 'GigaAM готов.' -ForegroundColor Green } else { $giga = $false; Write-Host 'Модель GigaAM не загрузилась.' -ForegroundColor Yellow }
+}
+if ($giga) { & $Py $Server --set 'asr_engine=gigaam' | Out-Null }
+else { & $Py $Server --set 'asr_engine=whisper' | Out-Null; Write-Host 'Распознавать будет Whisper. Пришлите Claude снимок окна, разберёмся.' -ForegroundColor Yellow }
+
 # 4. Модель Whisper: если Танька Ассистент уже скачал large-v3-turbo, берём её копию на диске
 Step 'Ищу уже скачанную модель Whisper large-v3-turbo'
 $model = $null
@@ -191,7 +208,7 @@ $h = $null
 for ($i = 0; $i -lt 20 -and -not $h; $i++) { Start-Sleep -Seconds 1; $h = Server-Health }
 if (-not $h) { Fail "Сервер не ответил. Журнал: $(Join-Path $Dest 'server.log')" }
 Write-Host "Сервер работает: http://127.0.0.1:$Port/health" -ForegroundColor Green
-Write-Host "Whisper: $($h.whisper.model)"
+Write-Host "Распознавание: $($h.asr.engine), $($h.asr.loaded)"
 Write-Host "Ollama: $(if ($h.ollama.ok) { 'запущена, модель ' + $h.ollama.model } else { 'не отвечает' })"
 Write-Host ''
 Write-Host 'Готово. Сервер будет запускаться сам при входе в Windows.' -ForegroundColor Green

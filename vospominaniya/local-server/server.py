@@ -12,6 +12,7 @@
 
 import argparse
 import base64
+import difflib
 import getpass
 import hashlib
 import hmac
@@ -30,7 +31,7 @@ from email.parser import BytesParser
 from email.policy import HTTP
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
-VERSION = "1.0.0"
+VERSION = "1.1.0"
 PERIODS = ["Детство", "Училище", "Армия", "Семья", "Работа", "Яндекс", "Gett", "Проекты", "Настоящее", "Не определено"]
 DEFAULT_ORIGINS = ["https://korytnikhub.pro", "https://www.korytnikhub.pro"]
 MAX_BODY = 600 * 1024 * 1024
@@ -39,6 +40,9 @@ DEFAULT_CONFIG = {
     "host": "127.0.0.1",
     "port": 8790,
     "allowed_origins": DEFAULT_ORIGINS,
+    "asr_engine": "gigaam",
+    "gigaam_model": "v3_e2e_rnnt",
+    "chunk_seconds": 22,
     "whisper_model": "large-v3-turbo",
     "whisper_fallback_model": "small",
     "whisper_device": "cpu",
@@ -108,14 +112,20 @@ def check_password(password, stored):
 
 
 # ---------- распознавание речи ----------
+# Основной движок: GigaAM v3 (Сбер, MIT), для русской речи заметно точнее Whisper и сразу ставит знаки препинания.
+# Запасной: Whisper через faster-whisper. Если GigaAM не установлен или упал, распознаёт Whisper.
 
-class Transcriber:
+SR = 16000
+
+
+class WhisperEngine:
+    name = "whisper"
+
     def __init__(self, cfg):
         self.cfg = cfg
         self.model = None
         self.model_name = ""
         self.error = ""
-        self.lock = threading.Lock()
 
     def _load(self):
         if self.model is not None:
@@ -130,7 +140,7 @@ class Transcriber:
                 try:
                     logging.info("Загружаю Whisper %s (%s, %s)", name, device, compute)
                     self.model = WhisperModel(name, device=device, compute_type=compute)
-                    self.model_name = "%s (%s, %s)" % (name, device, compute)
+                    self.model_name = "Whisper %s (%s, %s)" % (name, device, compute)
                     self.error = ""
                     return self.model
                 except Exception as e:  # нет модели, нет видеокарты, мало памяти
@@ -140,19 +150,184 @@ class Transcriber:
         raise RuntimeError("Не удалось загрузить модель распознавания: %s" % last)
 
     def transcribe(self, path, language="ru", prompt="", quality="max"):
+        model = self._load()
+        beam = int(self.cfg.get("whisper_beam_size") or 5) if quality == "max" else 1
+        segments, info = model.transcribe(
+            path,
+            language=language or "ru",
+            beam_size=beam,
+            vad_filter=True,
+            initial_prompt=prompt or None,
+            condition_on_previous_text=True,
+        )
+        parts = [s.text.strip() for s in segments if s.text and s.text.strip()]
+        return {"text": join_segments(parts), "duration": round(float(getattr(info, "duration", 0) or 0), 1)}
+
+
+def group_spans(spans, max_len, total):
+    """Склеивает куски речи из детектора тишины в отрезки не длиннее max_len отсчётов. Слишком длинный кусок режется."""
+    pieces = []
+    for sp in spans:
+        a, b = max(0, int(sp["start"])), min(total, int(sp["end"]))
+        while b - a > max_len:
+            pieces.append((a, a + max_len))
+            a += max_len
+        if b > a:
+            pieces.append((a, b))
+    chunks = []
+    for a, b in pieces:
+        if chunks and b - chunks[-1][0] <= max_len:
+            chunks[-1] = (chunks[-1][0], b)
+        else:
+            chunks.append((a, b))
+    return chunks
+
+
+class GigaAMEngine:
+    name = "gigaam"
+
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.model = None
+        self.model_name = ""
+        self.error = ""
+        self._clips = {}
+
+    def _load(self):
+        if self.model is not None:
+            return self.model
+        import torch
+        import gigaam
+        import gigaam.model as gm
+        import gigaam.preprocess as gp
+        clips = self._clips
+
+        # GigaAM читает звук через внешний ffmpeg, которого на Windows обычно нет.
+        # Подменяем чтение: куски из памяти отдаём напрямую, файлы декодирует PyAV из faster-whisper.
+        def load_audio(path, sample_rate=SR):
+            if isinstance(path, str) and path in clips:
+                return torch.from_numpy(clips[path]).float()
+            from faster_whisper import decode_audio
+            return torch.from_numpy(decode_audio(path, sampling_rate=sample_rate)).float()
+
+        gp.load_audio = load_audio
+        gm.load_audio = load_audio
+        name = self.cfg["gigaam_model"]
+        logging.info("Загружаю GigaAM %s", name)
+        self.model = gigaam.load_model(name, fp16_encoder=False, device="cpu")
+        self.model_name = "GigaAM %s (cpu)" % name
+        self.error = ""
+        return self.model
+
+    def transcribe(self, path, language="ru", prompt="", quality="max"):
+        from faster_whisper import decode_audio
+        from faster_whisper.vad import VadOptions, get_speech_timestamps
+        model = self._load()
+        audio = decode_audio(path, sampling_rate=SR)
+        limit = float(self.cfg.get("chunk_seconds") or 22)
+        spans = get_speech_timestamps(audio, VadOptions(min_silence_duration_ms=400, speech_pad_ms=150, max_speech_duration_s=limit))
+        chunks = group_spans(spans, int(limit * SR), len(audio))
+        parts = []
+        for i, (a, b) in enumerate(chunks):
+            key = "<clip %d>" % i
+            self._clips[key] = audio[a:b]
+            try:
+                res = model.transcribe(key)
+            finally:
+                self._clips.pop(key, None)
+            text = str(getattr(res, "text", res) or "").strip()
+            if text:
+                parts.append(text)
+        return {"text": join_segments(parts), "duration": round(len(audio) / SR, 1), "chunks": len(chunks)}
+
+
+class Transcriber:
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.lock = threading.Lock()
+        self.engines = {"gigaam": GigaAMEngine(cfg), "whisper": WhisperEngine(cfg)}
+
+    def order(self):
+        first = self.cfg.get("asr_engine") if self.cfg.get("asr_engine") in self.engines else "gigaam"
+        return [first] + [n for n in self.engines if n != first]
+
+    @property
+    def model_name(self):
+        return "; ".join(e.model_name for e in self.engines.values() if e.model_name)
+
+    @property
+    def error(self):
+        return "; ".join("%s: %s" % (n, e.error) for n, e in self.engines.items() if e.error)
+
+    def _load(self):
+        last = None
+        for name in self.order():
+            try:
+                return self.engines[name]._load()
+            except Exception as e:
+                self.engines[name].error = str(e)
+                last = e
+                logging.warning("Движок %s не загрузился: %s", name, e)
+        raise RuntimeError("Не удалось загрузить распознавание: %s" % last)
+
+    def status(self):
+        return {
+            "engine": self.order()[0],
+            "loaded": self.model_name,
+            "error": self.error,
+            **{n: {"loaded": e.model_name, "error": e.error} for n, e in self.engines.items()},
+        }
+
+    def transcribe(self, path, language="ru", prompt="", quality="max", dictionary=""):
         with self.lock:
-            model = self._load()
-            beam = int(self.cfg.get("whisper_beam_size") or 5) if quality == "max" else 1
-            segments, info = model.transcribe(
-                path,
-                language=language or "ru",
-                beam_size=beam,
-                vad_filter=True,
-                initial_prompt=prompt or None,
-                condition_on_previous_text=True,
-            )
-            parts = [s.text.strip() for s in segments if s.text and s.text.strip()]
-            return {"text": join_segments(parts), "duration": round(float(getattr(info, "duration", 0) or 0), 1)}
+            last = None
+            for name in self.order():
+                eng = self.engines[name]
+                try:
+                    res = eng.transcribe(path, language, prompt, quality)
+                    res["engine"] = eng.model_name or name
+                    res["text"] = apply_dictionary(res["text"], dictionary)
+                    return res
+                except Exception as e:
+                    eng.error = str(e)
+                    last = e
+                    logging.warning("Распознавание движком %s не удалось: %s", name, e)
+            raise RuntimeError("Не удалось распознать запись: %s" % last)
+
+
+DICT_VOWELS = "аеёиоуыэюяьй"
+
+
+def apply_dictionary(text, dictionary):
+    """Осторожно поправляет написание имён из словаря: «Трефештах» при слове «Трифешты» станет «Трифештах».
+    Сравнивается основа слова, окончание остаётся как распознано. Короткие и непохожие слова не трогаются."""
+    entries = [w.strip() for w in re.split(r"[\n,;]+", dictionary or "") if w.strip()]
+    stems = []
+    for e in entries:
+        for word in e.split():
+            st = word
+            for _ in range(2):
+                if len(st) > 4 and st[-1].lower() in DICT_VOWELS:
+                    st = st[:-1]
+            if len(st) >= 4:
+                stems.append(st)
+    if not stems:
+        return text
+
+    def fix(m):
+        tok = m.group(0)
+        low = tok.lower()
+        for st in stems:
+            sl = st.lower()
+            n = len(sl)
+            if low[:n] == sl or low[0] != sl[0] or not (n <= len(low) <= n + 4):
+                continue
+            if difflib.SequenceMatcher(None, low[:n], sl).ratio() >= 0.84:
+                head = st if tok[0].isupper() else sl
+                return head + tok[n:]
+        return tok
+
+    return re.sub(r"[А-Яа-яЁё]{4,}", fix, text)
 
 
 def join_segments(parts):
@@ -464,7 +639,8 @@ class Handler(BaseHTTPRequestHandler):
             "service": "vospominaniya-local",
             "version": VERSION,
             "password_set": bool(self.cfg.get("password_hash")),
-            "whisper": {"model": self.cfg["whisper_model"], "loaded": self.transcriber.model_name, "error": self.transcriber.error},
+            "asr": self.transcriber.status(),
+            "whisper": {"model": self.cfg["whisper_model"], "loaded": self.transcriber.engines["whisper"].model_name, "error": self.transcriber.engines["whisper"].error},
             "ollama": self.agent.status(),
         }, origin)
 
@@ -520,8 +696,8 @@ class Handler(BaseHTTPRequestHandler):
                 out.write(audio["data"])
             prompt = whisper_prompt(f.get("dictionary", ""), f.get("context", ""), f.get("chapter_title", "").strip())
             started = time.time()
-            res = self.transcriber.transcribe(path, f.get("language", "ru"), prompt, f.get("quality", "max"))
-            logging.info("Распознано %.1f с аудио за %.1f с", res["duration"], time.time() - started)
+            res = self.transcriber.transcribe(path, f.get("language", "ru"), prompt, f.get("quality", "max"), f.get("dictionary", ""))
+            logging.info("Распознано %.1f с аудио за %.1f с (%s)", res["duration"], time.time() - started, res.get("engine"))
         finally:
             try:
                 os.remove(path)
@@ -530,7 +706,7 @@ class Handler(BaseHTTPRequestHandler):
         text = res["text"]
         if not text:
             return {"ok": False, "error": "В записи не найдено речи"}
-        result = {"ok": True, "text": text, "raw_primary": text, "engine": "local", "audio_seconds": res["duration"], "agent": None}
+        result = {"ok": True, "text": text, "raw_primary": text, "engine": "local", "asr_engine": res.get("engine", ""), "audio_seconds": res["duration"], "agent": None}
         try:
             result["agent"] = self.agent.run(text, f.get("chapter_title", "").strip(), f.get("dictionary", "").strip())
         except OllamaError as e:
@@ -572,7 +748,8 @@ def set_password_interactive():
 def main():
     p = argparse.ArgumentParser(description="Локальный сервер распознавания «Воспоминания»")
     p.add_argument("--set-password", action="store_true", help="задать пароль и выйти")
-    p.add_argument("--preload", action="store_true", help="сразу загрузить модель Whisper")
+    p.add_argument("--preload", action="store_true", help="сразу загрузить модель распознавания")
+    p.add_argument("--download-models", action="store_true", help="скачать и проверить модель GigaAM и выйти")
     p.add_argument("--set", action="append", default=[], metavar="КЛЮЧ=ЗНАЧЕНИЕ", help="изменить настройку и выйти")
     p.add_argument("--show-config", action="store_true", help="показать настройки без пароля и выйти")
     args = p.parse_args()
@@ -588,6 +765,21 @@ def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", handlers=handlers)
     if args.set_password:
         return set_password_interactive()
+    if args.download_models:
+        cfg = load_config()
+        try:
+            eng = GigaAMEngine(cfg)
+            eng._load()
+            import numpy as np
+            from faster_whisper.vad import VadOptions, get_speech_timestamps
+            get_speech_timestamps(np.zeros(SR, dtype="float32"), VadOptions())
+            eng._clips["<test>"] = np.zeros(SR, dtype="float32")
+            eng.model.transcribe("<test>")
+            print("GIGAAM_OK", eng.model_name)
+            return 0
+        except Exception as e:
+            print("GIGAAM_FAIL", e)
+            return 3
     if args.set or args.show_config:
         cfg = load_config()
         for item in args.set:
@@ -619,7 +811,7 @@ def main():
             try:
                 with Handler.transcriber.lock:
                     Handler.transcriber._load()
-                logging.info("Whisper готов: %s", Handler.transcriber.model_name)
+                logging.info("Распознавание готово: %s", Handler.transcriber.model_name)
             except Exception as e:
                 logging.error("Предзагрузка Whisper не удалась: %s", e)
         threading.Thread(target=preload, daemon=True).start()
