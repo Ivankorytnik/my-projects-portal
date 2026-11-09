@@ -15,7 +15,6 @@
     "atom-business-telegram": "v1.0.0",
     "file-optimizer": "v0.1",
     "td-secure": "v0.3.9",
-    "photo-mail": "v1.0.2",
     "alice-ai": "v0.1.0"
   };
 
@@ -32,6 +31,11 @@
   }
 
   let versionStore = readVersionStore();
+  // Purge retired Photo Mail version from each browser on the next visit.
+  if (Object.prototype.hasOwnProperty.call(versionStore, "photo-mail")) {
+    delete versionStore["photo-mail"];
+    localStorage.setItem(VERSION_STORAGE_KEY, JSON.stringify(versionStore));
+  }
 
   function cleanVersion(value) {
     const version = String(value || "").trim();
