@@ -1,0 +1,30 @@
+name: Speech Lab meeting folders
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'sound/**'
+      - '.github/workflows/speechlab-meeting-folders.yml'
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: JavaScript syntax
+        run: |
+          node --check sound/app-core.js
+          node --check sound/app.js
+          node --check sound/folder-save.js
+      - name: Install Playwright and Chromium
+        run: |
+          python -m pip install playwright
+          python -m playwright install --with-deps chromium
+      - name: Automatic audio and TXT saving
+        run: python sound/meeting_folders_test.py
