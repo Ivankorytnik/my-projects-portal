@@ -222,7 +222,7 @@ const initialProjects = [
   }
 ];
 
-const RETIRED_PROJECT_IDS = new Set(["photo-mail", "spacewish-test","atom-commercial-analytics","atom-commercial-analytics-test","atom-business-control-center","atom-brain","atom-lead-hub","cross-analytics","b2b-company-registry"]);
+const RETIRED_PROJECT_IDS = new Set(["photo-mail", "spacewish-test","atom-commercial-analytics","atom-commercial-analytics-test","atom-business-control-center","atom-brain","atom-lead-hub","cross-analytics","b2b-company-registry","avito-parser"]);
 
 const statusLabels = {
   idea: "Идея",
