@@ -6,18 +6,24 @@
     prepare: $('livePrepare'), start: $('liveStart'), stop: $('liveStop'),
     status: $('liveStatus'), error: $('liveError'), state: $('liveState'),
     duration: $('liveDuration'), dropped: $('liveDropped'), video: $('liveVideo'),
+    filtered: $('liveFiltered'), speechOnly: $('liveSpeechOnly'),
     ru: $('liveRu'), en: $('liveEn'), log: $('liveLog'), diagnostic: $('liveDiagnostic'), copy: $('liveCopy'),
     txt: $('liveTxt'), srt: $('liveSrt'), clear: $('liveClear'), popout: $('livePopout'),
   };
   const FRAME_SECONDS = 6;
   const SAMPLE_RATE = 16000;
+  // A final fragment shorter than this is mostly a cut-off syllable; Whisper hallucinates on it.
+  const MIN_TAIL_SAMPLES = Math.round(0.25 * SAMPLE_RATE);
+  // Maximum silence from the AI Worker while a fragment is in flight. Any worker message
+  // (model progress, backend fallback) proves liveness and re-arms the timer.
+  const WATCHDOG_MS = Number(window.SPEECHLAB_LIVE_WATCHDOG_MS) || 90 * 1000;
   const state = {
     ready: false, loading: false, active: false, starting: false, stopping: false, draining: false,
     stopPromise: null, drainResolve: null, resampler: null, worker: null,
-    prepareTimer: null,
+    prepareTimer: null, watchdog: null,
     stream: null, context: null, source: null, processor: null, sink: null,
     samples: [], length: 0, session: 0, index: 0, inFlight: false,
-    queue: null, dropped: 0, started: 0, elapsed: 0, timer: null,
+    queue: null, dropped: 0, filtered: 0, started: 0, elapsed: 0, timer: null,
     segments: [], channel: null,
   };
 
@@ -43,6 +49,7 @@
   function updateClock() {
     ui.duration.textContent = core.clock(elapsed());
     ui.dropped.textContent = String(state.dropped);
+    ui.filtered.textContent = String(state.filtered);
   }
   function showError(message) {
     error(message);
@@ -53,10 +60,48 @@
     ui.ru.textContent = ru;
     state.channel?.postMessage({ type: 'caption', en, ru });
   }
+  function clearWatchdog() {
+    clearTimeout(state.watchdog);
+    state.watchdog = null;
+  }
+  function armWatchdog() {
+    clearWatchdog();
+    if (!state.inFlight) return;
+    const worker = state.worker;
+    state.watchdog = setTimeout(() => {
+      failWorker(worker, 'AI-модель не отвечает. Перевод остановлен; подготовь модели снова.');
+    }, WATCHDOG_MS);
+  }
+  // A dead, hung or permanently failing worker cannot complete queued audio.
+  // Release it, account for lost fragments and finish the capture promptly.
+  function failWorker(worker, message) {
+    if (!worker || state.worker !== worker) { worker?.terminate(); return; }
+    clearWatchdog();
+    clearTimeout(state.prepareTimer);
+    state.prepareTimer = null;
+    if (state.active || state.draining) {
+      state.dropped += Number(state.inFlight) + Number(Boolean(state.queue));
+    }
+    state.samples = [];
+    state.length = 0;
+    state.queue = null;
+    state.inFlight = false;
+    state.worker = null;
+    state.ready = false;
+    state.loading = false;
+    worker.terminate();
+    if (state.active) void stop(message);
+    else if (state.draining) state.drainResolve?.();
+    showError(message);
+    updateClock();
+    buttons();
+  }
   function ensureWorker() {
     if (state.worker) return state.worker;
-    const worker = new Worker('./live-translate-worker.js?build=20261123-preflight', { type: 'module' });
+    const worker = new Worker('./live-translate-worker.js?build=20261123-speech', { type: 'module' });
     worker.onmessage = ({ data = {} }) => {
+      if (worker !== state.worker) return;
+      if (state.inFlight) armWatchdog();
       if (data.type === 'status') {
         if (!state.ready) status(data.message || 'Загружаю модели…', 'ЗАГРУЗКА');
       } else if (data.type === 'diagnostic') {
@@ -66,6 +111,13 @@
           ui.diagnostic.textContent = 'Проверка модели EN → RU: «' + String(data.en || '') + '» → «' + translated + '» (' + String(data.model || 'AI') + ').';
           ui.diagnostic.hidden = false;
         }
+      } else if (data.type === 'vad') {
+        // The detector is optional: without it speech-only still filters recognised text.
+        const note = data.ok
+          ? ' Детектор речи включён.'
+          : ' Детектор речи недоступен: в режиме «Только речь» работает только фильтр текста.';
+        ui.diagnostic.textContent = (ui.diagnostic.textContent || '') + note;
+        ui.diagnostic.hidden = false;
       } else if (data.type === 'ready') {
         clearTimeout(state.prepareTimer);
         state.prepareTimer = null;
@@ -75,6 +127,8 @@
         buttons();
       } else if (data.type === 'segment') {
         if ((!state.active && !state.draining) || data.session !== state.session) return;
+        // Filtered fragments never reach captions, the log, TXT or SRT; only the counter.
+        if (data.silent && data.filtered) { state.filtered += 1; updateClock(); }
         if (!data.silent && data.ru) appendSegment(data);
         next();
       } else if (data.type === 'failure') {
@@ -88,6 +142,11 @@
           if (state.worker === worker) state.worker = null;
           buttons();
         } else if ((state.active || state.draining) && data.session === state.session) {
+          if (data.fatal) {
+            failWorker(worker, 'AI-модель несколько раз подряд не обработала звук: ' + data.message
+              + ' Перевод остановлен; подготовь модели снова.');
+            return;
+          }
           state.dropped += 1;
           updateClock();
           error('Фрагмент не обработан: ' + data.message);
@@ -97,22 +156,9 @@
     };
     worker.onerror = (event) => {
       event.preventDefault?.();
-      clearTimeout(state.prepareTimer);
-      state.prepareTimer = null;
-      if (state.active) {
-        // A dead worker cannot complete queued audio; avoid waiting for drain timeout.
-        state.samples = [];
-        state.length = 0;
-        state.queue = null;
-        state.inFlight = false;
-        void stop('Ошибка AI Worker. Запись прервана.');
-      }
-      state.ready = false;
-      state.loading = false;
-      worker.terminate();
-      if (state.worker === worker) state.worker = null;
-      showError('Не удалось загрузить или запустить AI Worker.');
-      buttons();
+      failWorker(worker, state.active || state.draining
+        ? 'Ошибка AI Worker. Перевод прерван; подготовь модели снова.'
+        : 'Не удалось загрузить или запустить AI Worker.');
     };
     state.worker = worker;
     return worker;
@@ -164,6 +210,7 @@
   }
   function next() {
     state.inFlight = false;
+    clearWatchdog();
     if ((state.active || state.draining) && state.queue) {
       const item = state.queue;
       state.queue = null;
@@ -180,21 +227,30 @@
       updateClock();
       return;
     }
+    if (!state.worker) {
+      state.dropped += 1;
+      updateClock();
+      return;
+    }
     state.inFlight = true;
     state.worker.postMessage({
       type: 'infer', session: state.session, index: item.index,
       start: item.start, end: item.end, audioBuffer: item.audio.buffer,
+      speechOnly: ui.speechOnly.checked,
     }, [item.audio.buffer]);
+    armWatchdog();
   }
   function flush() {
     if (!state.length) return;
     const audio = new Float32Array(state.length);
     let p = 0;
     for (const part of state.samples) { audio.set(part, p); p += part.length; }
-    const end = (state.index + 1) * FRAME_SECONDS;
+    // Timecodes follow the captured audio itself, not the wall clock: frames are exactly
+    // FRAME_SECONDS long, and the final partial frame ends where its samples end.
+    const start = state.index * FRAME_SECONDS;
     const item = {
-      index: state.index, start: state.index * FRAME_SECONDS,
-      end: Math.min(end, elapsed()), audio,
+      index: state.index, start,
+      end: start + audio.length / SAMPLE_RATE, audio,
     };
     state.index += 1;
     state.samples = [];
@@ -265,6 +321,7 @@
       state.inFlight = false;
       state.queue = null;
       state.dropped = 0;
+      state.filtered = 0;
       state.samples = [];
       state.length = 0;
       processor.onaudioprocess = (event) => {
@@ -315,7 +372,7 @@
       try {
         await context?.close().catch(() => {});
         // Process the last partial fragment instead of dropping the end of the meeting.
-        if (state.length) flush();
+        if (state.length >= MIN_TAIL_SAMPLES) flush();
         if (state.inFlight || state.queue) {
           status('Останавливаю захват. Завершаю перевод последних фраз…', 'ЗАВЕРШЕНИЕ');
           const completed = await new Promise((resolve) => {
@@ -335,6 +392,7 @@
           }
         }
       } finally {
+        clearWatchdog();
         state.session += 1;
         state.draining = false;
         state.queue = null;
@@ -386,6 +444,7 @@
   });
   window.addEventListener('pagehide', () => {
     clearTimeout(state.prepareTimer);
+    clearWatchdog();
     if (state.active) void stop();
     state.worker?.terminate();
     state.channel?.close();
@@ -397,6 +456,21 @@
         state.channel.postMessage({ type: 'caption', en: ui.en.textContent, ru: ui.ru.textContent });
       }
     };
+  }
+  // Speech-only is on by default; the choice is a per-viewer convenience only.
+  const SPEECH_ONLY_KEY = 'speechlab-live-speech-only';
+  try {
+    if (localStorage.getItem(SPEECH_ONLY_KEY) === 'off') ui.speechOnly.checked = false;
+  } catch (_) { /* storage unavailable: keep the default */ }
+  ui.speechOnly.addEventListener('change', () => {
+    try { localStorage.setItem(SPEECH_ONLY_KEY, ui.speechOnly.checked ? 'on' : 'off'); } catch (_) { /* ignore */ }
+  });
+
+  // Chrome unloads tabs under memory pressure (observed at 97 % RAM on a 7.4 GB laptop while
+  // models load). After such a reload explain the cause instead of a silent reset.
+  if (document.wasDiscarded) {
+    showError('Браузер выгрузил эту вкладку из-за нехватки памяти. Закрой лишние программы и вкладки, '
+      + 'добавь сайт в исключения «Экономии памяти» Chrome и подготовь модели снова.');
   }
   buttons();
 })();
